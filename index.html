@@ -94,8 +94,8 @@ button:disabled{opacity:.5}
 const SUPABASE_URL = "https://jhvmqedhxkahjroyquty.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX";
 
-// Must exactly match the bucket ID in Supabase Storage
-const BUCKET = "Mahi Baby";
+// Exact Supabase Storage bucket ID
+const BUCKET = "Mahi baby";
 
 const ADMIN_UID = "6b19250a-ab16-4e98-bae6-2f6473d8a4cb";
 
@@ -122,6 +122,7 @@ async function checkAdmin(){
     console.error("Admin check:",error);
     return false;
   }
+
   return !!data && data.user_id === ADMIN_UID;
 }
 
@@ -146,8 +147,10 @@ async function login(){
   const email = $("email").value.trim();
   const password = $("password").value;
 
-  if(!email || !password)
-    return message("authMessage","Enter email and password.",true);
+  if(!email || !password){
+    message("authMessage","Enter email and password.",true);
+    return;
+  }
 
   $("loginBtn").disabled = true;
   message("authMessage","Logging in...");
@@ -155,7 +158,11 @@ async function login(){
   const {data,error} = await db.auth.signInWithPassword({email,password});
   $("loginBtn").disabled = false;
 
-  if(error) return message("authMessage",error.message,true);
+  if(error){
+    message("authMessage",error.message,true);
+    return;
+  }
+
   await enterApp(data.user);
 }
 
@@ -163,11 +170,15 @@ async function signup(){
   const email = $("email").value.trim();
   const password = $("password").value;
 
-  if(!email || !password)
-    return message("authMessage","Enter email and password.",true);
+  if(!email || !password){
+    message("authMessage","Enter email and password.",true);
+    return;
+  }
 
-  if(password.length < 6)
-    return message("authMessage","Password must be at least 6 characters.",true);
+  if(password.length < 6){
+    message("authMessage","Password must be at least 6 characters.",true);
+    return;
+  }
 
   $("signupBtn").disabled = true;
   message("authMessage","Creating account...");
@@ -175,7 +186,10 @@ async function signup(){
   const {data,error} = await db.auth.signUp({email,password});
   $("signupBtn").disabled = false;
 
-  if(error) return message("authMessage",error.message,true);
+  if(error){
+    message("authMessage",error.message,true);
+    return;
+  }
 
   if(data.session && data.user){
     await enterApp(data.user);
@@ -187,8 +201,10 @@ async function signup(){
 async function resetPassword(){
   const email = $("email").value.trim();
 
-  if(!email)
-    return message("authMessage","Enter your email address first.",true);
+  if(!email){
+    message("authMessage","Enter your email address first.",true);
+    return;
+  }
 
   const {error} = await db.auth.resetPasswordForEmail(email,{
     redirectTo:window.location.origin
@@ -202,6 +218,7 @@ async function resetPassword(){
 
 async function logout(){
   await db.auth.signOut();
+
   currentUser = null;
   isAdmin = false;
   allPhotos = [];
@@ -210,6 +227,7 @@ async function logout(){
   $("authSection").classList.remove("hidden");
   $("logoutBtn").classList.add("hidden");
   $("gallery").innerHTML = "";
+
   message("authMessage","You have logged out.");
 }
 
@@ -222,8 +240,11 @@ async function loadGallery(){
     sortBy:{column:"created_at",order:"desc"}
   });
 
-  if(error)
-    return message("galleryMessage","Gallery error: "+error.message,true);
+  if(error){
+    message("galleryMessage","Gallery error: "+error.message,true);
+    console.error("Storage list error:",error);
+    return;
+  }
 
   allPhotos = (data || []).filter(file =>
     file.name && file.name !== ".emptyFolderPlaceholder"
@@ -282,7 +303,7 @@ function renderGallery(){
       .then(({data,error})=>{
         if(error){
           img.alt = "Unable to load image";
-          console.error(error);
+          console.error("Signed URL error:",error);
         }else{
           img.src = data.signedUrl;
         }
@@ -293,14 +314,20 @@ function renderGallery(){
 async function uploadPhoto(){
   const file = $("photoInput").files[0];
 
-  if(!file)
-    return message("uploadMessage","Please select a photo first.",true);
+  if(!file){
+    message("uploadMessage","Please select a photo first.",true);
+    return;
+  }
 
-  if(!file.type.startsWith("image/"))
-    return message("uploadMessage","Only image files are allowed.",true);
+  if(!file.type.startsWith("image/")){
+    message("uploadMessage","Only image files are allowed.",true);
+    return;
+  }
 
-  if(file.size > 10*1024*1024)
-    return message("uploadMessage","Photo must be smaller than 10 MB.",true);
+  if(file.size > 10*1024*1024){
+    message("uploadMessage","Photo must be smaller than 10 MB.",true);
+    return;
+  }
 
   $("uploadBtn").disabled = true;
   message("uploadMessage","Uploading photo...");
@@ -315,8 +342,11 @@ async function uploadPhoto(){
 
   $("uploadBtn").disabled = false;
 
-  if(error)
-    return message("uploadMessage","Upload failed: "+error.message,true);
+  if(error){
+    message("uploadMessage","Upload failed: "+error.message,true);
+    console.error("Upload error:",error);
+    return;
+  }
 
   $("photoInput").value = "";
   message("uploadMessage","Photo uploaded successfully! ❤️");
@@ -324,11 +354,14 @@ async function uploadPhoto(){
 }
 
 async function deletePhoto(filename){
-  if(!isAdmin)
-    return alert("Only admin can delete photos.");
-
-  if(!confirm("Are you sure you want to delete this photo?"))
+  if(!isAdmin){
+    alert("Only admin can delete photos.");
     return;
+  }
+
+  if(!confirm("Are you sure you want to delete this photo?")){
+    return;
+  }
 
   const {error} = await db.storage.from(BUCKET).remove([filename]);
 
@@ -365,8 +398,13 @@ $("viewer").addEventListener("click",e=>{
 });
 
 db.auth.getSession().then(({data,error})=>{
-  if(error) console.error(error);
-  if(data.session) enterApp(data.session.user);
+  if(error){
+    console.error(error);
+    return;
+  }
+  if(data.session){
+    enterApp(data.session.user);
+  }
 });
 </script>
 </body>
