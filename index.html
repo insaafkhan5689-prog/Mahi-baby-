@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahi Baby ❤️</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg,#fff0f5,#fce4ec);
+      color: #49333d;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      width: 100%;
+      max-width: 410px;
+      padding: 30px 24px;
+      border-radius: 22px;
+      box-shadow: 0 10px 35px #00000012;
+      text-align: center;
+    }
+    h1 { color: #d94f83; }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin: 9px 0;
+      border-radius: 11px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #ead4df; }
+    button {
+      border: 0;
+      background: #d94f83;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.secondary { background: #806174; }
+    #message { font-size: 14px; }
+    #dashboard { display: none; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section id="login">
+      <h1>❤️ Mahi Baby</h1>
+      <p>A little space filled with love</p>
+      <input id="email" type="email" placeholder="Email address">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <button class="secondary" onclick="signup()">Create Account</button>
+      <button class="secondary" onclick="resetPassword()">Forgot Password?</button>
+      <p id="message"></p>
+    </section>
+
+    <section id="dashboard">
+      <h1>Welcome ❤️</h1>
+      <p id="userEmail"></p>
+      <div id="adminPanel" style="display:none">
+        <h2>Admin Dashboard</h2>
+        <p>Admin access verified.</p>
+      </div>
+      <button onclick="logout()">Logout</button>
+    </section>
+  </main>
+
+  <script type="module">
+    import { createClient } from
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    const SUPABASE_URL = 'https://jhvmqedhxkahjroyquty.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX';
+    const ADMIN_USER_ID = '6b19250a-ab16-4e98-bae6-2f6473d8a4cb';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const $ = id => document.getElementById(id);
+
+    async function login() {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+      if (error) return $('message').textContent = error.message;
+      await showDashboard();
+    }
+
+    async function signup() {
+      const { error } = await supabase.auth.signUp({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+      $('message').textContent = error
+        ? error.message
+        : 'Account created. Check your email for verification.';
+    }
+
+    async function resetPassword() {
+      const email = $('email').value.trim();
+      if (!email) return $('message').textContent = 'Enter your email first.';
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      $('message').textContent = error ? error.message : 'Password reset email sent.';
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      $('dashboard').style.display = 'none';
+      $('login').style.display = 'block';
+    }
+
+    async function showDashboard() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      $('login').style.display = 'none';
+      $('dashboard').style.display = 'block';
+      $('userEmail').textContent = user.email;
+
+      const { data } = await supabase
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      $('adminPanel').style.display = data ? 'block' : 'none';
+    }
+
+    window.login = login;
+    window.signup = signup;
+    window.logout = logout;
+    window.resetPassword = resetPassword;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) await showDashboard();
+  </script>
+</body>
+  </html>
+  
