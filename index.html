@@ -235,6 +235,564 @@ function authMode(signup){
   $("signupName").required = signup;
   message("authMessage","");
 }
+async function loadProfile(){
+  const {data,error} = await db.from("profiles")
+    .select("*").eq("user_id",user.id).maybeSingle();
+  if(error) throw error;
+
+  profile = data || {
+    user_id:user.id,
+    display_name:user.user_metadata?.display_name ||
+      user.email.split("@")[0],
+    avatar_path:null
+  };
+}
+
+async function checkAdmin(){
+  isAdmin = user.id === ADMIN_UID;
+  if(!isAdmin){
+    const {data} = await db.from("admins")
+      .select("user_id").eq("user_id",user.id).maybeSingle();
+    isAdmin = !!data;
+  }
+}
+
+async function saveProfile(name,avatarPath){
+  const update = {
+    user_id:user.id,
+    display_name:name.trim(),
+    updated_at:new Date().toISOString()
+  };
+  if(avatarPath !== undefined) update.avatar_path = avatarPath;
+
+  const {data,error} = await db.from("profiles")
+    .upsert(update,{onConflict:"user_id"}).select().single();
+  if(error) throw error;
+  profile = data;
+}
+
+async function imageURL(path){
+  if(!path) return "";
+  const {data,error} = await db.storage.from(BUCKET)
+    .createSignedUrl(path,3600);
+  if(error) return "";
+  return data.signedUrl;
+}
+
+function renderNavigation(){
+  const items = isAdmin
+    ? [...pages,["admin","♜","Admin Panel"]]
+    : pages;
+
+  const html = items.map(([key,icon,label]) =>
+    `<button class="navbtn ${currentPage===key?"active":""}"
+      data-page="${key}">${icon} &nbsp; ${label}</button>`
+  ).join("");
+
+  $("desktopNav").innerHTML = html;
+
+  $("mobileNav").innerHTML = items
+    .filter(x=>["dashboard","community","upload","myphotos","profile","admin"].includes(x[0]))
+    .map(([key,icon,label]) =>
+      `<button class="${currentPage===key?"active":""}"
+       data-page="${key}">${icon}<br>${label}</button>`
+    ).join("");
+
+  document.querySelectorAll("[data-page]").forEach(button=>{
+    button.onclick = ()=>openPage(button.dataset.page);
+  });
+}
+
+async function getPosts(ownOnly=false){
+  let query = db.from("photo_posts")
+    .select("*").order("created_at",{ascending:false}).limit(100);
+
+  if(ownOnly) query = query.eq("user_id",user.id);
+
+  const {data,error} = await query;
+  if(error) throw error;
+
+  const ids = [...new Set(data.map(p=>p.user_id))];
+  let profiles = [];
+
+  if(ids.length){
+    const result = await db.from("profiles")
+      .select("user_id,display_name,avatar_path").in("user_id",ids);
+    if(result.error) throw result.error;
+    profiles = result.data || [];
+  }
+
+  const lookup = Object.fromEntries(
+    profiles.map(p=>[p.user_id,p])
+  );
+
+  return Promise.all(data.map(async p=>{
+    const person = lookup[p.user_id] || {};
+    return {
+      ...p,
+      display_name:person.display_name || "Member",
+      image:await imageURL(p.storage_path),
+      avatar:await imageURL(person.avatar_path)
+    };
+  }));
+}
+
+function postHTML(p,admin=false){
+  return `<article class="card post">
+    <img src="${p.image}" alt="Shared photo">
+    <div class="postbody">
+      <div class="person">
+        <img class="avatar" src="${p.avatar}" alt="">
+        <div>
+          <strong>${escapeHTML(p.display_name)}</strong>
+          <div class="muted">${new Date(p.created_at).toLocaleString()}</div>
+        </div>
+      </div>
+      <p>${escapeHTML(p.caption || "")}</p>
+      ${admin ? `<button class="btn danger"
+        data-delete="${p.id}"
+        data-path="${escapeHTML(p.storage_path)}">Delete Post</button>` : ""}
+    </div>
+  </article>`;
+}
+
+function heading(title,subtitle=""){
+  return `<h1>${title}</h1><p class="muted">${subtitle}</p>`;
+}
+
+async function openPage(page){
+  if(page==="admin" && !isAdmin) return;
+
+  currentPage = page;
+  renderNavigation();
+  await renderPage();
+}
+
+async function renderPage(){
+  const main = $("mainContent");
+  main.innerHTML = `<div class="card">Loading…</div>`;
+
+  try{
+    if(currentPage==="dashboard"){
+      const posts = await getPosts();
+      const mine = posts.filter(p=>p.user_id===user.id);
+
+      main.innerHTML = heading("Dashboard","Welcome to Mahi Baby ❤️") +
+        `<div class="stats">
+          <div class="stat">Community Photos<strong>${posts.length}</strong></div>
+          <div class="stat">My Photos<strong>${mine.length}</strong></div>
+          <div class="stat">Account<strong>${isAdmin?"Admin":"Member"}</strong></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h2>Recent Community Photos</h2>
+          <button class="btn" id="communityButton">Explore Community</button>
+        </div>
+        <div class="feed">${posts.slice(0,4).map(p=>postHTML(p)).join("")}</div>`;
+
+      $("communityButton").onclick=()=>openPage("community");
+    }
+
+    else if(["community","myphotos","admin"].includes(currentPage)){
+      const admin = currentPage==="admin";
+      const posts = await getPosts(currentPage==="myphotos");
+      const filtered = posts.filter(p=>
+        (p.caption||"").toLowerCase().includes(searchText) ||
+        p.display_name.toLowerCase().includes(searchText)
+      );
+
+      main.innerHTML = heading(
+        admin?"Admin Panel":currentPage==="myphotos"?"My Photos":"Community",
+        admin?"Manage community posts":"Browse shared memories"
+      ) +
+      (!admin ? `<input class="field" id="searchPosts"
+        placeholder="Search photos or members…">` : "") +
+      `<div class="feed">${filtered.map(p=>postHTML(p,admin)).join("")}</div>` +
+      (filtered.length?"":`<div class="card empty">No photos found.</div>`);
+
+      const search = $("searchPosts");
+      if(search){
+        search.value=searchText;
+        search.oninput=()=>{
+          searchText=search.value.toLowerCase();
+          renderPage();
+        };
+      }
+
+      document.querySelectorAll("[data-delete]").forEach(button=>{
+        button.onclick=async()=>{
+          if(!confirm("Delete this photo permanently?")) return;
+          button.disabled=true;
+          const {error:storageError}=await db.storage.from(BUCKET)
+            .remove([button.dataset.path]);
+          if(storageError){
+            alert(storageError.message);
+            button.disabled=false;
+            return;
+          }
+          const {error}=await db.from("photo_posts")
+            .delete().eq("id",button.dataset.delete);
+          if(error){
+            alert(error.message);
+            button.disabled=false;
+            return;
+          }
+          renderPage();
+        };
+      });
+    }
+
+    else if(currentPage==="upload"){
+      main.innerHTML = heading("Upload Photo","Share a new memory") +
+        `<div class="card">
+          <form id="uploadForm">
+            <label>Select Photo</label>
+            <input class="field" type="file" id="photoFile"
+              accept="image/*" required>
+            <img id="preview" class="preview hidden" alt="Preview">
+            <label>Caption</label>
+            <textarea class="field" id="caption"
+              maxlength="500" rows="3"
+              placeholder="Write a caption…"></textarea>
+            <button class="btn" id="uploadButton">Upload Photo</button>
+            <div id="uploadMessage"></div>
+          </form>
+        </div>`;
+
+      $("photoFile").onchange=()=>{
+        const file=$("photoFile").files[0];
+        if(file){
+          $("preview").src=URL.createObjectURL(file);
+          $("preview").classList.remove("hidden");
+        }
+      };
+
+      $("uploadForm").onsubmit=uploadPhoto;
+    }
+
+    else if(currentPage==="profile"){
+      const avatar=await imageURL(profile.avatar_path);
+      const posts=await getPosts(true);
+
+      main.innerHTML=heading("My Profile","Your account details") +
+        `<div class="card">
+          <div class="person">
+            <img class="avatar big" src="${avatar}" alt="Profile picture">
+            <div><h2>${escapeHTML(profile.display_name||"Member")}</h2>
+              <div class="muted">${escapeHTML(user.email)}</div>
+            </div>
+          </div>
+          <form id="profileForm">
+            <label>Display Name</label>
+            <input class="field" id="displayName" required
+              maxlength="40" value="${escapeHTML(profile.display_name||"")}">
+            <label>Profile Picture</label>
+            <input class="field" type="file" id="avatarFile" accept="image/*">
+            <button class="btn">Save Profile</button>
+            <div id="profileMessage"></div>
+          </form>
+        </div>
+        <div class="card">Your uploaded photos: <strong>${posts.length}</strong></div>`;
+
+      $("profileForm").onsubmit=saveMyProfile;
+    }
+
+    else if(currentPage==="activity"){
+      const posts=await getPosts(true);
+      main.innerHTML=heading("Activity","Your recent uploads") +
+        `<div class="card">${posts.length ?
+          posts.map(p=>`<p>📷 You uploaded a photo
+            <br><span class="muted">${new Date(p.created_at).toLocaleString()}</span>
+          </p>`).join("") :
+          `<div class="empty">No activity yet.</div>`}</div>`;
+    }
+
+    else if(currentPage==="settings"){
+      main.innerHTML=heading("Settings","Manage your account") +
+        `<div class="card">
+          <p>${escapeHTML(user.email)}</p>
+          <button class="btn secondary" id="resetButton">Reset Password</button>
+          <div id="settingsMessage"></div>
+        </div>
+        <div class="card">
+          <button class="btn danger" id="settingsLogout">Logout</button>
+        </div>`;
+
+      $("resetButton").onclick=resetPassword;
+      $("settingsLogout").onclick=logout;
+    }
+
+  }catch(error){
+    main.innerHTML=heading("Page Error") +
+      `<div class="notice error">${escapeHTML(error.message)}</div>
+       <button class="btn secondary" id="retryButton">Retry</button>`;
+    $("retryButton").onclick=renderPage;
+  }
+}
+
+async function uploadPhoto(event){
+  event.preventDefault();
+
+  const file=$("photoFile").files[0];
+  if(!file) return;
+
+  const button=$("uploadButton");
+  button.disabled=true;
+  button.textContent="Uploading…";
+  message("uploadMessage","");
+
+  let uploadedPath=null;
+
+  try{
+    if(!file.type.startsWith("image/"))
+      throw new Error("Please select an image.");
+    if(file.size>15*1024*1024)
+      throw new Error("Photo must be smaller than 15 MB.");
+
+    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+    const path=`${user.id}_${Date.now()}_${safeName}`;
+
+    const upload=await db.storage.from(BUCKET)
+      .upload(path,file,{upsert:false,contentType:file.type});
+
+    if(upload.error) throw upload.error;
+    uploadedPath=path;
+
+    const insert=await db.from("photo_posts").insert({
+      user_id:user.id,
+      storage_path:path,
+      caption:$("caption").value.trim()
+    });
+
+    if(insert.error) throw insert.error;
+
+    message("uploadMessage","Photo uploaded successfully!","success");
+    $("uploadForm").reset();
+    $("preview").classList.add("hidden");
+
+    setTimeout(()=>openPage("myphotos"),800);
+
+  }catch(error){
+    if(uploadedPath){
+      await db.storage.from(BUCKET).remove([uploadedPath]);
+    }
+    message("uploadMessage",error.message||"Upload failed.","error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Upload Photo";
+  }
+}
+
+async function saveMyProfile(event){
+  event.preventDefault();
+
+  const button=$("profileForm").querySelector("button");
+  button.disabled=true;
+  message("profileMessage","");
+
+  try{
+    const name=$("displayName").value.trim();
+    if(!name) throw new Error("Please enter your name.");
+
+    const file=$("avatarFile").files[0];
+    let avatarPath=profile.avatar_path||null;
+
+    if(file){
+      if(!file.type.startsWith("image/"))
+        throw new Error("Please select an image file.");
+      if(file.size>8*1024*1024)
+        throw new Error("Profile photo must be smaller than 8 MB.");
+
+      const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+      avatarPath=`${user.id}_${Date.now()}_avatar_${safeName}`;
+
+      const upload=await db.storage.from(BUCKET)
+        .upload(avatarPath,file,{
+          upsert:false,
+          contentType:file.type
+        });
+
+      if(upload.error) throw upload.error;
+    }
+
+    await saveProfile(name,avatarPath);
+    message("profileMessage","Profile updated successfully!","success");
+
+    setTimeout(()=>{
+      renderNavigation();
+      renderPage();
+    },700);
+
+  }catch(error){
+    message("profileMessage",error.message||"Profile update failed.","error");
+  }finally{
+    button.disabled=false;
+  }
+}
+
+async function resetPassword(){
+  const {error}=await db.auth.resetPasswordForEmail(user.email);
+  message(
+    "settingsMessage",
+    error?error.message:"Password reset email sent. Check your inbox.",
+    error?"error":"success"
+  );
+}
+
+async function logout(){
+  const {error}=await db.auth.signOut();
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  user=null;
+  profile=null;
+  isAdmin=false;
+  $("appScreen").classList.add("hidden");
+  $("authScreen").classList.remove("hidden");
+}
+
+let bootingUserId=null;
+
+async function boot(account){
+  if(!account) return;
+  if(bootingUserId===account.id) return;
+
+  bootingUserId=account.id;
+  user=account;
+
+  try{
+    await loadProfile();
+    await checkAdmin();
+
+    $("authScreen").classList.add("hidden");
+    $("appScreen").classList.remove("hidden");
+
+    await openPage("dashboard");
+
+  }catch(error){
+    $("authScreen").classList.add("hidden");
+    $("appScreen").classList.remove("hidden");
+
+    $("mainContent").innerHTML=
+      `<div class="card">
+        <h2>Account setup error</h2>
+        <div class="notice error">${escapeHTML(error.message)}</div>
+        <button class="btn" id="retryBoot">Try Again</button>
+      </div>`;
+
+    $("retryBoot").onclick=()=>boot(account);
+
+  }finally{
+    bootingUserId=null;
+  }
+}
+
+$("authForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+
+  const email=$("email").value.trim();
+  const password=$("password").value;
+  const button=$("authSubmit");
+
+  button.disabled=true;
+  message("authMessage","");
+
+  try{
+    if(signupMode){
+      const name=$("signupName").value.trim();
+      if(!name) throw new Error("Please enter your name.");
+
+      const {data,error}=await db.auth.signUp({
+        email,
+        password,
+        options:{
+          data:{display_name:name}
+        }
+      });
+
+      if(error) throw error;
+
+      if(data.session){
+        await boot(data.user);
+      }else{
+        message(
+          "authMessage",
+          "Account created. Verify your email if confirmation is required, then sign in.",
+          "success"
+        );
+      }
+
+    }else{
+      const {data,error}=await db.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if(error) throw error;
+      await boot(data.user);
+    }
+
+  }catch(error){
+    message("authMessage",error.message||"Login failed.","error");
+  }finally{
+    button.disabled=false;
+  }
+});
+
+$("toggleAuth").addEventListener("click",()=>{
+  authMode(!signupMode);
+});
+
+$("forgotBtn").addEventListener("click",async()=>{
+  const email=$("email").value.trim();
+
+  if(!email){
+    message("authMessage","Enter your email address first.","error");
+    return;
+  }
+
+  const {error}=await db.auth.resetPasswordForEmail(email);
+
+  message(
+    "authMessage",
+    error?error.message:"Password reset email sent. Check your inbox.",
+    error?"error":"success"
+  );
+});
+
+$("logoutBtn").addEventListener("click",logout);
+$("uploadTop").addEventListener("click",()=>openPage("upload"));
+
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_OUT"){
+    user=null;
+    profile=null;
+    isAdmin=false;
+    $("appScreen").classList.add("hidden");
+    $("authScreen").classList.remove("hidden");
+  }else if(session?.user){
+    setTimeout(()=>boot(session.user),0);
+  }
+});
+
+(async()=>{
+  authMode(false);
+
+  const {data,error}=await db.auth.getSession();
+
+  if(error){
+    message("authMessage",error.message,"error");
+    return;
+  }
+
+  if(data.session?.user){
+    await boot(data.session.user);
+  }else{
+    $("authScreen").classList.remove("hidden");
+  }
+})();
+                 
 </script>
 </body>
 </html>
