@@ -1,687 +1,625 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mahi Baby ❤️</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root{
- --bg:#0b0b12;--panel:#151521;--panel2:#1d1d2c;
- --text:#f5f5fa;--muted:#a3a3b5;--pink:#ff5c9a;
- --border:#2c2c3d;--danger:#ff5555;--green:#35d49a;
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<title>Mahi Baby ❤️</title>  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  
+<style>  
+:root{--pink:#e84c87;--dark:#452333;--soft:#fff0f5}  
+*{box-sizing:border-box}  
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#fff0f5,#ffe0ec);color:var(--dark)}  
+header{background:#ffffffed;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;box-shadow:0 3px 15px #0001;backdrop-filter:blur(12px)}  
+h1{margin:0;color:var(--pink);font-size:23px}  
+h2{margin-top:0}  
+main{max-width:950px;margin:auto;padding:18px}  
+.panel{background:white;padding:20px;border-radius:18px;box-shadow:0 5px 20px #0000000d;margin-bottom:18px}  
+.auth{max-width:420px;margin:55px auto}  
+.auth h2{text-align:center;color:var(--pink)}  
+input,textarea{width:100%;padding:13px;margin:8px 0 14px;border:1px solid #edc6d6;border-radius:11px;font-size:15px;font-family:inherit}  
+textarea{resize:vertical;min-height:75px}  
+button{border:0;border-radius:11px;padding:12px 17px;background:var(--pink);color:white;font-weight:bold;cursor:pointer}  
+button:disabled{opacity:.5;cursor:not-allowed}  
+.secondary{background:#74445d}  
+.danger{background:#c93655}  
+.hidden{display:none!important}  
+.actions{display:flex;gap:9px;flex-wrap:wrap}  
+.small{font-size:13px;color:#80596d}  
+.status{margin-top:12px;font-weight:bold;overflow-wrap:anywhere;font-size:13px}  
+.profile-row{display:flex;align-items:center;gap:13px}  
+.avatar{width:55px;height:55px;border-radius:50%;object-fit:cover;background:#ffe0ec;border:2px solid #f6bfd3}  
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:18px}  
+.photo{background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 15px #00000010}  
+.photo-image{width:100%;height:240px;object-fit:cover;display:block;cursor:pointer;background:var(--soft)}  
+.photo-info{padding:12px}  
+.post-user{display:flex;align-items:center;gap:9px;margin-bottom:10px}  
+.post-user img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--soft)}  
+.post-user strong{font-size:13px}  
+.caption{font-size:14px;line-height:1.5;overflow-wrap:anywhere;margin:8px 0}  
+.post-actions{display:flex;gap:7px;flex-wrap:wrap}  
+.post-actions button{padding:8px 10px;font-size:12px}  
+.viewer{position:fixed;inset:0;background:#000e;z-index:20;display:flex;align-items:center;justify-content:center;padding:15px}  
+.viewer img{max-width:100%;max-height:85vh;object-fit:contain}  
+.viewer button{position:absolute;top:20px;right:20px}  
+.badge{font-size:11px;background:#ffe5ef;color:#bb3970;padding:5px 9px;border-radius:20px}  
+hr{border:0;border-top:1px solid #f3dce6;margin:16px 0}  
+@media(max-width:520px){  
+ main{padding:12px}  
+ .panel{padding:15px}  
+ .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}  
+ .photo-image{height:165px}  
+ .photo-info{padding:9px}  
+}  
+</style>  
+</head>  
+<body>  <header>  
+<h1>💗 Mahi Baby</h1>  
+<button id="logoutBtn" class="secondary hidden">Logout</button>  
+</header>  <main>  <section id="authSection" class="panel auth">  
+<h2>Welcome to Mahi Baby ❤️</h2>  
+<p class="small">Login or create your account</p>  
+<input id="email" type="email" placeholder="Email address">  
+<input id="password" type="password" placeholder="Password">  
+<div class="actions">  
+<button id="loginBtn">Login</button>  
+<button id="signupBtn" class="secondary">Sign Up</button>  
+</div>  
+p  
+<button id="resetBtn" class="secondary">Forgot Password?</button>  
+<div id="authMessage" class="status"></div>  
+</section>  <section id="appSection" class="hidden">  <div class="panel">  
+<div class="profile-row">  
+<img id="myAvatar" class="avatar" alt="My profile">  
+<div style="flex:1">  
+<h2 id="welcome" style="margin:0 0 5px">Welcome ❤️</h2>  
+<div id="roleText" class="small">Photo Gallery</div>  
+</div>  
+<span id="adminBadge" class="badge hidden">👑 ADMIN</span>  
+</div>  
+</div>  <div id="adminPanel" class="panel hidden">  
+<h2>👑 Admin Dashboard</h2>  
+<p>You are logged in as Administrator.</p>  
+<p class="small">You can delete photos uploaded by any user.</p>  
+</div>  <div class="panel">  
+<h2>👤 Your Profile</h2>  
+<label class="small">Your display name</label>  
+<input id="displayName" maxlength="40" placeholder="Enter your name">  
+<label class="small">Profile picture</label>  
+<input id="avatarInput" type="file" accept="image/*">  
+<button id="saveProfileBtn">Save Profile</button>  
+<div id="profileMessage" class="status"></div>  
+</div>  <div class="panel">  
+<h2>📸 Share a Photo</h2>  
+<input id="photoInput" type="file" accept="image/*">  
+<textarea id="captionInput" maxlength="500" placeholder="Write a caption for your photo..."></textarea>  
+<button id="uploadBtn">Upload Photo ❤️</button>  
+<div id="uploadMessage" class="status"></div>  
+<p class="small">Images only · Maximum 10 MB · Captions up to 500 characters</p>  
+</div>  <div class="panel">  
+<h2>💖 Community Gallery</h2>  
+<input id="searchInput" type="search" placeholder="Search name, caption or filename...">  
+<button id="refreshBtn" class="secondary">↻ Refresh Gallery</button>  
+<div id="galleryMessage" class="status"></div>  
+<div id="gallery" class="gallery"></div>  
+</div>  </section>  
+</main>  <div id="viewer" class="viewer hidden">  
+<button id="closeViewer">Close ✕</button>  
+<img id="viewerImage" alt="Photo preview">  
+</div>  <script>  
+"use strict";  
+  
+const SUPABASE_URL="https://jhvmqedhxkahjroyquty.supabase.co";  
+const SUPABASE_KEY="sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX";  
+const BUCKET="Mahi baby";  
+const ADMIN_UID="6b19250a-ab16-4e98-bae6-2f6473d8a4cb";  
+  
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);  
+const $=id=>document.getElementById(id);  
+  
+let currentUser=null;  
+let isAdmin=false;  
+let profile=null;  
+let allPhotos=[];  
+let avatarUrl="";  
+  
+const DEFAULT_AVATAR="data:image/svg+xml,"+encodeURIComponent(  
+'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#ffe0ec"/><circle cx="50" cy="37" r="19" fill="#e84c87"/><path d="M15 95c2-23 17-35 35-35s33 12 35 35" fill="#e84c87"/></svg>'  
+);  
+  
+function message(id,text,error=false){  
+  $(id).textContent=text;  
+  $(id).style.color=error?"#c62828":"#25834a";  
+}  
+  
+function safeText(value){  
+  return String(value??"");  
+}  
+  
+async function checkAdmin(){  
+  const {data,error}=await db.from("admins")  
+    .select("user_id")  
+    .eq("user_id",currentUser.id)  
+    .maybeSingle();  
+  
+  if(error){  
+    console.error("Admin check:",error);  
+    return false;  
+  }  
+  
+  return !!data && data.user_id===ADMIN_UID;  
+}  
+  
+async function ensureProfile(){  
+  const {data,error}=await db.from("profiles")  
+    .select("*")  
+    .eq("user_id",currentUser.id)  
+    .maybeSingle();  
+  
+  if(error) throw error;  
+  
+  if(data){  
+    profile=data;  
+    return;  
+  }  
+  
+  const {data:newProfile,error:insertError}=await db  
+    .from("profiles")  
+    .insert({  
+      user_id:currentUser.id,  
+      display_name:currentUser.email?.split("@")[0]||"User"  
+    })  
+    .select()  
+    .single();  
+  
+  if(insertError) throw insertError;  
+  profile=newProfile;  
+}  
+  
+async function getSignedUrl(path){  
+  if(!path) return DEFAULT_AVATAR;  
+  
+  const {data,error}=await db.storage.from(BUCKET)  
+    .createSignedUrl(path,3600);  
+  
+  if(error){  
+    console.error("Image URL:",error);  
+    return DEFAULT_AVATAR;  
+  }  
+  
+  return data.signedUrl;  
+}  
+  
+async function enterApp(user){  
+  currentUser=user;  
+  $("authSection").classList.add("hidden");  
+  $("appSection").classList.remove("hidden");  
+  $("logoutBtn").classList.remove("hidden");  
+  
+  message("galleryMessage","Preparing your account...");  
+  
+  isAdmin=await checkAdmin();  
+  
+  $("adminPanel").classList.toggle("hidden",!isAdmin);  
+  $("adminBadge").classList.toggle("hidden",!isAdmin);  
+  $("roleText").textContent=isAdmin?"Administrator account":"Community member";  
+  
+  try{  
+    await ensureProfile();  
+    showProfile();  
+    await loadGallery();  
+  }catch(error){  
+    console.error(error);  
+    message("galleryMessage","Account setup error: "+error.message,true);  
+  }  
+}  
+  
+function showProfile(){  
+  $("displayName").value=profile?.display_name||"";  
+  $("welcome").textContent="Welcome, "+(profile?.display_name||"User")+" ❤️";  
+  $("myAvatar").src=avatarUrl||DEFAULT_AVATAR;  
+}  
+  
+async function login(){  
+  const email=$("email").value.trim();  
+  const password=$("password").value;  
+  
+  if(!email||!password){  
+    message("authMessage","Enter email and password.",true);  
+    return;  
+  }  
+  
+  $("loginBtn").disabled=true;  
+  message("authMessage","Logging in...");  
+  
+  const {data,error}=await db.auth.signInWithPassword({email,password});  
+  $("loginBtn").disabled=false;  
+  
+  if(error){  
+    message("authMessage",error.message,true);  
+    return;  
+  }  
+  
+  await enterApp(data.user);  
+}  
+  
+async function signup(){  
+  const email=$("email").value.trim();  
+  const password=$("password").value;  
+  
+  if(!email||!password){  
+    message("authMessage","Enter email and password.",true);  
+    return;  
+  }  
+  
+  if(password.length<6){  
+    message("authMessage","Password must have at least 6 characters.",true);  
+    return;  
+  }  
+  
+  $("signupBtn").disabled=true;  
+  message("authMessage","Creating account...");  
+  
+  const {data,error}=await db.auth.signUp({email,password});  
+  $("signupBtn").disabled=false;  
+  
+  if(error){  
+    message("authMessage",error.message,true);  
+    return;  
+  }  
+  
+  if(data.session&&data.user){  
+    await enterApp(data.user);  
+  }else{  
+    message("authMessage","Account created. Confirm your email, then log in.");  
+  }  
+}  
+  
+async function resetPassword(){  
+  const email=$("email").value.trim();  
+  
+  if(!email){  
+    message("authMessage","Enter your email first.",true);  
+    return;  
+  }  
+  
+  const {error}=await db.auth.resetPasswordForEmail(email,{  
+    redirectTo:window.location.origin  
+  });  
+  
+  message("authMessage",error?"Reset failed: "+error.message:"Password reset email sent.",!!error);  
+}  
+  
+async function logout(){  
+  const {error}=await db.auth.signOut();  
+  
+  if(error){  
+    message("authMessage",error.message,true);  
+    return;  
+  }  
+  
+  currentUser=null;  
+  isAdmin=false;  
+  profile=null;  
+  allPhotos=[];  
+  avatarUrl="";  
+  
+  $("appSection").classList.add("hidden");  
+  $("authSection").classList.remove("hidden");  
+  $("logoutBtn").classList.add("hidden");  
+  $("gallery").replaceChildren();  
+  $("password").value="";  
+  message("authMessage","You have logged out.");  
+}  
+  
+async function saveProfile(){  
+  if(!currentUser) return;  
+  
+  const name=$("displayName").value.trim();  
+  const file=$("avatarInput").files[0];  
+  
+  if(!name){  
+    message("profileMessage","Please enter your name.",true);  
+    return;  
+  }  
+  
+  if(name.length>40){  
+    message("profileMessage","Name is too long.",true);  
+    return;  
+  }  
+  
+  $("saveProfileBtn").disabled=true;  
+  message("profileMessage","Saving profile...");  
+  
+  try{  
+    let newAvatar=profile?.avatar_path||null;  
+  
+    if(file){  
+      if(!file.type.startsWith("image/")) throw new Error("Select an image.");  
+      if(file.size>5*1024*1024) throw new Error("Profile picture maximum size is 5 MB.");  
+  
+      const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-zA-Z0-9]/g,"");  
+      const path=currentUser.id+"_avatar_"+Date.now()+"."+ext;  
+  
+      const {error}=await db.storage.from(BUCKET).upload(path,file,{  
+        contentType:file.type,  
+        upsert:false  
+      });  
+  
+      if(error) throw error;  
+      newAvatar=path;  
+    }  
+  
+    const {data,error}=await db.from("profiles").upsert({  
+      user_id:currentUser.id,  
+      display_name:name,  
+      avatar_path:newAvatar,  
+      updated_at:new Date().toISOString()  
+    }).select().single();  
+  
+    if(error) throw error;  
+  
+    profile=data;  
+    avatarUrl=await getSignedUrl(profile.avatar_path);  
+    showProfile();  
+    $("avatarInput").value="";  
+    message("profileMessage","Profile saved successfully ❤️");  
+    await loadGallery();  
+  
+  }catch(error){  
+    console.error(error);  
+    message("profileMessage","Profile error: "+error.message,true);  
+  }finally{  
+    $("saveProfileBtn").disabled=false;  
+  }  
+}  
+  
+async function loadGallery(){  
+  if(!currentUser) return;  
+  
+  $("gallery").replaceChildren();  
+  message("galleryMessage","Loading gallery...");  
+  
+  try{  
+    const {data:files,error:fileError}=await db.storage.from(BUCKET)  
+      .list("",{limit:200,sortBy:{column:"created_at",order:"desc"}});  
+  
+    if(fileError) throw fileError;  
+  
+    const {data:posts,error:postError}=await db.from("photo_posts")  
+      .select("*")  
+      .order("created_at",{ascending:false});  
+  
+    if(postError) throw postError;  
+  
+    const {data:profiles,error:profileError}=await db.from("profiles")  
+      .select("user_id,display_name,avatar_path");  
+  
+    if(profileError) throw profileError;  
+  
+    const profileMap=new Map((profiles||[]).map(p=>[p.user_id,p]));  
+    const postMap=new Map((posts||[]).map(p=>[p.storage_path,p]));  
+  
+    allPhotos=(files||[])  
+      .filter(f=>f.name&&f.name!==".emptyFolderPlaceholder")  
+      .filter(f=>/\.(jpg|jpeg|png|webp|gif|avif|heic)$/i.test(f.name))  
+      .map(file=>{  
+        const post=postMap.get(file.name);  
+        const ownerId=post?.user_id||file.name.split("_")[0];  
+        const owner=profileMap.get(ownerId);  
+        return {  
+          file,  
+          path:file.name,  
+          post,  
+          ownerId,  
+          displayName:owner?.display_name||"Community member",  
+          avatarPath:owner?.avatar_path||null,  
+          caption:post?.caption||""  
+        };  
+      });  
+  
+    await Promise.all(allPhotos.map(async photo=>{  
+      photo.imageUrl=await getSignedUrl(photo.path);  
+      photo.avatarUrl=photo.avatarPath?await getSignedUrl(photo.avatarPath):DEFAULT_AVATAR;  
+    }));  
+  
+    renderGallery();  
+  
+  }catch(error){  
+    console.error("Gallery error:",error);  
+    message("galleryMessage","Gallery error: "+error.message,true);  
+  }  
+}  
+  
+function renderGallery(){  
+  const term=$("searchInput").value.trim().toLowerCase();  
+  
+  const filtered=allPhotos.filter(photo=>  
+    [photo.file.name,photo.displayName,photo.caption]  
+      .some(value=>safeText(value).toLowerCase().includes(term))  
+  );  
+  
+  $("gallery").replaceChildren();  
+  
+  if(!filtered.length){  
+    message("galleryMessage",allPhotos.length?"No matching photos found.":"No photos uploaded yet.");  
+    return;  
+  }  
+  
+  message("galleryMessage",filtered.length+" photo(s) found.");  
+  
+  filtered.forEach(photo=>{  
+    const card=document.createElement("article");  
+    card.className="photo";  
+  
+    const info=document.createElement("div");  
+    info.className="photo-info";  
+  
+    const userRow=document.createElement("div");  
+    userRow.className="post-user";  
+  
+    const avatar=document.createElement("img");  
+    avatar.src=photo.avatarUrl;  
+    avatar.alt="User profile";  
+  
+    const username=document.createElement("strong");  
+    username.textContent=photo.displayName;  
+  
+    userRow.append(avatar,username);  
+    info.appendChild(userRow);  
+  
+    const img=document.createElement("img");  
+    img.className="photo-image";  
+    img.src=photo.imageUrl;  
+    img.alt=photo.file.name;  
+    img.loading="lazy";  
+    img.addEventListener("click",()=>openViewer(photo.imageUrl));  
+  
+    const caption=document.createElement("div");  
+    caption.className="caption";  
+    caption.textContent=photo.caption||"No caption";  
+  
+    info.appendChild(caption);  
+  
+    const actions=document.createElement("div");  
+    actions.className="post-actions";  
+  
+    if(photo.post&&photo.ownerId===currentUser.id){  
+      const edit=document.createElement("button");  
+      edit.className="secondary";  
+      edit.textContent="✏️ Edit Caption";  
+      edit.addEventListener("click",()=>editCaption(photo));  
+      actions.appendChild(edit);  
+    }  
+  
+    if(isAdmin){  
+      const del=document.createElement("button");  
+      del.className="danger";  
+      del.textContent="🗑 Delete";  
+      del.addEventListener("click",()=>deletePhoto(photo));  
+      actions.appendChild(del);  
+    }  
+  
+    if(actions.children.length) info.appendChild(actions);  
+  
+    card.append(img,info);  
+    $("gallery").appendChild(card);  
+  });  
+}  
+  
+async function uploadPhoto(){  
+  const file=$("photoInput").files[0];  
+  const caption=$("captionInput").value.trim();  
+  
+  if(!file){  
+    message("uploadMessage","Please select a photo first.",true);  
+    return;  
+  }  
+  
+  if(!file.type.startsWith("image/")){  
+    message("uploadMessage","Only images are allowed.",true);  
+    return;  
+  }  
+  
+  if(file.size>10*1024*1024){  
+    message("uploadMessage","Photo must be smaller than 10 MB.",true);  
+    return;  
+  }  
+  
+  $("uploadBtn").disabled=true;  
+  message("uploadMessage","Uploading photo...");  
+  
+  const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-zA-Z0-9]/g,"");  
+  const path=currentUser.id+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"."+ext;  
+  
+  try{  
+    const {error:uploadError}=await db.storage.from(BUCKET).upload(path,file,{  
+      contentType:file.type,  
+      upsert:false  
+    });  
+  
+    if(uploadError) throw uploadError;  
+  
+    const {error:dbError}=await db.from("photo_posts").insert({  
+      user_id:currentUser.id,  
+      storage_path:path,  
+      caption  
+    });  
+  
+    if(dbError){  
+      const cleanup=await db.storage.from(BUCKET).remove([path]);  
+      if(cleanup.error) console.error("Cleanup error:",cleanup.error);  
+      throw dbError;  
+    }  
+  
+    $("photoInput").value="";  
+    $("captionInput").value="";  
+    message("uploadMessage","Photo shared successfully! ❤️");  
+    await loadGallery();  
+  
+  }catch(error){  
+    console.error(error);  
+    message("uploadMessage","Upload failed: "+error.message,true);  
+  }finally{  
+    $("uploadBtn").disabled=false;  
+  }  
+}  
+  
+async function editCaption(photo){  
+  if(!photo.post||photo.ownerId!==currentUser.id) return;  
+  
+  const updated=prompt("Edit your photo caption:",photo.caption);  
+  if(updated===null) return;  
+  
+  if(updated.length>500){  
+    alert("Caption cannot exceed 500 characters.");  
+    return;  
+  }  
+  
+  const {error}=await db.from("photo_posts")  
+    .update({caption:updated.trim()})  
+    .eq("id",photo.post.id)  
+    .eq("user_id",currentUser.id);  
+  
+  if(error){  
+    alert("Caption update failed: "+error.message);  
+    return;  
+  }  
+  
+  await loadGallery();  
+}  
+  
+async function deletePhoto(photo){  
+  if(!isAdmin){  
+    alert("Only Admin can delete photos.");  
+    return;  
+  }  
+  
+  if(!confirm("Delete this photo permanently?")) return;  
+  
+  try{  
+    const {error:storageError}=await db.storage.from(BUCKET).remove([photo.path]);  
+  
+    if(storageError) throw new Error("Storage deletion failed: "+storageError.message);  
+  
+    if(photo.post){  
+      const {error:dbError}=await db.from("photo_posts")  
+        .delete()  
+        .eq("id",photo.post.id);  
+  
+      if(dbError){  
+        throw new Error("Photo file deleted, but database record could not be deleted: "+dbError.message);  
+      }  
+    }  
+  
+    alert("Photo deleted successfully.");  
+    await loadGallery();  
+  
+  }catch(error){  
+    console.error(error);  
+    alert(error.message);  
+  }  
+}  
+  
+function openViewer(src){  
+  $("viewerImage").src=src;  
+  $("viewer").classList.remove("hidden");  
 }
-*{box-sizing:border-box}
-body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:Arial,sans-serif;min-height:100vh;
-}
-button,input,textarea{font:inherit}
-button{
- border:0;border-radius:11px;padding:12px 17px;
- background:var(--pink);color:white;font-weight:700;
- cursor:pointer;transition:.2s;
-}
-button:hover{filter:brightness(1.12);transform:translateY(-1px)}
-button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.secondary{background:var(--panel2);border:1px solid var(--border)}
-.danger{background:#9f303c}
-header{
- position:sticky;top:0;z-index:10;background:#10101bea;
- backdrop-filter:blur(15px);border-bottom:1px solid var(--border);
- padding:15px 5%;display:flex;align-items:center;
- justify-content:space-between;gap:12px;flex-wrap:wrap;
-}
-.logo{font-size:22px;font-weight:900;color:var(--pink)}
-main{max-width:1100px;margin:auto;padding:25px 16px}
-.panel{
- background:var(--panel);border:1px solid var(--border);
- border-radius:18px;padding:22px;margin-bottom:20px;
-}
-h1,h2,h3{margin-top:0}
-h1{font-size:27px}
-.muted,.small{color:var(--muted)}
-.small{font-size:13px}
-input,textarea{
- width:100%;padding:13px;margin:7px 0 14px;
- border:1px solid var(--border);border-radius:10px;
- background:#10101a;color:white;outline:none;
-}
-input:focus,textarea:focus{border-color:var(--pink)}
-textarea{resize:vertical;min-height:75px}
-label{font-size:14px;color:var(--muted)}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.row>*{flex:1}
-.hidden{display:none!important}
-#message{
- position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
- z-index:100;background:var(--panel2);border:1px solid var(--border);
- padding:13px 18px;border-radius:12px;max-width:90%;
- display:none;box-shadow:0 8px 30px #0008;
-}
-#message.error{border-color:var(--danger)}
-#message.success{border-color:var(--green)}
-nav{display:flex;gap:8px;flex-wrap:wrap}
-nav button{padding:10px 13px}
-nav button.active{background:#a92e66}
-.gallery{
- display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
- gap:16px;
-}
-.photo{
- background:var(--panel);border:1px solid var(--border);
- border-radius:15px;overflow:hidden;min-width:0;
-}
-.photo img{
- width:100%;height:230px;object-fit:cover;
- display:block;background:#222;
-}
-.photo-info{padding:14px}
-.caption{margin:10px 0;overflow-wrap:anywhere}
-.actions{display:flex;gap:7px;flex-wrap:wrap}
-.actions button{padding:9px 11px;font-size:13px}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.stat{background:var(--panel2);padding:17px;border-radius:13px}
-.stat strong{font-size:24px;display:block;color:var(--pink)}
-#viewer{
- position:fixed;inset:0;background:#000e;z-index:50;
- display:flex;align-items:center;justify-content:center;padding:20px;
-}
-#viewer img{max-width:95%;max-height:85vh;object-fit:contain}
-#viewer button{position:absolute;top:20px;right:20px}
-footer{text-align:center;color:var(--muted);padding:25px}
-@media(max-width:600px){
- header{padding:13px}
- main{padding:16px 12px}
- .panel{padding:17px}
- nav button{font-size:12px;padding:9px}
- .photo img{height:210px}
-}
-</style>
-</head>
-
-<body>
-
-<div id="message" role="status"></div>
-
-<section id="authScreen">
- <main style="max-width:460px;padding-top:9vh">
-  <div class="panel">
-   <div class="logo">Mahi Baby ❤️</div>
-   <h1 style="margin-top:20px">Welcome back</h1>
-   <p class="muted">A private place for your special memories.</p>
-
-   <form id="loginForm">
-    <label>Email address</label>
-    <input id="email" type="email" placeholder="Enter your email" required>
-
-    <label>Password</label>
-    <input id="password" type="password" placeholder="Enter password" required>
-
-    <button id="loginBtn" type="submit" style="width:100%">Login</button>
-   </form>
-
-   <div class="row" style="margin-top:12px">
-    <button class="secondary" id="showSignup" type="button">Create account</button>
-    <button class="secondary" id="forgotBtn" type="button">Forgot password?</button>
-   </div>
-
-   <form id="signupForm" class="hidden" style="margin-top:20px">
-    <h3>Create your account</h3>
-    <label>Your name</label>
-    <input id="signupName" placeholder="Your display name" required>
-    <label>Email</label>
-    <input id="signupEmail" type="email" placeholder="Email address" required>
-    <label>Password</label>
-    <input id="signupPassword" type="password" minlength="6" placeholder="At least 6 characters" required>
-    <button id="signupBtn" type="submit" style="width:100%">Create account</button>
-    <button class="secondary" id="backLogin" type="button" style="width:100%;margin-top:9px">Back to login</button>
-   </form>
-  </div>
- </main>
-</section>
-
-<section id="appScreen" class="hidden">
- <header>
-  <div class="logo">Mahi Baby ❤️</div>
-  <div class="row" style="flex:0 1 auto">
-   <span id="userLabel" class="small"></span>
-   <button id="logoutBtn" class="secondary" type="button">Logout</button>
-  </div>
- </header>
-
- <main>
-  <nav class="panel">
-   <button data-page="home" class="active" type="button">Home</button>
-   <button data-page="explore" type="button">Explore</button>
-   <button data-page="upload" type="button">Share</button>
-   <button data-page="myphotos" type="button">My Photos</button>
-   <button data-page="profile" type="button">Profile</button>
-   <button data-page="admin" id="adminNav" class="hidden" type="button">Admin</button>
-  </nav>
-
-  <section id="page-home" class="page">
-   <div class="panel">
-    <h1>Welcome to Mahi Baby ❤️</h1>
-    <p class="muted">Your memories, your private space.</p>
-    <div class="stats">
-     <div class="stat"><strong id="communityCount">0</strong><span class="muted">Community photos</span></div>
-     <div class="stat"><strong id="myCount">0</strong><span class="muted">Your photos</span></div>
-    </div>
-    <button id="homeUploadBtn" type="button" style="margin-top:17px">Share a memory</button>
-    <button id="refreshBtn" class="secondary" type="button" style="margin-top:17px">Refresh photos</button>
-   </div>
-   <h2>Recent memories</h2>
-   <div id="homeGallery" class="gallery"></div>
-  </section>
-
-  <section id="page-explore" class="page hidden">
-   <div class="panel">
-    <h2>Explore memories</h2>
-    <input id="searchInput" placeholder="Search captions or names...">
-    <button id="searchBtn" type="button">Search</button>
-    <button id="clearSearchBtn" class="secondary" type="button">Clear</button>
-   </div>
-   <div id="exploreGallery" class="gallery"></div>
-  </section>
-
-  <section id="page-upload" class="page hidden">
-   <div class="panel">
-    <h2>Share a memory 📸</h2>
-    <form id="uploadForm">
-     <label>Select a photo</label>
-     <input id="photoFile" type="file" accept="image/*" required>
-     <label>Caption</label>
-     <textarea id="photoCaption" maxlength="1000" placeholder="Write something about this memory..."></textarea>
-     <button id="uploadBtn" type="submit">Upload photo</button>
-    </form>
-   </div>
-  </section>
-
-  <section id="page-myphotos" class="page hidden">
-   <h2>My photos</h2>
-   <div id="myGallery" class="gallery"></div>
-  </section>
-
-  <section id="page-profile" class="page hidden">
-   <div class="panel">
-    <h2>My profile</h2>
-    <label>Display name</label>
-    <input id="displayName" placeholder="Your name">
-    <button id="saveProfileBtn" type="button">Save profile</button>
-   </div>
-   <div class="panel">
-    <h3>Account</h3>
-    <p id="profileEmail" class="muted"></p>
-    <button id="profileLogoutBtn" class="secondary" type="button">Logout</button>
-   </div>
-  </section>
-
-  <section id="page-admin" class="page hidden">
-   <div class="panel">
-    <h2>👑 Administrator</h2>
-    <p class="muted">Manage photos shared on this website.</p>
-    <div id="adminGallery" class="gallery"></div>
-   </div>
-  </section>
- </main>
-</section>
-
-<div id="viewer" class="hidden">
- <button id="closeViewer" type="button">Close ✕</button>
- <img id="viewerImage" alt="Photo preview">
-</div>
-
-<footer>Mahi Baby ❤️ — Made for memories</footer>
-
-<script>
-"use strict";
-
-/* SUPABASE CONFIGURATION */
-const SUPABASE_URL = "https://jhvmqedhxkahjroyquty.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX";
-const BUCKET = "Mahi baby";
-const ADMIN_UID = "6b19250a-ab16-4e98-bae6-2f6473d8a4cb";
-
-/* APP STATE */
-let db = null;
-let currentUser = null;
-let isAdmin = false;
-let allPhotos = [];
-let currentPage = "home";
-let messageTimer = null;
-
-/* SHORTCUTS */
-const $ = id => document.getElementById(id);
-
-function showMessage(message, type="success"){
- const box=$("message");
- box.textContent=message;
- box.className=type;
- box.style.display="block";
- clearTimeout(messageTimer);
- messageTimer=setTimeout(()=>box.style.display="none",4500);
-}
-
-function escapeHTML(value){
- return String(value ?? "").replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- })[c]);
-}
-
-function setBusy(button,busy,label){
- if(!button)return;
- if(busy){
-  button.dataset.oldText=button.textContent;
-  button.textContent=label||"Please wait...";
-  button.disabled=true;
- }else{
-  button.textContent=button.dataset.oldText||button.textContent;
-  button.disabled=false;
- }
-}
-
-function showAuth(){
- $("authScreen").classList.remove("hidden");
- $("appScreen").classList.add("hidden");
-}
-
-function showApp(){
- $("authScreen").classList.add("hidden");
- $("appScreen").classList.remove("hidden");
-}
-
-function showPage(page){
- const allowed=["home","explore","upload","myphotos","profile","admin"];
- if(!allowed.includes(page))return;
- if(page==="admin"&&!isAdmin){
-  showMessage("Admin access required.","error");
-  return;
- }
- currentPage=page;
- document.querySelectorAll(".page").forEach(el=>el.classList.add("hidden"));
- $("page-"+page).classList.remove("hidden");
- document.querySelectorAll("[data-page]").forEach(btn=>{
-  btn.classList.toggle("active",btn.dataset.page===page);
- });
- if(page==="explore")renderExplore();
- if(page==="myphotos")renderMyPhotos();
- if(page==="admin")renderAdmin();
-}
-
-/* AUTHENTICATION */
-async function login(event){
- event.preventDefault();
- const button=$("loginBtn");
- setBusy(button,true,"Logging in...");
- try{
-  const email=$("email").value.trim();
-  const password=$("password").value;
-  const {data,error}=await db.auth.signInWithPassword({email,password});
-  if(error)throw error;
-  currentUser=data.user;
-  await startApp();
-  showMessage("Login successful!");
- }catch(error){
-  showMessage(error.message||"Login failed.","error");
- }finally{
-  setBusy(button,false);
- }
-}
-
-async function signup(event){
- event.preventDefault();
- const button=$("signupBtn");
- setBusy(button,true,"Creating account...");
- try{
-  const name=$("signupName").value.trim();
-  const email=$("signupEmail").value.trim();
-  const password=$("signupPassword").value;
-  const {data,error}=await db.auth.signUp({
-   email,password,
-   options:{data:{display_name:name}}
-  });
-  if(error)throw error;
-
-  if(data.user && data.session){
-   currentUser=data.user;
-   await saveProfile(name);
-   await startApp();
-   showMessage("Account created successfully!");
-  }else{
-   showMessage("Account created. Email verification required; check your inbox.");
-   $("signupForm").classList.add("hidden");
-   $("loginForm").classList.remove("hidden");
-  }
- }catch(error){
-  showMessage(error.message||"Signup failed.","error");
- }finally{
-  setBusy(button,false);
- }
-}
-
-async function resetPassword(){
- const email=$("email").value.trim();
- if(!email){
-  showMessage("Pehle email address enter karo.","error");
-  return;
- }
- try{
-  const {error}=await db.auth.resetPasswordForEmail(email,{
-   redirectTo:location.origin+location.pathname
-  });
-  if(error)throw error;
-  showMessage("Password reset link email par bhej diya gaya.");
- }catch(error){
-  showMessage(error.message,"error");
- }
-}
-
-async function logout(){
- try{
-  const {error}=await db.auth.signOut();
-  if(error)throw error;
-  currentUser=null;
-  allPhotos=[];
-  isAdmin=false;
-  showAuth();
-  showMessage("Logged out successfully.");
- }catch(error){
-  showMessage(error.message,"error");
- }
-}
-
-/* PROFILE AND ADMIN */
-async function saveProfile(name){
- const {error}=await db.from("profiles").upsert({
-  user_id:currentUser.id,
-  display_name:name,
-  updated_at:new Date().toISOString()
- },{onConflict:"user_id"});
- if(error)throw error;
-}
-
-async function loadProfile(){
- const {data,error}=await db.from("profiles")
-  .select("user_id,display_name")
-  .eq("user_id",currentUser.id)
-  .maybeSingle();
- if(error)throw error;
- const name=data?.display_name||currentUser.user_metadata?.display_name||"Member";
- $("displayName").value=name;
- $("userLabel").textContent=name;
- $("profileEmail").textContent=currentUser.email||"";
-}
-
-async function checkAdmin(){
- isAdmin=currentUser.id===ADMIN_UID;
- if(!isAdmin){
-  const {data,error}=await db.from("admins")
-   .select("user_id").eq("user_id",currentUser.id).maybeSingle();
-  if(!error&&data)isAdmin=true;
- }
- $("adminNav").classList.toggle("hidden",!isAdmin);
-}
-
-/* STORAGE */
-async function signedPhotoURL(path){
- if(!path)return "";
- const {data,error}=await db.storage.from(BUCKET)
-  .createSignedUrl(path,3600);
- if(error){
-  console.error("Image URL error:",error.message);
-  return "";
- }
- return data.signedUrl;
-}
-
-/* PHOTO DATA */
-async function loadPhotos(){
- const {data,error}=await db.from("photo_posts")
-  .select("id,user_id,storage_path,caption,created_at")
-  .order("created_at",{ascending:false})
-  .limit(100);
- if(error)throw error;
-
- const posts=data||[];
- const userIds=[...new Set(posts.map(p=>p.user_id))];
- let profiles={};
-
- if(userIds.length){
-  const result=await db.from("profiles")
-   .select("user_id,display_name")
-   .in("user_id",userIds);
-  if(result.error)throw result.error;
-  (result.data||[]).forEach(p=>profiles[p.user_id]=p);
- }
-
- allPhotos=await Promise.all(posts.map(async post=>{
-  return {
-   ...post,
-   ownerName:profiles[post.user_id]?.display_name||"Member",
-   image:await signedPhotoURL(post.storage_path)
-  };
- }));
- updateDashboard();
-}
-
-function photoCard(post,adminMode=false){
- const own=post.user_id===currentUser.id;
- return `
- <article class="photo">
-  <img src="${escapeHTML(post.image)}" alt="Shared photo"
-   data-view="${escapeHTML(post.image)}">
-  <div class="photo-info">
-   <strong>${escapeHTML(post.ownerName)}</strong>
-   <div class="small">${escapeHTML(new Date(post.created_at).toLocaleString())}</div>
-   <div class="caption">${escapeHTML(post.caption||"")}</div>
-   <div class="actions">
-    ${own||isAdmin?`<button class="danger" data-action="delete" data-id="${escapeHTML(post.id)}" type="button">Delete</button>`:""}
-   </div>
-  </div>
- </article>`;
-}
-
-function renderGallery(target,posts,emptyText){
- $(target).innerHTML=posts.length
-  ?posts.map(p=>photoCard(p)).join("")
-  :`<div class="panel muted">${emptyText}</div>`;
-}
-
-function renderExplore(){
- const query=$("searchInput").value.trim().toLowerCase();
- const filtered=allPhotos.filter(p=>
-  (p.caption||"").toLowerCase().includes(query)||
-  (p.ownerName||"").toLowerCase().includes(query)
- );
- renderGallery("exploreGallery",filtered,"No photos found.");
-}
-
-function renderMyPhotos(){
- renderGallery("myGallery",
-  allPhotos.filter(p=>p.user_id===currentUser.id),
-  "You haven't shared any photos yet."
- );
-}
-
-function renderAdmin(){
- if(!isAdmin)return;
- $("adminGallery").innerHTML=allPhotos.length
-  ?allPhotos.map(p=>photoCard(p,true)).join("")
-  :'<p class="muted">No photos available.</p>';
-}
-
-function updateDashboard(){
- $("communityCount").textContent=allPhotos.length;
- $("myCount").textContent=allPhotos.filter(p=>p.user_id===currentUser.id).length;
- renderGallery("homeGallery",allPhotos.slice(0,6),"No memories yet. Share the first one!");
-}
-
-/* UPLOAD */
-async function uploadPhoto(event){
- event.preventDefault();
- const button=$("uploadBtn");
- setBusy(button,true,"Uploading...");
- try{
-  const file=$("photoFile").files[0];
-  if(!file)throw new Error("Please select a photo.");
-  if(!file.type.startsWith("image/"))throw new Error("Only image files are allowed.");
-  if(file.size>10*1024*1024)throw new Error("Image must be smaller than 10 MB.");
-
-  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-  const path=currentUser.id+"/"+Date.now()+"_"+safeName;
-
-  const upload=await db.storage.from(BUCKET).upload(path,file,{
-   cacheControl:"3600",upsert:false,contentType:file.type
-  });
-  if(upload.error)throw upload.error;
-
-  const insert=await db.from("photo_posts").insert({
-   user_id:currentUser.id,
-   storage_path:path,
-   caption:$("photoCaption").value.trim()
-  });
-  if(insert.error){
-   await db.storage.from(BUCKET).remove([path]);
-   throw insert.error;
-  }
-
-  $("uploadForm").reset();
-  await loadPhotos();
-  showPage("myphotos");
-  showMessage("Photo uploaded successfully!");
- }catch(error){
-  showMessage(error.message||"Upload failed.","error");
- }finally{
-  setBusy(button,false);
- }
-}
-
-/* DELETE */
-async function deletePhoto(id){
- const post=allPhotos.find(p=>p.id===id);
- if(!post)return;
- if(post.user_id!==currentUser.id&&!isAdmin){
-  showMessage("You cannot delete this photo.","error");
-  return;
- }
- if(!confirm("Are you sure you want to delete this photo?"))return;
-
- try{
-  const storage=await db.storage.from(BUCKET).remove([post.storage_path]);
-  if(storage.error)throw storage.error;
-
-  const result=await db.from("photo_posts").delete().eq("id",id);
-  if(result.error)throw result.error;
-
-  await loadPhotos();
-  showMessage("Photo deleted.");
- }catch(error){
-  showMessage(error.message||"Delete failed.","error");
- }
-}
-
-/* APPLICATION START */
-async function startApp(){
- if(!currentUser)return;
- try{
-  showApp();
-  await checkAdmin();
-  await loadProfile();
-  await loadPhotos();
-  showPage("home");
- }catch(error){
-  showMessage("Loading error: "+error.message,"error");
- }
-}
-
-/* BUTTON EVENTS — SINGLE DELEGATED HANDLER */
-document.addEventListener("click",async function(event){
- const button=event.target.closest("button");
- if(!button)return;
-
- if(button.dataset.page){
-  showPage(button.dataset.page);
-  return;
- }
-
- const action=button.dataset.action;
- if(action==="delete"){
-  await deletePhoto(button.dataset.id);
-  return;
- }
-
- switch(button.id){
-  case "showSignup":
-   $("loginForm").classList.add("hidden");
-   $("signupForm").classList.remove("hidden");
-   break;
-
-  case "backLogin":
-   $("signupForm").classList.add("hidden");
-   $("loginForm").classList.remove("hidden");
-   break;
-
-  case "forgotBtn":
-   await resetPassword();
-   break;
-
-  case "logoutBtn":
-  case "profileLogoutBtn":
-   await logout();
-   break;
-
-  case "homeUploadBtn":
-   showPage("upload");
-   break;
-
-  case "refreshBtn":
-   button.disabled=true;
-   try{
-    await loadPhotos();
-    showMessage("Photos refreshed.");
-   }catch(error){
-    showMessage(error.message,"error");
-   }finally{button.disabled=false;}
-   break;
-
-  case "searchBtn":
-   renderExplore();
-   break;
-
-  case "clearSearchBtn":
-   $("searchInput").value="";
-   renderExplore();
-   break;
-
-  case "saveProfileBtn":
-   button.disabled=true;
-   try{
-    const name=$("displayName").value.trim();
-    if(!name)throw new Error("Name cannot be empty.");
-    await saveProfile(name);
-    $("userLabel").textContent=name;
-    showMessage("Profile saved.");
-   }catch(error){
-    showMessage(error.message,"error");
-   }finally{button.disabled=false;}
-   break;
-
-  case "closeViewer":
-   $("viewer").classList.add("hidden");
-   $("viewerImage").src="";
-   break;
- }
-});
-
-/* IMAGE VIEWER */
-document.addEventListener("click",function(event){
- const image=event.target.closest("[data-view]");
- if(!image)return;
- $("viewerImage").src=image.dataset.view;
- $("viewer").classList.remove("hidden");
-});
-
-/*
