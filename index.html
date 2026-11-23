@@ -8,431 +8,257 @@
 <title>Mahi Baby ❤️</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
- --bg:#111018;--surface:#1b1924;--surface2:#242130;
- --pink:#f06b9c;--pink2:#ff9cbd;--text:#f8edf3;
- --muted:#a99baa;--border:#383142;--danger:#e45b70;
- --green:#6dd6a5;--shadow:0 14px 40px #0005;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
-button,input,textarea{font:inherit}
-button{cursor:pointer;border:0;border-radius:11px;padding:11px 15px;background:var(--pink);color:#21131c;font-weight:700}
-button:disabled{opacity:.5;cursor:not-allowed}
-button.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-button.danger{background:var(--danger);color:white}
-button.ghost{background:transparent;color:var(--pink2);border:1px solid var(--border)}
-input,textarea{width:100%;background:#13111a;color:var(--text);border:1px solid var(--border);border-radius:11px;padding:13px;margin:7px 0 14px;outline:none}
-input:focus,textarea:focus{border-color:var(--pink)}
-textarea{min-height:80px;resize:vertical}
-label{font-size:13px;color:var(--muted)}
-.hidden{display:none!important}
-.muted{color:var(--muted);font-size:13px}
-.small{font-size:12px;color:var(--muted)}
-header{height:68px;position:sticky;top:0;z-index:10;background:#111018ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,calc((100vw - 1180px)/2))}
-.brand{font-weight:900;font-size:21px;letter-spacing:-.7px;color:var(--pink2)}
-.header-actions{display:flex;gap:8px;align-items:center}
-main{max-width:1180px;margin:auto;padding:24px 18px 70px}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:17px;box-shadow:var(--shadow)}
-.auth{max-width:430px;margin:65px auto}
-.auth h1{text-align:center;font-size:28px;margin:4px 0 8px}
-.auth .brand{display:block;text-align:center;font-size:25px;margin-bottom:20px}
-.auth button{width:100%;margin-top:5px}
-.auth .auth-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.status{font-size:13px;line-height:1.5;margin-top:12px;overflow-wrap:anywhere}
-.status.error{color:#ff8291}.status.success{color:var(--green)}
-.top-profile{display:flex;align-items:center;gap:13px}
-.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--surface2);border:2px solid #634256}
-.top-profile h2{font-size:16px;margin:0 0 5px}
-.badge{font-size:10px;border-radius:30px;padding:5px 9px;background:#48283a;color:#ffafd0}
-.nav{display:flex;gap:8px;overflow:auto;padding:5px 0 18px}
-.nav button{flex-shrink:0;background:var(--surface);color:var(--muted);border:1px solid var(--border)}
-.nav button.active{background:var(--pink);color:#21131c;border-color:var(--pink)}
-.page-title{font-size:25px;margin:0 0 7px;letter-spacing:-.6px}
-.page-sub{color:var(--muted);font-size:13px;margin:0 0 18px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.stat{padding:17px;background:var(--surface2);border:1px solid var(--border);border-radius:14px}
-.stat strong{display:block;color:var(--pink2);font-size:27px;margin-bottom:5px}
-.stat span{font-size:12px;color:var(--muted)}
-.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.section-head h2{font-size:18px;margin:0}
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:16px}
-.photo{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;min-width:0}
-.photo-image{width:100%;height:245px;object-fit:cover;display:block;background:var(--surface2);cursor:pointer}
-.photo-info{padding:13px}
-.post-user{display:flex;align-items:center;gap:9px;margin-bottom:10px}
-.post-user img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--surface2)}
-.post-user strong{font-size:13px}
-.post-user small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-.caption{font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;margin:9px 0}
-.post-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.post-actions button{font-size:12px;padding:8px 10px}
-.post-actions .selected{background:#60354c;color:#ffb4d0;border:1px solid #9b5376}
-.comment-list{border-top:1px solid var(--border);margin-top:12px;padding-top:8px}
-.comment{font-size:12px;line-height:1.5;padding:6px 0;overflow-wrap:anywhere}
-.comment strong{color:var(--pink2);margin-right:5px}
-.comment-form{display:flex;gap:6px;margin-top:7px}
-.comment-form input{margin:0;min-width:0;padding:9px;font-size:12px}
-.comment-form button{padding:8px 10px;font-size:12px}
-.activity{padding:13px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
-.activity-icon{width:37px;height:37px;display:grid;place-items:center;background:var(--surface2);border-radius:50%;flex-shrink:0}
-.empty{text-align:center;padding:28px 10px;color:var(--muted);font-size:14px}
-.profile-cover{height:110px;border-radius:14px;background:linear-gradient(120deg,#47263d,#252039,#332b43);margin-bottom:-30px}
-.profile-large{width:76px;height:76px;border-radius:50%;object-fit:cover;border:4px solid var(--surface);background:var(--surface2)}
-.switch-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px 0;border-bottom:1px solid var(--border)}
-.switch{width:48px;height:27px;border-radius:30px;background:#514858;padding:3px;cursor:pointer;flex-shrink:0}
-.switch span{display:block;width:21px;height:21px;border-radius:50%;background:white;transition:.2s}
-.switch.on{background:var(--pink)}
-.switch.on span{transform:translateX(21px)}
-.viewer{position:fixed;inset:0;background:#000e;z-index:30;display:flex;align-items:center;justify-content:center;padding:20px}
-.viewer img{max-width:100%;max-height:85vh;object-fit:contain}
-.viewer button{position:absolute;right:20px;top:20px}
-hr{border:0;border-top:1px solid var(--border);margin:18px 0}
-@media(max-width:600px){
- main{padding:15px 12px 55px}.panel{padding:15px;border-radius:15px}
- .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
- .photo-image{height:165px}.photo-info{padding:9px}
- .stats{gap:7px}.stat{padding:12px 8px}.stat strong{font-size:22px}
- .post-actions{gap:5px}.post-actions button{font-size:11px;padding:7px}
- header{padding:0 12px}
-}
+:root{--bg:#111018;--surface:#1b1924;--surface2:#282333;--pink:#f06b9c;--pink2:#ffaccb;--text:#f8edf3;--muted:#ad9eae;--border:#3a3042;--green:#6dd6a5;--red:#f07886}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--pink);color:#21131c;font-weight:bold}button:disabled{opacity:.5}button.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}button.ghost{background:transparent;color:var(--pink2);border:1px solid var(--border)}button.danger{background:var(--red);color:white}
+input,textarea{width:100%;padding:12px;margin:7px 0 14px;background:#13111a;color:var(--text);border:1px solid var(--border);border-radius:10px}textarea{min-height:80px}label{font-size:13px;color:var(--muted)}header{height:65px;position:sticky;top:0;z-index:5;background:#111018ed;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0  max(14px,calc((100% - 1100px)/2))}.brand{font-size:21px;font-weight:bold;color:var(--pink2)}main{max-width:1100px;margin:auto;padding:20px 14px 60px}.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:17px;margin-bottom:15px}.auth{max-width:420px;margin:55px auto}.auth h1{text-align:center}.auth .brand{text-align:center;display:block}.auth button{width:100%;margin:5px 0}.authrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hidden{display:none!important}.muted,.small{color:var(--muted);font-size:13px}.status{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:10px}.error{color:#ff8999}.success{color:var(--green)}.nav{display:flex;gap:7px;overflow:auto;padding:5px 0 16px}.nav button{flex-shrink:0;background:var(--surface);color:var(--muted);border:1px solid var(--border)}.nav button.active{background:var(--pink);color:#21131c}.page-title{font-size:24px;margin:0 0 7px}.page-sub{font-size:13px;color:var(--muted);margin:0 0 16px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:var(--surface2);padding:13px;border-radius:12px}.stat strong{display:block;color:var(--pink2);font-size:24px}.stat span{font-size:11px;color:var(--muted)}.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;margin-top:14px}.photo{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--surface)}.photo-image{width:100%;height:230px;object-fit:cover;display:block;background:var(--surface2);cursor:pointer}.photo-info{padding:12px}.post-user{font-size:13px;font-weight:bold;margin-bottom:8px}.caption{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;margin:9px 0}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.actions button{font-size:11px;padding:8px}.selected{background:#60354c!important;color:#ffb4d0!important}.comment{font-size:12px;padding:6px 0;border-top:1px solid var(--border);overflow-wrap:anywhere}.comment strong{color:var(--pink2)}.commentform{display:flex;gap:5px;margin-top:8px}.commentform input{margin:0;min-width:0;padding:8px}.commentform button{padding:8px}.empty{text-align:center;color:var(--muted);padding:25px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--surface2)}.switchrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}.switch{width:48px;height:27px;border-radius:30px;background:#514858;padding:3px;cursor:pointer}.switch span{display:block;width:21px;height:21px;border-radius:50%;background:white}.switch.on{background:var(--pink)}.switch.on span{transform:translateX(21px)}.activity{padding:12px 0;border-bottom:1px solid var(--border);font-size:13px}.viewer{position:fixed;inset:0;background:#000e;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}.viewer img{max-width:100%;max-height:85vh}.viewer button{position:absolute;right:15px;top:15px}
+@media(max-width:600px){main{padding:13px 10px}.panel{padding:13px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.photo-image{height:155px}.photo-info{padding:8px}.actions{gap:4px}.actions button{font-size:10px;padding:7px}header{padding:0 10px}}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="brand">♥ Mahi Baby</div>
-  <div class="header-actions">
-    <button id="headerNotif" class="secondary hidden">🔔 <span id="notifCount">0</span></button>
-    <button id="logoutBtn" class="secondary hidden">Logout</button>
-  </div>
+ <div class="brand">♥ Mahi Baby</div>
+ <div class="row">
+  <button id="headerNotif" class="secondary hidden">🔔 <span id="notifCount">0</span></button>
+  <button id="logoutBtn" class="secondary hidden">Logout</button>
+ </div>
 </header>
-
 <main>
 <section id="authSection" class="panel auth">
-  <span class="brand">♥ Mahi Baby</span>
-  <h1>Welcome back</h1>
-  <p class="muted" style="text-align:center">Your private little corner of memories.</p>
-  <label for="email">Email address</label>
-  <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
-  <label for="password">Password</label>
-  <input id="password" type="password" autocomplete="current-password" placeholder="Your password">
-  <div class="auth-row">
-    <button id="loginBtn">Login</button>
-    <button id="signupBtn" class="secondary">Create account</button>
-  </div>
-  <button id="resetBtn" class="ghost">Forgot password?</button>
-  <div id="authMessage" class="status" role="status"></div>
+ <span class="brand">♥ Mahi Baby</span>
+ <h1>Welcome back</h1>
+ <p class="muted" style="text-align:center">Your private little corner of memories.</p>
+ <label>Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+ <label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password">
+ <div class="authrow"><button id="loginBtn">Login</button><button id="signupBtn" class="secondary">Create account</button></div>
+ <button id="resetBtn" class="ghost">Forgot password?</button>
+ <div id="authMessage" class="status" role="status"></div>
 </section>
 
 <section id="appSection" class="hidden">
+ <div class="panel row">
+  <img id="myAvatar" class="avatar" alt="Profile">
+  <div style="flex:1"><strong id="welcome">Welcome ❤️</strong><div id="roleText" class="muted">Community member</div></div>
+  <span id="adminBadge" class="hidden">👑 ADMIN</span>
+ </div>
+ <nav class="nav">
+  <button data-page="dashboard" class="active">⌂ Home</button>
+  <button data-page="explore">◎ Explore</button>
+  <button data-page="upload">＋ Share</button>
+  <button data-page="myphotos">▦ My photos</button>
+  <button data-page="favorites">♡ Saved</button>
+  <button data-page="notifications">♧ Alerts</button>
+  <button data-page="profile">◉ Profile</button>
+  <button data-page="activity">◷ Activity</button>
+  <button data-page="admin" id="adminNav" class="hidden">♛ Admin</button>
+ </nav>
+
+ <section id="page-dashboard" class="page">
   <div class="panel">
-    <div class="top-profile">
-      <img id="myAvatar" class="avatar" alt="Profile">
-      <div style="flex:1;min-width:0">
-        <h2 id="welcome">Welcome ❤️</h2>
-        <div id="roleText" class="muted">Community member</div>
-      </div>
-      <span id="adminBadge" class="badge hidden">ADMIN</span>
-    </div>
+   <h1 class="page-title" id="dashboardGreeting">Your space.</h1>
+   <p class="page-sub">A little collection of moments that matter.</p>
+   <div class="stats">
+    <div class="stat"><strong id="myPhotoCount">0</strong><span>MY PHOTOS</span></div>
+    <div class="stat"><strong id="communityPhotoCount">0</strong><span>COMMUNITY</span></div>
+    <div class="stat"><strong id="activityCount">0</strong><span>ACTIVITIES</span></div>
+   </div><br>
+   <button data-go="upload">＋ Share a memory</button>
+   <button data-go="explore" class="secondary">Explore gallery</button>
   </div>
+  <div class="panel"><h2>Recent memories</h2><div id="dashboardPhotos" class="gallery"></div></div>
+  <div class="panel"><h2>Recent activity</h2><div id="dashboardActivity"></div></div>
+ </section>
 
-  <nav class="nav">
-    <button data-page="dashboard" class="active">⌂ Home</button>
-    <button data-page="explore">◎ Explore</button>
-    <button data-page="upload">＋ Share</button>
-    <button data-page="myphotos">▦ My photos</button>
-    <button data-page="favorites">♡ Saved</button>
-    <button data-page="notifications">♧ Alerts</button>
-    <button data-page="profile">◉ Profile</button>
-    <button data-page="activity">◷ Activity</button>
-    <button data-page="admin" id="adminNav" class="hidden">♛ Admin</button>
-  </nav>
+ <section id="page-explore" class="page hidden">
+  <div class="panel"><h1 class="page-title">Explore</h1><p class="page-sub">Discover shared moments.</p>
+   <input id="searchInput" type="search" placeholder="Search captions or people...">
+   <button id="refreshBtn" class="secondary">↻ Refresh</button>
+   <div id="galleryMessage" class="status"></div><div id="gallery" class="gallery"></div>
+  </div>
+ </section>
 
-  <section id="page-dashboard" class="page">
-    <div class="panel">
-      <h1 class="page-title" id="dashboardGreeting">Your space.</h1>
-      <p class="page-sub">A little collection of moments that matter.</p>
-      <div class="stats">
-        <div class="stat"><strong id="myPhotoCount">0</strong><span>MY PHOTOS</span></div>
-        <div class="stat"><strong id="communityPhotoCount">0</strong><span>COMMUNITY</span></div>
-        <div class="stat"><strong id="activityCount">0</strong><span>ACTIVITIES</span></div>
-      </div>
-      <hr>
-      <button data-go="upload">＋ Share a memory</button>
-      <button data-go="explore" class="secondary">Explore gallery</button>
-    </div>
-    <div class="panel">
-      <div class="section-head"><h2>Recent memories</h2><button class="ghost" data-go="explore">View all</button></div>
-      <div id="dashboardPhotos" class="gallery"></div>
-    </div>
-    <div class="panel">
-      <h2>Recent activity</h2>
-      <div id="dashboardActivity" class="muted">Loading...</div>
-    </div>
-  </section>
+ <section id="page-upload" class="page hidden">
+  <div class="panel"><h1 class="page-title">Share a memory</h1>
+   <label>Choose an image (maximum 10 MB)</label><input id="photoInput" type="file" accept="image/*">
+   <img id="uploadPreview" class="hidden" style="width:100%;max-height:300px;object-fit:contain" alt="Preview">
+   <label>Caption</label><textarea id="captionInput" maxlength="500" placeholder="Write something..."></textarea>
+   <button id="uploadBtn">Publish photo ♥</button><div id="uploadMessage" class="status"></div>
+  </div>
+ </section>
 
-  <section id="page-explore" class="page hidden">
-    <div class="panel">
-      <h1 class="page-title">Explore</h1>
-      <p class="page-sub">Discover shared moments from the community.</p>
-      <input id="searchInput" type="search" placeholder="Search captions or people...">
-      <button id="refreshBtn" class="secondary">↻ Refresh</button>
-      <div id="galleryMessage" class="status"></div>
-      <div id="gallery" class="gallery"></div>
-    </div>
-  </section>
+ <section id="page-myphotos" class="page hidden"><div class="panel"><h1 class="page-title">My photos</h1><div id="myPhotosGallery" class="gallery"></div></div></section>
+ <section id="page-favorites" class="page hidden"><div class="panel"><h1 class="page-title">Saved memories</h1><div id="favoritesGallery" class="gallery"></div></div></section>
+ <section id="page-notifications" class="page hidden"><div class="panel"><h1 class="page-title">Notifications</h1><button id="markAllRead" class="ghost">Mark all read</button><div id="notificationList"></div></div></section>
 
-  <section id="page-upload" class="page hidden">
-    <div class="panel">
-      <h1 class="page-title">Share a memory</h1>
-      <p class="page-sub">Every picture tells a story.</p>
-      <label for="photoInput">Choose an image (maximum 10 MB)</label>
-      <input id="photoInput" type="file" accept="image/*">
-      <img id="uploadPreview" class="hidden" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;margin:8px 0" alt="Upload preview">
-      <label for="captionInput">Caption</label>
-      <textarea id="captionInput" maxlength="500" placeholder="Write something about this moment..."></textarea>
-      <button id="uploadBtn">Publish photo ♥</button>
-      <div id="uploadMessage" class="status"></div>
-    </div>
-  </section>
-
-  <section id="page-myphotos" class="page hidden">
-    <div class="panel">
-      <h1 class="page-title">My photos</h1>
-      <p class="page-sub">Your personal collection.</p>
-      <div id="myPhotosGallery" class="gallery"></div>
-    </div>
-  </section>
-
-  <section id="page-favorites" class="page hidden">
-    <div class="panel">
-      <h1 class="page-title">Saved memories</h1>
-      <p class="page-sub">Photos you have added to favourites.</p>
-      <div id="favoritesGallery" class="gallery"></div>
-    </div>
-  </section>
-
-  <section id="page-notifications" class="page hidden">
-    <div class="panel">
-      <div class="section-head"><h1 class="page-title">Notifications</h1><button id="markAllRead" class="ghost">Mark all read</button></div>
-      <p class="page-sub">Updates about your photos and community.</p>
-      <div id="notificationList"></div>
-    </div>
-  </section>
-
-  <section id="page-profile" class="page hidden">
-    <div class="panel">
-      <div class="profile-cover"></div>
-      <div class="profile-row" style="position:relative;padding-left:12px">
-        <img id="profilePreview" class="profile-large" alt="Profile picture">
-        <div><strong id="profilePreviewName">Your profile</strong><div id="profileEmail" class="small"></div></div>
-      </div>
-      <hr>
-      <label for="displayName">Display name</label>
-      <input id="displayName" maxlength="40" placeholder="Your display name">
-      <label for="avatarInput">Profile picture</label>
-      <input id="avatarInput" type="file" accept="image/*">
-      <div class="switch-row">
-        <div><strong>Private account</strong><div class="small">Only you and the administrator can see your posts.</div></div>
-        <div id="privacySwitch" class="switch" role="switch" aria-checked="false" tabindex="0"><span></span></div>
-      </div>
-      <button id="saveProfileBtn" style="margin-top:16px">Save profile</button>
-      <div id="profileMessage" class="status"></div>
-    </div>
-  </section>
-
-  <section id="page-activity" class="page hidden">
-    <div class="panel">
-      <h1 class="page-title">Your activity</h1>
-      <div id="activityList"></div>
-    </div>
-  </section>
-
-  <section id="page-admin" class="page hidden">
-    <div class="panel">
-      <h1 class="page-title">Admin control</h1>
-      <p class="page-sub">Community overview and moderation.</p>
-      <div class="stats">
-        <div class="stat"><strong id="adminPhotoCount">0</strong><span>POSTS</span></div>
-        <div class="stat"><strong id="adminUserCount">0</strong><span>PROFILES</span></div>
-        <div class="stat"><strong id="adminNotifCount">0</strong><span>NOTIFICATIONS</span></div>
-      </div>
-      <hr>
-      <button data-go="explore">Manage community posts</button>
-    </div>
-  </section>
+ <section id="page-profile" class="page hidden">
+  <div class="panel"><h1 class="page-title">My profile</h1>
+   <img id="profilePreview" class="avatar" style="width:75px;height:75px" alt="Profile picture">
+   <div id="profileEmail" class="small"></div><br>
+   <label>Display name</label><input id="displayName" maxlength="40" placeholder="Your name">
+   <label>Profile picture</label><input id="avatarInput" type="file" accept="image/*">
+   <div class="switchrow"><div><strong>Private account</strong><div class="small">Only you and administrator can see your posts.</div></div><div id="privacySwitch" class="switch" role="switch" aria-checked="false" tabindex="0"><span></span></div></div>
+   <button id="saveProfileBtn" style="margin-top:15px">Save profile</button><div id="profileMessage" class="status"></div>
+  </div>
+ </section>
+ <section id="page-activity" class="page hidden"><div class="panel"><h1 class="page-title">Your activity</h1><div id="activityList"></div></div></section>
+ <section id="page-admin" class="page hidden"><div class="panel"><h1 class="page-title">Admin control</h1><div class="stats"><div class="stat"><strong id="adminPhotoCount">0</strong><span>POSTS</span></div><div class="stat"><strong id="adminUserCount">0</strong><span>PROFILES</span></div><div class="stat"><strong id="adminNotifCount">0</strong><span>NOTIFICATIONS</span></div></div></div></section>
 </section>
 </main>
-
-<div id="viewer" class="viewer hidden">
-  <button id="closeViewer">Close ✕</button>
-  <img id="viewerImage" alt="Photo preview">
-</div>
+<div id="viewer" class="viewer hidden"><button id="closeViewer">Close ✕</button><img id="viewerImage" alt="Photo preview"></div>
 
 <script>
 "use strict";
-
-/* EXISTING SUPABASE PROJECT SETTINGS */
 const SUPABASE_URL="https://jhvmqedhxkahjroyquty.supabase.co";
 const SUPABASE_KEY="sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX";
 const BUCKET="Mahi baby";
 const ADMIN_UID="6b19250a-ab16-4e98-bae6-2f6473d8a4cb";
-
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
+let db=null,currentUser=null,isAdmin=false,profile=null,allPhotos=[],activities=[],notifications=[],busy=false;
+const DEFAULT_AVATAR="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#302637"/><circle cx="50" cy="37" r="19" fill="#f06b9c"/><path d="M15 95c2-23 17-35 35-35s33 12 35 35" fill="#f06b9c"/></svg>');
 
-let currentUser=null,isAdmin=false,profile=null;
-let allPhotos=[],activities=[],notifications=[];
-let busy=false;
-const DEFAULT_AVATAR="data:image/svg+xml,"+encodeURIComponent(
-'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#302637"/><circle cx="50" cy="37" r="19" fill="#f06b9c"/><path d="M15 95c2-23 17-35 35-35s33 12 35 35" fill="#f06b9c"/></svg>'
-);
-
-function status(id,text,error=false){
- const el=$(id);if(!el)return;
- el.textContent=text;
- el.className="status "+(error?"error":"success");
-}
-function escapeHTML(value){
- return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-function dateText(value){
- const d=new Date(value);return Number.isNaN(d.getTime())?"":d.toLocaleString();
-}
-function setBusy(id,value){const el=$(id);if(el)el.disabled=value;}
-function explainError(error){
- const msg=error?.message||String(error||"Unknown error");
- console.error(error);
- return msg;
-}
-function emptyHTML(text){return '<div class="empty">'+escapeHTML(text)+'</div>';}
-function setPrivacySwitch(value){
- $("privacySwitch").classList.toggle("on",!!value);
- $("privacySwitch").setAttribute("aria-checked",String(!!value));
-}
+function msg(id,text,error=false){const el=$(id);if(el){el.textContent=text;el.className="status "+(error?"error":"success");}}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function dateText(s){const d=new Date(s);return isNaN(d)? "":d.toLocaleString();}
+function setBusy(id,v){if($(id))$(id).disabled=v;}
+function setPrivacy(v){$("privacySwitch").classList.toggle("on",!!v);$("privacySwitch").setAttribute("aria-checked",String(!!v));}
+function showError(e){console.error(e);return e?.message||String(e);}
+function empty(text){return '<div class="empty">'+esc(text)+'</div>';}
 
 async function signedUrl(path){
  if(!path)return DEFAULT_AVATAR;
  const {data,error}=await db.storage.from(BUCKET).createSignedUrl(path,3600);
- if(error){console.warn("Image URL:",error.message);return DEFAULT_AVATAR;}
+ if(error){console.warn(error.message);return DEFAULT_AVATAR;}
  return data?.signedUrl||DEFAULT_AVATAR;
 }
-
-async function logActivity(action,details){
+async function logActivity(action,details=""){
  if(!currentUser)return;
- const {error}=await db.from("activity_logs").insert({
-  user_id:currentUser.id,action,details:details||""
- });
+ const {error}=await db.from("activity_logs").insert({user_id:currentUser.id,action,details});
  if(error)console.warn("Activity log:",error.message);
 }
-
 async function notifyUser(userId,type,message,postId){
- if(!userId||userId===currentUser?.id)return;
- const {error}=await db.from("notifications").insert({
-  user_id:userId,actor_id:currentUser.id,post_id:postId||null,
-  notification_type:type,message
- });
+ if(!userId||userId===currentUser.id)return;
+ const {error}=await db.from("notifications").insert({user_id:userId,actor_id:currentUser.id,post_id:postId||null,type,message});
  if(error)console.warn("Notification:",error.message);
 }
-
 async function checkAdmin(){
  if(currentUser.id===ADMIN_UID)return true;
- const {data,error}=await db.from("admins").select("user_id")
-  .eq("user_id",currentUser.id).maybeSingle();
- if(error)console.warn("Admin check:",error.message);
+ const {data,error}=await db.from("admins").select("user_id").eq("user_id",currentUser.id).maybeSingle();
+ if(error)console.warn(error.message);
  return !!data;
 }
-
 async function ensureProfile(){
- const {data,error}=await db.from("profiles").select("*")
-  .eq("user_id",currentUser.id).maybeSingle();
+ const {data,error}=await db.from("profiles").select("*").eq("user_id",currentUser.id).maybeSingle();
  if(error)throw error;
  if(data){profile=data;return;}
- const {data:created,error:insertError}=await db.from("profiles")
-  .insert({user_id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"})
-  .select().single();
- if(insertError)throw insertError;
- profile=created;
+ const {data:created,error:insertError}=await db.from("profiles").insert({user_id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"}).select().single();
+ if(insertError)throw insertError;profile=created;
 }
-
 async function refreshProfile(){
- const avatar=await signedUrl(profile?.avatar_path);
- const name=profile?.display_name||"User";
- $("myAvatar").src=avatar;
- $("profilePreview").src=avatar;
+ const avatar=await signedUrl(profile?.avatar_path),name=profile?.display_name||"User";
+ $("myAvatar").src=avatar;$("profilePreview").src=avatar;
  $("welcome").textContent="Welcome, "+name+" ♥";
  $("dashboardGreeting").textContent="Hello, "+name+".";
- $("profilePreviewName").textContent=name;
- $("profileEmail").textContent=currentUser.email||"";
- $("displayName").value=name;
- setPrivacySwitch(profile?.is_private);
+ $("displayName").value=name;$("profileEmail").textContent=currentUser.email||"";
+ setPrivacy(profile?.is_private);
 }
-
+async function enterApp(user){
+ currentUser=user;
+ $("authSection").classList.add("hidden");$("appSection").classList.remove("hidden");
+ $("logoutBtn").classList.remove("hidden");$("headerNotif").classList.remove("hidden");
+ try{
+  isAdmin=await checkAdmin();
+  $("adminBadge").classList.toggle("hidden",!isAdmin);$("adminNav").classList.toggle("hidden",!isAdmin);
+  $("roleText").textContent=isAdmin?"Administrator account":"Community member";
+  await ensureProfile();await refreshProfile();await loadPhotos();await loadActivity();await loadNotifications();
+  updateDashboard();showPage("dashboard");
+ }catch(e){msg("authMessage","Login succeeded, but account loading failed: "+showError(e),true);}
+}
+async function login(){
+ if(busy)return;
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){msg("authMessage","Email aur password enter karo.",true);return;}
+ busy=true;setBusy("loginBtn",true);msg("authMessage","Logging in...");
+ try{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;if(!data.user)throw Error("No user returned.");await enterApp(data.user);}
+ catch(e){msg("authMessage",showError(e),true);}
+ finally{busy=false;setBusy("loginBtn",false);}
+}
+async function signup(){
+ if(busy)return;
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||!password){msg("authMessage","Email aur password enter karo.",true);return;}
+ if(password.length<6){msg("authMessage","Password kam se kam 6 characters ka hona chahiye.",true);return;}
+ busy=true;setBusy("signupBtn",true);msg("authMessage","Creating account...");
+ try{const {data,error}=await db.auth.signUp({email,password});if(error)throw error;if(data.session&&data.user)await enterApp(data.user);else msg("authMessage","Account created. Email confirm karke phir login karo.");}
+ catch(e){msg("authMessage",showError(e),true);}
+ finally{busy=false;setBusy("signupBtn",false);}
+}
+async function resetPassword(){
+ const email=$("email").value.trim();
+ if(!email){msg("authMessage","Pehle email address enter karo.",true);return;}
+ try{const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href});if(error)throw error;msg("authMessage","Password reset link email par bhej diya gaya hai.");}
+ catch(e){msg("authMessage",showError(e),true);}
+}
+async function logout(){
+ try{const {error}=await db.auth.signOut();if(error)throw error;}catch(e){console.error(e);}
+ currentUser=null;profile=null;allPhotos=[];$("appSection").classList.add("hidden");$("authSection").classList.remove("hidden");$("logoutBtn").classList.add("hidden");$("headerNotif").classList.add("hidden");msg("authMessage","You are logged out.");
+}
 function showPage(page){
  if(page==="admin"&&!isAdmin)return;
  document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));
- const target=$("page-"+page);if(target)target.classList.remove("hidden");
- document.querySelectorAll(".nav [data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ $("page-"+page)?.classList.remove("hidden");
+ document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
  if(page==="explore")renderGallery();
  if(page==="myphotos")renderMyPhotos();
  if(page==="favorites")loadFavorites();
  if(page==="notifications")loadNotifications();
  if(page==="activity")loadActivity();
+ if(page==="admin")loadAdmin();
 }
-
-async function enterApp(user){
- currentUser=user;
- $("authSection").classList.add("hidden");
- $("appSection").classList.remove("hidden");
- $("logoutBtn").classList.remove("hidden");
- $("headerNotif").classList.remove("hidden");
- try{
-  isAdmin=await checkAdmin();
-  $("adminBadge").classList.toggle("hidden",!isAdmin);
-  $("adminNav").classList.toggle("hidden",!isAdmin);
-  $("roleText").textContent=isAdmin?"Administrator account":"Community member";
-  await ensureProfile();
-  await refreshProfile();
-  await loadPhotos();
-  await loadActivity();
-  await loadNotifications();
-  updateDashboard();
-  showPage("dashboard");
- }catch(e){
-  status("authMessage","Account setup error: "+explainError(e),true);
- }
+async function loadPhotos(){
+ const {data,error}=await db.from("photo_posts").select("*").order("created_at",{ascending:false}).limit(100);
+ if(error)throw error;
+ allPhotos=data||[];
+ const ids=[...new Set(allPhotos.map(p=>p.user_id))];
+ let profiles={};
+ if(ids.length){const r=await db.from("profiles").select("user_id,display_name,avatar_path,is_private").in("user_id",ids);if(!r.error)(r.data||[]).forEach(p=>profiles[p.user_id]=p);}
+ const likes=await db.from("post_likes").select("post_id,user_id");
+ const favorites=await db.from("post_favorites").select("post_id,user_id").eq("user_id",currentUser.id);
+ const comments=await db.from("post_comments").select("post_id");
+ allPhotos=await Promise.all(allPhotos.map(async p=>{
+  const owner=profiles[p.user_id]||{};
+  return {...p,ownerName:owner.display_name||"Member",avatar:await signedUrl(owner.avatar_path),image:await signedUrl(p.storage_path),
+   likeCount:(likes.data||[]).filter(x=>x.post_id===p.id).length,
+   liked:(likes.data||[]).some(x=>x.post_id===p.id&&x.user_id===currentUser.id),
+   saved:(favorites.data||[]).some(x=>x.post_id===p.id),
+   commentCount:(comments.data||[]).filter(x=>x.post_id===p.id).length};
+ }));
 }
-
-async function login(){
- if(busy)return;
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||!password){status("authMessage","Enter your email and password.",true);return;}
- busy=true;setBusy("loginBtn",true);status("authMessage","Connecting securely...");
- try{
-  const {data,error}=await db.auth.signInWithPassword({email,password});
-  if(error)throw error;
-  if(!data.user)throw new Error("Login returned no user.");
-  await enterApp(data.user);
- }catch(e){status("authMessage",explainError(e),true);}
- finally{busy=false;setBusy("loginBtn",false);}
+function postHTML(p){
+ return `<article class="photo" data-post="${esc(p.id)}">
+ <img class="photo-image" data-view="${esc(p.image)}" src="${esc(p.image)}" alt="Shared photo">
+ <div class="photo-info"><div class="post-user">${esc(p.ownerName)} ${p.user_id===currentUser.id?"(You)":""}<div class="small">${esc(dateText(p.created_at))}</div></div>
+ <div class="caption">${esc(p.caption||"")}</div>
+ <div class="actions">
+ <button class="${p.liked?"selected":""}" data-action="like" data-id="${esc(p.id)}">♥ ${p.likeCount}</button>
+ <button class="${p.saved?"selected":""}" data-action="favorite" data-id="${esc(p.id)}">♡ Save</button>
+ <button class="secondary" data-action="comments" data-id="${esc(p.id)}">Comments (${p.commentCount})</button>
+ ${isAdmin?`<button class="danger" data-action="delete" data-id="${esc(p.id)}">Delete</button>`:""}
+ </div>
+ <div class="comment-area hidden" id="comments-${esc(p.id)}"><div class="comment-list" id="commentlist-${esc(p.id)}"></div>
+ <div class="commentform"><input id="commentinput-${esc(p.id)}" maxlength="500" placeholder="Write a comment..."><button data-action="comment" data-id="${esc(p.id)}">Send</button></div></div>
+ </div></article>`;
 }
-
-async function signup(){
- if(busy)return;
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||!password){status("authMessage","Enter your email and password.",true);return;}
- if(password.length<6){status("authMessage","Password must be at least 6 characters.",true);return;}
- busy=true;setBusy("signupBtn",true);status("authMessage","Creating your account...");
- try{
-  const {data,error}=await db.auth.signUp({email,password});
-  if(error)throw error;
-  if(data.session&&data.user)await enterApp(data.user);
-  else status("authMessage","Account created. Confirm your email, then log in.");
- }catch(e){status("authMessage",explainError(e),true);}
- finally{busy=false;setBusy("signupBtn",false);}
+function renderInto(id,items,emptyText){
+ $(id).innerHTML=items.length?items.map(postHTML).join(""):empty(emptyText);
 }
-
-async function resetPassword(){
- const email=$("email").value.trim();
- if(!email){statu
+function renderGallery(){
+ const q=$("searchInput").value.trim().toLowerCase();
+ const items=allPhotos.filter(p=>(p.caption||"").toLowerCase().includes(q)||p.ownerName.toLowerCase().includes(q));
+ renderInto("gallery",items,"No photos found.");
+}
+function renderMyPhotos(){renderInto("myPhotosGallery",allPhotos.filter(p=>p.user_id===currentUser.id),"You haven't shared any photos yet.");}
+function updateDashboard(){
+ $("myPhotoCount").textContent=allPhotos.filter(p=>p.user_id===currentUser.id).length;
+ $("communityPhotoCount").textContent=allPhotos.length;
+ $("activityCount").textContent=activities.length;
+ renderInto("dashboardPhotos",allPhotos.slice(0,4),"No memories yet.");
+ $("dashboardActivity").innerHTM
