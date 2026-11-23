@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#fff0f5,#ffe0ec);color:#452333}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#fff0f5,#ffe0ec);color:#452333}
 header{background:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 3px 15px #0001;position:sticky;top:0;z-index:5}
 h1{margin:0;color:#e84c87;font-size:23px}
 main{max-width:950px;margin:auto;padding:20px}
@@ -28,10 +28,10 @@ button:disabled{opacity:.5}
 .photo-info{padding:9px;font-size:12px;overflow-wrap:anywhere}
 .photo-info button{padding:8px;margin-top:7px;font-size:12px}
 .small{font-size:13px;color:#80596d}
+.status{margin-top:12px;font-weight:bold;overflow-wrap:anywhere}
 #viewer{position:fixed;inset:0;background:#000e;z-index:20;display:flex;align-items:center;justify-content:center;padding:15px}
 #viewer img{max-width:100%;max-height:85vh;object-fit:contain}
 #viewer button{position:absolute;top:20px;right:20px}
-.status{margin-top:12px;font-weight:bold}
 </style>
 </head>
 <body>
@@ -93,7 +93,10 @@ button:disabled{opacity:.5}
 <script>
 const SUPABASE_URL = "https://jhvmqedhxkahjroyquty.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX";
-const BUCKET = "mahi-photos";
+
+// Must exactly match the bucket ID in Supabase Storage
+const BUCKET = "Mahi Baby";
+
 const ADMIN_UID = "6b19250a-ab16-4e98-bae6-2f6473d8a4cb";
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -142,7 +145,9 @@ async function enterApp(user){
 async function login(){
   const email = $("email").value.trim();
   const password = $("password").value;
-  if(!email || !password) return message("authMessage","Enter email and password.",true);
+
+  if(!email || !password)
+    return message("authMessage","Enter email and password.",true);
 
   $("loginBtn").disabled = true;
   message("authMessage","Logging in...");
@@ -157,8 +162,12 @@ async function login(){
 async function signup(){
   const email = $("email").value.trim();
   const password = $("password").value;
-  if(!email || !password) return message("authMessage","Enter email and password.",true);
-  if(password.length < 6) return message("authMessage","Password must be at least 6 characters.",true);
+
+  if(!email || !password)
+    return message("authMessage","Enter email and password.",true);
+
+  if(password.length < 6)
+    return message("authMessage","Password must be at least 6 characters.",true);
 
   $("signupBtn").disabled = true;
   message("authMessage","Creating account...");
@@ -177,12 +186,18 @@ async function signup(){
 
 async function resetPassword(){
   const email = $("email").value.trim();
-  if(!email) return message("authMessage","Enter your email address first.",true);
+
+  if(!email)
+    return message("authMessage","Enter your email address first.",true);
 
   const {error} = await db.auth.resetPasswordForEmail(email,{
     redirectTo:window.location.origin
   });
-  message("authMessage",error ? error.message : "Password reset email sent.",!!error);
+
+  message("authMessage",
+    error ? error.message : "Password reset email sent.",
+    !!error
+  );
 }
 
 async function logout(){
@@ -190,6 +205,7 @@ async function logout(){
   currentUser = null;
   isAdmin = false;
   allPhotos = [];
+
   $("appSection").classList.add("hidden");
   $("authSection").classList.remove("hidden");
   $("logoutBtn").classList.add("hidden");
@@ -206,9 +222,8 @@ async function loadGallery(){
     sortBy:{column:"created_at",order:"desc"}
   });
 
-  if(error){
+  if(error)
     return message("galleryMessage","Gallery error: "+error.message,true);
-  }
 
   allPhotos = (data || []).filter(file =>
     file.name && file.name !== ".emptyFolderPlaceholder"
@@ -219,11 +234,17 @@ async function loadGallery(){
 
 function renderGallery(){
   const term = $("searchInput").value.trim().toLowerCase();
-  const filtered = allPhotos.filter(file => file.name.toLowerCase().includes(term));
+
+  const filtered = allPhotos.filter(file =>
+    file.name.toLowerCase().includes(term)
+  );
+
   $("gallery").innerHTML = "";
 
   if(filtered.length === 0){
-    message("galleryMessage",allPhotos.length ? "No matching photos found." : "No photos uploaded yet.");
+    message("galleryMessage",
+      allPhotos.length ? "No matching photos found." : "No photos uploaded yet."
+    );
     return;
   }
 
@@ -243,7 +264,6 @@ function renderGallery(){
 
     const name = document.createElement("div");
     name.textContent = file.name;
-
     info.appendChild(name);
 
     if(isAdmin){
@@ -272,9 +292,15 @@ function renderGallery(){
 
 async function uploadPhoto(){
   const file = $("photoInput").files[0];
-  if(!file) return message("uploadMessage","Please select a photo first.",true);
-  if(!file.type.startsWith("image/")) return message("uploadMessage","Only image files are allowed.",true);
-  if(file.size > 10*1024*1024) return message("uploadMessage","Photo must be smaller than 10 MB.",true);
+
+  if(!file)
+    return message("uploadMessage","Please select a photo first.",true);
+
+  if(!file.type.startsWith("image/"))
+    return message("uploadMessage","Only image files are allowed.",true);
+
+  if(file.size > 10*1024*1024)
+    return message("uploadMessage","Photo must be smaller than 10 MB.",true);
 
   $("uploadBtn").disabled = true;
   message("uploadMessage","Uploading photo...");
@@ -289,7 +315,8 @@ async function uploadPhoto(){
 
   $("uploadBtn").disabled = false;
 
-  if(error) return message("uploadMessage","Upload failed: "+error.message,true);
+  if(error)
+    return message("uploadMessage","Upload failed: "+error.message,true);
 
   $("photoInput").value = "";
   message("uploadMessage","Photo uploaded successfully! ❤️");
@@ -297,14 +324,19 @@ async function uploadPhoto(){
 }
 
 async function deletePhoto(filename){
-  if(!isAdmin) return alert("Only admin can delete photos.");
-  if(!confirm("Are you sure you want to delete this photo?")) return;
+  if(!isAdmin)
+    return alert("Only admin can delete photos.");
+
+  if(!confirm("Are you sure you want to delete this photo?"))
+    return;
 
   const {error} = await db.storage.from(BUCKET).remove([filename]);
+
   if(error){
     alert("Delete failed: "+error.message);
     return;
   }
+
   alert("Photo deleted.");
   await loadGallery();
 }
@@ -327,6 +359,7 @@ $("uploadBtn").addEventListener("click",uploadPhoto);
 $("refreshBtn").addEventListener("click",loadGallery);
 $("searchInput").addEventListener("input",renderGallery);
 $("closeViewer").addEventListener("click",closeViewer);
+
 $("viewer").addEventListener("click",e=>{
   if(e.target === $("viewer")) closeViewer();
 });
