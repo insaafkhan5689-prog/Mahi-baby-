@@ -3,796 +3,367 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#09070f">
-<title>Mahi Baby ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101018">
+<title>Mahi Baby ❤️ | Private Gallery</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:#09070f;
-  --panel:#171220;
-  --line:#30243f;
-  --text:#fff7ff;
-  --muted:#aa9bb8;
-  --pink:#ff4fa3;
-  --purple:#9865ff;
-}
+:root{--bg:#101018;--panel:#191923;--panel2:#222230;--pink:#ff5caa;--purple:#a879ff;--muted:#a4a4b5;--white:#fff;--border:#30303e;--danger:#ff5364}
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial, sans-serif;
-}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
+body{margin:0;background:radial-gradient(ellipse at top,#29203a 0%,#101018 55%);color:var(--white);font-family:Inter,system-ui,Arial,sans-serif;min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer;border:0}
+.topbar{height:70px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:#11111bdd;position:sticky;top:0;z-index:5;backdrop-filter:blur(15px)}
+.brand{font-size:21px;font-weight:850;letter-spacing:-.6px}.brand span{color:var(--pink)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.small-btn{background:var(--panel2);color:white;border:1px solid var(--border);padding:9px 13px;border-radius:11px}
+main{max-width:1250px;margin:auto;padding:35px 22px 80px}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:28px}
+h1{font-size:clamp(27px,5vw,43px);margin:0 0 7px;letter-spacing:-1.5px}
+.gradient{background:linear-gradient(90deg,#ff75b9,#b58aff);background-clip:text;-webkit-background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:0;font-size:14px}
+.panel{background:#191923e8;border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:0 15px 50px #0003}
+.auth-wrap{max-width:430px;margin:65px auto}
+.auth-wrap h2{margin:0 0 7px;font-size:26px}
+.field{width:100%;padding:14px 15px;background:#11111b;color:white;border:1px solid var(--border);border-radius:12px;outline:none;margin:8px 0}
+.field:focus{border-color:var(--pink)}
+.primary{background:linear-gradient(110deg,#ff55a6,#a56aff);color:white;padding:13px 18px;border-radius:12px;font-weight:750;box-shadow:0 7px 22px #ff55a633}
+.primary:disabled{opacity:.5;cursor:not-allowed}
+.full{width:100%;margin-top:12px}
+.link{background:none;color:#ff82bc;padding:10px 0}
+.auth-switch{display:flex;gap:10px;margin:17px 0}
+.auth-switch button{flex:1;padding:11px;border-radius:10px;background:#252532;color:#bbb}
+.auth-switch button.active{background:#472b47;color:white;border:1px solid #a94e91}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0}
+.search{flex:1;min-width:180px}
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat{padding:14px 18px;background:var(--panel);border:1px solid var(--border);border-radius:14px;min-width:120px}
+.stat strong{display:block;font-size:22px}.stat small{color:var(--muted)}
+.upload-box{border:1px dashed #77527c;border-radius:18px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;background:#211a2b;margin:22px 0}
+.upload-box p{margin:5px 0;color:var(--muted);font-size:13px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:17px}
+.photo{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;min-width:0}
+.photo img{width:100%;height:220px;object-fit:cover;display:block;cursor:zoom-in;background:#242431;transition:transform .3s}
+.photo:hover img{transform:scale(1.025)}
+.photo-info{padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.photo-name{font-size:12px;color:#ddd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.delete{background:#51252e;color:#ff9da7;border:1px solid #8b3d4b;border-radius:9px;padding:7px 9px;font-size:12px}
+.empty{padding:55px 15px;text-align:center;color:var(--muted);grid-column:1/-1}
 .hidden{display:none!important}
-.topbar{
-  height:65px;padding:0 18px;display:flex;
-  align-items:center;justify-content:space-between;
-  background:#110d19;border-bottom:1px solid var(--line);
-  position:sticky;top:0;z-index:5;
-}
-.brand{font-size:21px;font-weight:900}
-.brand span{color:var(--pink)}
-.layout{
-  max-width:1200px;margin:22px auto;padding:0 16px;
-  display:grid;grid-template-columns:210px 1fr;gap:22px;
-}
-.sidebar{
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:18px;padding:12px;height:max-content;
-  position:sticky;top:85px;
-}
-.navbtn{
-  display:block;width:100%;text-align:left;padding:13px;
-  margin:3px 0;border:0;border-radius:11px;
-  background:transparent;color:var(--muted);font-weight:bold;
-}
-.navbtn.active,.navbtn:hover{
-  color:white;background:linear-gradient(90deg,#55204d,#302044);
-}
-.main{min-width:0}
-.card{
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:18px;padding:17px;margin-bottom:15px;
-}
-h1{font-size:26px;margin:0 0 16px}
-.muted{color:var(--muted)}
-.btn{
-  border:0;border-radius:11px;padding:11px 16px;
-  background:linear-gradient(100deg,var(--pink),var(--purple));
-  color:white;font-weight:bold;
-}
-.secondary{background:#292034;border:1px solid var(--line)}
-.danger{background:#641c35}
-.field{
-  width:100%;padding:12px;margin:7px 0 14px;
-  color:white;background:#0d0a13;
-  border:1px solid var(--line);border-radius:10px;
-}
-label{font-size:13px;font-weight:bold}
-.auth{
-  max-width:430px;margin:8vh auto;padding:18px;
-}
-.auth .card{padding:25px}
-.stats{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
-}
-.stat{
-  background:#20172b;border:1px solid var(--line);
-  border-radius:14px;padding:15px;
-}
-.stat strong{display:block;font-size:24px}
-.feed{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.post{padding:0;overflow:hidden}
-.post img{
-  width:100%;max-height:480px;object-fit:cover;
-  display:block;background:#09070f;
-}
-.postbody{padding:13px}
-.person{display:flex;align-items:center;gap:10px}
-.avatar{
-  width:42px;height:42px;border-radius:50%;
-  object-fit:cover;background:#392744;
-}
-.avatar.big{width:85px;height:85px}
-.notice{
-  padding:11px;border-radius:10px;margin:10px 0;
-  background:#281a35;border:1px solid var(--line);
-}
-.error{background:#351724;color:#ffd9e2}
-.success{background:#123328;color:#caffea}
-.empty{text-align:center;padding:35px;color:var(--muted)}
-.mobile-nav{display:none}
-.preview{
-  width:100%;max-height:330px;object-fit:contain;
-  background:#08060c;border-radius:12px;margin:10px 0;
-}
-@media(max-width:750px){
-  .layout{display:block;padding:0 12px 85px}
-  .sidebar{display:none}
-  .feed{grid-template-columns:1fr}
-  .mobile-nav{
-    display:flex;position:fixed;bottom:0;left:0;right:0;
-    justify-content:space-around;background:#110d19;
-    border-top:1px solid var(--line);
-    padding:8px 3px calc(8px + env(safe-area-inset-bottom));
-    z-index:10;
-  }
-  .mobile-nav button{
-    background:none;border:0;color:var(--muted);
-    font-size:11px;padding:5px;
-  }
-  .mobile-nav button.active{color:var(--pink)}
-  .stats{gap:7px}
-  .stat{padding:10px}
-  .stat strong{font-size:19px}
-}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#292936;border:1px solid #454557;color:white;padding:13px 19px;border-radius:12px;z-index:20;box-shadow:0 8px 30px #0008;max-width:90%;text-align:center}
+#viewer{position:fixed;inset:0;background:#050509ed;z-index:15;display:flex;align-items:center;justify-content:center;padding:20px}
+#viewer img{max-width:95%;max-height:85vh;object-fit:contain;border-radius:12px}
+.close-view{position:absolute;top:20px;right:20px;background:#333;color:white;border-radius:50%;width:42px;height:42px;font-size:22px}
+.progress{height:5px;background:#343444;border-radius:20px;overflow:hidden;margin-top:12px}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--purple));transition:width .2s}
+.footer{text-align:center;color:#77778b;font-size:12px;margin-top:55px}
+@media(max-width:600px){main{padding:25px 14px 60px}.topbar{padding:0 15px}.brand{font-size:18px}.hero{align-items:flex-start;flex-direction:column}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.photo img{height:165px}.panel{padding:18px}.upload-box{padding:15px}}
 </style>
 </head>
 <body>
 
-<div id="authScreen" class="auth">
-  <div class="card">
-    <div class="brand">MAHI <span>BABY ❤️</span></div>
-    <h1 id="authTitle">Welcome Back</h1>
-    <p class="muted">Your personal photo community.</p>
-    <div id="authMessage"></div>
-
-    <form id="authForm">
-      <label>Email</label>
-      <input class="field" id="email" type="email" required>
-
-      <label>Password</label>
-      <input class="field" id="password" type="password"
-       minlength="6" required>
-
-      <div id="signupFields" class="hidden">
-        <label>Your Name</label>
-        <input class="field" id="signupName" maxlength="40">
-      </div>
-
-      <button class="btn" id="authSubmit" type="submit"
-       style="width:100%">Sign In</button>
-    </form>
-
-    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-      <button class="btn secondary" id="toggleAuth" type="button">
-        Create Account
-      </button>
-      <button class="btn secondary" id="forgotBtn" type="button">
-        Forgot Password
-      </button>
-    </div>
+<header class="topbar">
+  <div class="brand">Mahi <span>Baby ❤️</span></div>
+  <div class="top-actions">
+    <span id="userLabel" class="sub"></span>
+    <button id="logoutBtn" class="small-btn hidden" onclick="logout()">Logout ↗</button>
   </div>
-</div>
+</header>
 
-<div id="appScreen" class="hidden">
-  <header class="topbar">
-    <div class="brand">MAHI <span>BABY ❤️</span></div>
+<main>
+<section id="authSection" class="auth-wrap panel">
+  <div style="font-size:35px;margin-bottom:12px">💗</div>
+  <h2>Welcome to <span class="gradient">Mahi Baby</span></h2>
+  <p class="sub">Your memories. Your private gallery.</p>
+  <div class="auth-switch">
+    <button id="loginTab" class="active" onclick="setMode('login')">Login</button>
+    <button id="signupTab" onclick="setMode('signup')">Create account</button>
+  </div>
+  <input id="email" class="field" type="email" placeholder="Email address" autocomplete="email">
+  <input id="password" class="field" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="authBtn" class="primary full" onclick="authenticate()">Login</button>
+  <button class="link" onclick="resetPassword()">Forgot password?</button>
+  <p class="sub" id="authMessage" aria-live="polite"></p>
+</section>
+
+<section id="appSection" class="hidden">
+  <div class="hero">
     <div>
-      <button class="btn secondary" id="uploadTop">＋ Upload</button>
-      <button class="btn secondary" id="logoutBtn">Logout</button>
+      <h1>Your <span class="gradient">Beautiful Memories</span> ✨</h1>
+      <p class="sub">A special place for all your favourite moments.</p>
     </div>
-  </header>
-
-  <div class="layout">
-    <aside class="sidebar" id="desktopNav"></aside>
-    <main class="main" id="mainContent"></main>
+    <div id="adminBadge" class="hidden" style="background:#3d2442;color:#ff9bd1;padding:10px 14px;border-radius:12px;border:1px solid #814e79;font-size:13px">👑 ADMIN DASHBOARD</div>
   </div>
 
-  <nav class="mobile-nav" id="mobileNav"></nav>
+  <div id="adminStats" class="stats hidden">
+    <div class="stat"><strong id="totalPhotos">0</strong><small>Total photos</small></div>
+    <div class="stat"><strong id="adminStatus">Active</strong><small>Admin status</small></div>
+  </div>
+
+  <div class="upload-box">
+    <div>
+      <strong>📸 Add a new memory</strong>
+      <p>Choose photos from your device. Maximum 10 MB per photo.</p>
+    </div>
+    <div>
+      <input id="photoInput" type="file" accept="image/*" multiple class="hidden" onchange="uploadPhotos(this.files)">
+      <button class="primary" onclick="document.getElementById('photoInput').click()">＋ Upload photos</button>
+    </div>
+    <div id="uploadStatus" class="hidden" style="width:100%">
+      <span id="uploadText" class="sub">Uploading...</span>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" class="field search" placeholder="🔍 Search photos by filename..." oninput="renderGallery()">
+    <button class="small-btn" onclick="loadGallery()">↻ Refresh</button>
+  </div>
+  <div class="sub" id="galleryMessage" style="margin-bottom:14px">Loading memories...</div>
+  <div id="gallery" class="gallery"></div>
+</section>
+
+<div class="footer">Made with ❤️ for Mahi Baby</div>
+</main>
+
+<div id="viewer" class="hidden" onclick="closeViewer()">
+  <button class="close-view" onclick="closeViewer()">×</button>
+  <img id="viewerImage" src="" alt="Gallery photo" onclick="event.stopPropagation()">
 </div>
+<div id="toast" class="hidden" role="status"></div>
 
 <script>
 const SUPABASE_URL = "https://jhvmqedhxkahjroyquty.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX";
-const BUCKET = "mahi-photos";
+const BUCKET = "Mahi baby";
 const ADMIN_UID = "6b19250a-ab16-4e98-bae6-2f6473d8a4cb";
 
-const db = window.supabase.createClient(
-  SUPABASE_URL, SUPABASE_KEY
-);
-
-const $ = id => document.getElementById(id);
-
-let user = null;
-let profile = null;
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
 let isAdmin = false;
-let currentPage = "dashboard";
-let signupMode = false;
-let searchText = "";
+let photos = [];
+let authMode = "login";
+let toastTimer;
 
-const pages = [
-  ["dashboard","⌂","Dashboard"],
-  ["myphotos","▧","My Photos"],
-  ["upload","＋","Upload"],
-  ["activity","◷","Activity"],
-  ["community","◎","Community"],
-  ["profile","◉","My Profile"],
-  ["settings","⚙","Settings"]
-];
-
-function escapeHTML(value=""){
-  return String(value).replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",
-    '"':"&quot;","'":"&#39;"
-  }[c]));
+function toast(message){
+  const el=document.getElementById("toast");
+  el.textContent=message;
+  el.classList.remove("hidden");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.add("hidden"),3500);
 }
 
-function message(id,text,type=""){
-  $(id).innerHTML = text
-    ? `<div class="notice ${type}">${escapeHTML(text)}</div>`
-    : "";
+function setMode(mode){
+  authMode=mode;
+  document.getElementById("loginTab").classList.toggle("active",mode==="login");
+  document.getElementById("signupTab").classList.toggle("active",mode==="signup");
+  document.getElementById("authBtn").textContent=mode==="login"?"Login":"Create account";
+  document.getElementById("authMessage").textContent="";
 }
 
-function authMode(signup){
-  signupMode = signup;
-  $("authTitle").textContent = signup ? "Create Account" : "Welcome Back";
-  $("authSubmit").textContent = signup ? "Create Account" : "Sign In";
-  $("toggleAuth").textContent = signup
-    ? "Already have an account?" : "Create Account";
-  $("signupFields").classList.toggle("hidden",!signup);
-  $("signupName").required = signup;
-  message("authMessage","");
-}
-async function loadProfile(){
-  const {data,error} = await db.from("profiles")
-    .select("*").eq("user_id",user.id).maybeSingle();
-  if(error) throw error;
-
-  profile = data || {
-    user_id:user.id,
-    display_name:user.user_metadata?.display_name ||
-      user.email.split("@")[0],
-    avatar_path:null
-  };
-}
-
-async function checkAdmin(){
-  isAdmin = user.id === ADMIN_UID;
-  if(!isAdmin){
-    const {data} = await db.from("admins")
-      .select("user_id").eq("user_id",user.id).maybeSingle();
-    isAdmin = !!data;
-  }
-}
-
-async function saveProfile(name,avatarPath){
-  const update = {
-    user_id:user.id,
-    display_name:name.trim(),
-    updated_at:new Date().toISOString()
-  };
-  if(avatarPath !== undefined) update.avatar_path = avatarPath;
-
-  const {data,error} = await db.from("profiles")
-    .upsert(update,{onConflict:"user_id"}).select().single();
-  if(error) throw error;
-  profile = data;
-}
-
-async function imageURL(path){
-  if(!path) return "";
-  const {data,error} = await db.storage.from(BUCKET)
-    .createSignedUrl(path,3600);
-  if(error) return "";
-  return data.signedUrl;
-}
-
-function renderNavigation(){
-  const items = isAdmin
-    ? [...pages,["admin","♜","Admin Panel"]]
-    : pages;
-
-  const html = items.map(([key,icon,label]) =>
-    `<button class="navbtn ${currentPage===key?"active":""}"
-      data-page="${key}">${icon} &nbsp; ${label}</button>`
-  ).join("");
-
-  $("desktopNav").innerHTML = html;
-
-  $("mobileNav").innerHTML = items
-    .filter(x=>["dashboard","community","upload","myphotos","profile","admin"].includes(x[0]))
-    .map(([key,icon,label]) =>
-      `<button class="${currentPage===key?"active":""}"
-       data-page="${key}">${icon}<br>${label}</button>`
-    ).join("");
-
-  document.querySelectorAll("[data-page]").forEach(button=>{
-    button.onclick = ()=>openPage(button.dataset.page);
-  });
-}
-
-async function getPosts(ownOnly=false){
-  let query = db.from("photo_posts")
-    .select("*").order("created_at",{ascending:false}).limit(100);
-
-  if(ownOnly) query = query.eq("user_id",user.id);
-
-  const {data,error} = await query;
-  if(error) throw error;
-
-  const ids = [...new Set(data.map(p=>p.user_id))];
-  let profiles = [];
-
-  if(ids.length){
-    const result = await db.from("profiles")
-      .select("user_id,display_name,avatar_path").in("user_id",ids);
+async function authenticate(){
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const btn=document.getElementById("authBtn");
+  if(!email||!password){toast("Enter your email and password.");return;}
+  if(password.length<6){toast("Password must be at least 6 characters.");return;}
+  btn.disabled=true;
+  btn.textContent="Please wait...";
+  try{
+    let result;
+    if(authMode==="signup"){
+      result=await db.auth.signUp({email,password});
+    }else{
+      result=await db.auth.signInWithPassword({email,password});
+    }
     if(result.error) throw result.error;
-    profiles = result.data || [];
-  }
-
-  const lookup = Object.fromEntries(
-    profiles.map(p=>[p.user_id,p])
-  );
-
-  return Promise.all(data.map(async p=>{
-    const person = lookup[p.user_id] || {};
-    return {
-      ...p,
-      display_name:person.display_name || "Member",
-      image:await imageURL(p.storage_path),
-      avatar:await imageURL(person.avatar_path)
-    };
-  }));
-}
-
-function postHTML(p,admin=false){
-  return `<article class="card post">
-    <img src="${p.image}" alt="Shared photo">
-    <div class="postbody">
-      <div class="person">
-        <img class="avatar" src="${p.avatar}" alt="">
-        <div>
-          <strong>${escapeHTML(p.display_name)}</strong>
-          <div class="muted">${new Date(p.created_at).toLocaleString()}</div>
-        </div>
-      </div>
-      <p>${escapeHTML(p.caption || "")}</p>
-      ${admin ? `<button class="btn danger"
-        data-delete="${p.id}"
-        data-path="${escapeHTML(p.storage_path)}">Delete Post</button>` : ""}
-    </div>
-  </article>`;
-}
-
-function heading(title,subtitle=""){
-  return `<h1>${title}</h1><p class="muted">${subtitle}</p>`;
-}
-
-async function openPage(page){
-  if(page==="admin" && !isAdmin) return;
-
-  currentPage = page;
-  renderNavigation();
-  await renderPage();
-}
-
-async function renderPage(){
-  const main = $("mainContent");
-  main.innerHTML = `<div class="card">Loading…</div>`;
-
-  try{
-    if(currentPage==="dashboard"){
-      const posts = await getPosts();
-      const mine = posts.filter(p=>p.user_id===user.id);
-
-      main.innerHTML = heading("Dashboard","Welcome to Mahi Baby ❤️") +
-        `<div class="stats">
-          <div class="stat">Community Photos<strong>${posts.length}</strong></div>
-          <div class="stat">My Photos<strong>${mine.length}</strong></div>
-          <div class="stat">Account<strong>${isAdmin?"Admin":"Member"}</strong></div>
-        </div>
-        <div class="card" style="margin-top:18px">
-          <h2>Recent Community Photos</h2>
-          <button class="btn" id="communityButton">Explore Community</button>
-        </div>
-        <div class="feed">${posts.slice(0,4).map(p=>postHTML(p)).join("")}</div>`;
-
-      $("communityButton").onclick=()=>openPage("community");
+    if(authMode==="signup"&&!result.data.session){
+      document.getElementById("authMessage").textContent="Account created. Check your email to verify it, then login.";
+      toast("Account created. Verify your email.");
+    }else{
+      currentUser=result.data.user;
+      await enterApp();
     }
-
-    else if(["community","myphotos","admin"].includes(currentPage)){
-      const admin = currentPage==="admin";
-      const posts = await getPosts(currentPage==="myphotos");
-      const filtered = posts.filter(p=>
-        (p.caption||"").toLowerCase().includes(searchText) ||
-        p.display_name.toLowerCase().includes(searchText)
-      );
-
-      main.innerHTML = heading(
-        admin?"Admin Panel":currentPage==="myphotos"?"My Photos":"Community",
-        admin?"Manage community posts":"Browse shared memories"
-      ) +
-      (!admin ? `<input class="field" id="searchPosts"
-        placeholder="Search photos or members…">` : "") +
-      `<div class="feed">${filtered.map(p=>postHTML(p,admin)).join("")}</div>` +
-      (filtered.length?"":`<div class="card empty">No photos found.</div>`);
-
-      const search = $("searchPosts");
-      if(search){
-        search.value=searchText;
-        search.oninput=()=>{
-          searchText=search.value.toLowerCase();
-          renderPage();
-        };
-      }
-
-      document.querySelectorAll("[data-delete]").forEach(button=>{
-        button.onclick=async()=>{
-          if(!confirm("Delete this photo permanently?")) return;
-          button.disabled=true;
-          const {error:storageError}=await db.storage.from(BUCKET)
-            .remove([button.dataset.path]);
-          if(storageError){
-            alert(storageError.message);
-            button.disabled=false;
-            return;
-          }
-          const {error}=await db.from("photo_posts")
-            .delete().eq("id",button.dataset.delete);
-          if(error){
-            alert(error.message);
-            button.disabled=false;
-            return;
-          }
-          renderPage();
-        };
-      });
-    }
-
-    else if(currentPage==="upload"){
-      main.innerHTML = heading("Upload Photo","Share a new memory") +
-        `<div class="card">
-          <form id="uploadForm">
-            <label>Select Photo</label>
-            <input class="field" type="file" id="photoFile"
-              accept="image/*" required>
-            <img id="preview" class="preview hidden" alt="Preview">
-            <label>Caption</label>
-            <textarea class="field" id="caption"
-              maxlength="500" rows="3"
-              placeholder="Write a caption…"></textarea>
-            <button class="btn" id="uploadButton">Upload Photo</button>
-            <div id="uploadMessage"></div>
-          </form>
-        </div>`;
-
-      $("photoFile").onchange=()=>{
-        const file=$("photoFile").files[0];
-        if(file){
-          $("preview").src=URL.createObjectURL(file);
-          $("preview").classList.remove("hidden");
-        }
-      };
-
-      $("uploadForm").onsubmit=uploadPhoto;
-    }
-
-    else if(currentPage==="profile"){
-      const avatar=await imageURL(profile.avatar_path);
-      const posts=await getPosts(true);
-
-      main.innerHTML=heading("My Profile","Your account details") +
-        `<div class="card">
-          <div class="person">
-            <img class="avatar big" src="${avatar}" alt="Profile picture">
-            <div><h2>${escapeHTML(profile.display_name||"Member")}</h2>
-              <div class="muted">${escapeHTML(user.email)}</div>
-            </div>
-          </div>
-          <form id="profileForm">
-            <label>Display Name</label>
-            <input class="field" id="displayName" required
-              maxlength="40" value="${escapeHTML(profile.display_name||"")}">
-            <label>Profile Picture</label>
-            <input class="field" type="file" id="avatarFile" accept="image/*">
-            <button class="btn">Save Profile</button>
-            <div id="profileMessage"></div>
-          </form>
-        </div>
-        <div class="card">Your uploaded photos: <strong>${posts.length}</strong></div>`;
-
-      $("profileForm").onsubmit=saveMyProfile;
-    }
-
-    else if(currentPage==="activity"){
-      const posts=await getPosts(true);
-      main.innerHTML=heading("Activity","Your recent uploads") +
-        `<div class="card">${posts.length ?
-          posts.map(p=>`<p>📷 You uploaded a photo
-            <br><span class="muted">${new Date(p.created_at).toLocaleString()}</span>
-          </p>`).join("") :
-          `<div class="empty">No activity yet.</div>`}</div>`;
-    }
-
-    else if(currentPage==="settings"){
-      main.innerHTML=heading("Settings","Manage your account") +
-        `<div class="card">
-          <p>${escapeHTML(user.email)}</p>
-          <button class="btn secondary" id="resetButton">Reset Password</button>
-          <div id="settingsMessage"></div>
-        </div>
-        <div class="card">
-          <button class="btn danger" id="settingsLogout">Logout</button>
-        </div>`;
-
-      $("resetButton").onclick=resetPassword;
-      $("settingsLogout").onclick=logout;
-    }
-
-  }catch(error){
-    main.innerHTML=heading("Page Error") +
-      `<div class="notice error">${escapeHTML(error.message)}</div>
-       <button class="btn secondary" id="retryButton">Retry</button>`;
-    $("retryButton").onclick=renderPage;
-  }
-}
-
-async function uploadPhoto(event){
-  event.preventDefault();
-
-  const file=$("photoFile").files[0];
-  if(!file) return;
-
-  const button=$("uploadButton");
-  button.disabled=true;
-  button.textContent="Uploading…";
-  message("uploadMessage","");
-
-  let uploadedPath=null;
-
-  try{
-    if(!file.type.startsWith("image/"))
-      throw new Error("Please select an image.");
-    if(file.size>15*1024*1024)
-      throw new Error("Photo must be smaller than 15 MB.");
-
-    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-    const path=`${user.id}_${Date.now()}_${safeName}`;
-
-    const upload=await db.storage.from(BUCKET)
-      .upload(path,file,{upsert:false,contentType:file.type});
-
-    if(upload.error) throw upload.error;
-    uploadedPath=path;
-
-    const insert=await db.from("photo_posts").insert({
-      user_id:user.id,
-      storage_path:path,
-      caption:$("caption").value.trim()
-    });
-
-    if(insert.error) throw insert.error;
-
-    message("uploadMessage","Photo uploaded successfully!","success");
-    $("uploadForm").reset();
-    $("preview").classList.add("hidden");
-
-    setTimeout(()=>openPage("myphotos"),800);
-
-  }catch(error){
-    if(uploadedPath){
-      await db.storage.from(BUCKET).remove([uploadedPath]);
-    }
-    message("uploadMessage",error.message||"Upload failed.","error");
-  }finally{
-    button.disabled=false;
-    button.textContent="Upload Photo";
-  }
-}
-
-async function saveMyProfile(event){
-  event.preventDefault();
-
-  const button=$("profileForm").querySelector("button");
-  button.disabled=true;
-  message("profileMessage","");
-
-  try{
-    const name=$("displayName").value.trim();
-    if(!name) throw new Error("Please enter your name.");
-
-    const file=$("avatarFile").files[0];
-    let avatarPath=profile.avatar_path||null;
-
-    if(file){
-      if(!file.type.startsWith("image/"))
-        throw new Error("Please select an image file.");
-      if(file.size>8*1024*1024)
-        throw new Error("Profile photo must be smaller than 8 MB.");
-
-      const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-      avatarPath=`${user.id}_${Date.now()}_avatar_${safeName}`;
-
-      const upload=await db.storage.from(BUCKET)
-        .upload(avatarPath,file,{
-          upsert:false,
-          contentType:file.type
-        });
-
-      if(upload.error) throw upload.error;
-    }
-
-    await saveProfile(name,avatarPath);
-    message("profileMessage","Profile updated successfully!","success");
-
-    setTimeout(()=>{
-      renderNavigation();
-      renderPage();
-    },700);
-
-  }catch(error){
-    message("profileMessage",error.message||"Profile update failed.","error");
-  }finally{
-    button.disabled=false;
-  }
+  }catch(e){toast(e.message||"Authentication failed.");}
+  finally{btn.disabled=false;btn.textContent=authMode==="login"?"Login":"Create account";}
 }
 
 async function resetPassword(){
-  const {error}=await db.auth.resetPasswordForEmail(user.email);
-  message(
-    "settingsMessage",
-    error?error.message:"Password reset email sent. Check your inbox.",
-    error?"error":"success"
-  );
+  const email=document.getElementById("email").value.trim();
+  if(!email){toast("Enter your email address first.");return;}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin});
+  if(error)toast(error.message);else toast("Password reset email sent.");
 }
 
 async function logout(){
   const {error}=await db.auth.signOut();
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  user=null;
-  profile=null;
-  isAdmin=false;
-  $("appScreen").classList.add("hidden");
-  $("authScreen").classList.remove("hidden");
+  if(error){toast(error.message);return;}
+  currentUser=null;isAdmin=false;photos=[];
+  document.getElementById("appSection").classList.add("hidden");
+  document.getElementById("authSection").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.add("hidden");
+  document.getElementById("userLabel").textContent="";
+  toast("Logged out successfully.");
 }
 
-let bootingUserId=null;
-
-async function boot(account){
-  if(!account) return;
-  if(bootingUserId===account.id) return;
-
-  bootingUserId=account.id;
-  user=account;
-
-  try{
-    await loadProfile();
-    await checkAdmin();
-
-    $("authScreen").classList.add("hidden");
-    $("appScreen").classList.remove("hidden");
-
-    await openPage("dashboard");
-
-  }catch(error){
-    $("authScreen").classList.add("hidden");
-    $("appScreen").classList.remove("hidden");
-
-    $("mainContent").innerHTML=
-      `<div class="card">
-        <h2>Account setup error</h2>
-        <div class="notice error">${escapeHTML(error.message)}</div>
-        <button class="btn" id="retryBoot">Try Again</button>
-      </div>`;
-
-    $("retryBoot").onclick=()=>boot(account);
-
-  }finally{
-    bootingUserId=null;
-  }
+async function checkAdmin(){
+  if(!currentUser)return false;
+  if(currentUser.id===ADMIN_UID)return true;
+  const {data,error}=await db.from("admins").select("user_id").eq("user_id",currentUser.id).maybeSingle();
+  if(error)console.error("Admin check:",error.message);
+  return !!data;
 }
 
-$("authForm").addEventListener("submit",async event=>{
-  event.preventDefault();
+async function enterApp(){
+  if(!currentUser)return;
+  isAdmin=await checkAdmin();
+  document.getElementById("authSection").classList.add("hidden");
+  document.getElementById("appSection").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.remove("hidden");
+  document.getElementById("userLabel").textContent=currentUser.email||"Signed in";
+  document.getElementById("adminBadge").classList.toggle("hidden",!isAdmin);
+  document.getElementById("adminStats").classList.toggle("hidden",!isAdmin);
+  await loadGallery();
+}
 
-  const email=$("email").value.trim();
-  const password=$("password").value;
-  const button=$("authSubmit");
-
-  button.disabled=true;
-  message("authMessage","");
-
+async function loadGallery(){
+  const gallery=document.getElementById("gallery");
+  const msg=document.getElementById("galleryMessage");
+  gallery.innerHTML='<div class="empty">Loading photos...</div>';
+  msg.textContent="Loading memories...";
   try{
-    if(signupMode){
-      const name=$("signupName").value.trim();
-      if(!name) throw new Error("Please enter your name.");
-
-      const {data,error}=await db.auth.signUp({
-        email,
-        password,
-        options:{
-          data:{display_name:name}
-        }
-      });
-
-      if(error) throw error;
-
-      if(data.session){
-        await boot(data.user);
-      }else{
-        message(
-          "authMessage",
-          "Account created. Verify your email if confirmation is required, then sign in.",
-          "success"
-        );
+    const {data,error}=await db.storage.from(BUCKET).list("",{
+      limit:1000,
+      sortBy:{column:"created_at",order:"desc"}
+    });
+    if(error)throw error;
+    const files=(data||[]).filter(f=>f.name&&!f.name.startsWith("."));
+    photos=[];
+    for(const file of files){
+      const {data:urlData,error:urlError}=await db.storage.from(BUCKET).createSignedUrl(file.name,3600);
+      if(!urlError&&urlData?.signedUrl){
+        photos.push({name:file.name,url:urlData.signedUrl,created:file.created_at});
       }
-
-    }else{
-      const {data,error}=await db.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if(error) throw error;
-      await boot(data.user);
     }
-
-  }catch(error){
-    message("authMessage",error.message||"Login failed.","error");
-  }finally{
-    button.disabled=false;
+    document.getElementById("totalPhotos").textContent=photos.length;
+    document.getElementById("adminStatus").textContent=isAdmin?"Verified":"Active";
+    renderGallery();
+    msg.textContent=photos.length+" memories";
+  }catch(e){
+    console.error(e);
+    gallery.innerHTML='<div class="empty">Could not load photos. '+escapeHTML(e.message)+'</div>';
+    msg.textContent="Gallery loading failed.";
   }
-});
+}
 
-$("toggleAuth").addEventListener("click",()=>{
-  authMode(!signupMode);
-});
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
 
-$("forgotBtn").addEventListener("click",async()=>{
-  const email=$("email").value.trim();
-
-  if(!email){
-    message("authMessage","Enter your email address first.","error");
+function renderGallery(){
+  const gallery=document.getElementById("gallery");
+  const query=document.getElementById("search").value.toLowerCase().trim();
+  const filtered=photos.filter(p=>p.name.toLowerCase().includes(query));
+  gallery.innerHTML="";
+  if(!filtered.length){
+    gallery.innerHTML='<div class="empty">📷<br><br>No photos found.</div>';
     return;
   }
+  filtered.forEach(photo=>{
+    const card=document.createElement("article");
+    card.className="photo";
+    const img=document.createElement("img");
+    img.src=photo.url;
+    img.alt=photo.name;
+    img.loading="lazy";
+    img.onclick=()=>openViewer(photo.url);
+    img.onerror=()=>{img.alt="Image unavailable";};
+    const info=document.createElement("div");
+    info.className="photo-info";
+    const name=document.createElement("span");
+    name.className="photo-name";
+    name.textContent=photo.name;
+    info.appendChild(name);
+    if(isAdmin){
+      const del=document.createElement("button");
+      del.className="delete";
+      del.textContent="Delete";
+      del.onclick=()=>deletePhoto(photo.name);
+      info.appendChild(del);
+    }
+    card.append(img,info);
+    gallery.appendChild(card);
+  });
+}
 
-  const {error}=await db.auth.resetPasswordForEmail(email);
+async function uploadPhotos(fileList){
+  const files=Array.from(fileList||[]);
+  if(!files.length)return;
+  const status=document.getElementById("uploadStatus");
+  const text=document.getElementById("uploadText");
+  const bar=document.getElementById("progressBar");
+  status.classList.remove("hidden");
+  let done=0,failed=0;
+  for(const file of files){
+    if(!file.type.startsWith("image/")||file.size>10*1024*1024){
+      failed++;continue;
+    }
+    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+    const path=currentUser.id+"_"+Date.now()+"_"+Math.random().toString(36).slice(2,7)+"_"+safeName;
+    text.textContent="Uploading "+(done+failed+1)+" of "+files.length;
+    const {error}=await db.storage.from(BUCKET).upload(path,file,{
+      contentType:file.type,
+      upsert:false
+    });
+    if(error){console.error(error);failed++;}
+    else done++;
+    bar.style.width=((done+failed)/files.length*100)+"%";
+  }
+  document.getElementById("photoInput").value="";
+  text.textContent=done+" uploaded, "+failed+" failed.";
+  await loadGallery();
+  toast(done+" photo(s) uploaded. "+failed+" failed.");
+  setTimeout(()=>status.classList.add("hidden"),3500);
+}
 
-  message(
-    "authMessage",
-    error?error.message:"Password reset email sent. Check your inbox.",
-    error?"error":"success"
-  );
-});
+async function deletePhoto(name){
+  if(!isAdmin){toast("Admin permission required.");return;}
+  if(!confirm("Are you sure you want to permanently delete this photo?"))return;
+  const {error}=await db.storage.from(BUCKET).remove([name]);
+  if(error){toast("Delete failed: "+error.message);return;}
+  photos=photos.filter(p=>p.name!==name);
+  renderGallery();
+  document.getElementById("totalPhotos").textContent=photos.length;
+  toast("Photo deleted successfully.");
+}
 
-$("logoutBtn").addEventListener("click",logout);
-$("uploadTop").addEventListener("click",()=>openPage("upload"));
+function openViewer(url){
+  document.getElementById("viewerImage").src=url;
+  document.getElementById("viewer").classList.remove("hidden");
+}
+function closeViewer(){
+  document.getElementById("viewer").classList.add("hidden");
+  document.getElementById("viewerImage").src="";
+}
 
 db.auth.onAuthStateChange((event,session)=>{
-  if(event==="SIGNED_OUT"){
-    user=null;
-    profile=null;
+  if(session?.user){
+    currentUser=session.user;
+    setTimeout(()=>enterApp(),0);
+  }else if(event==="SIGNED_OUT"){
+    currentUser=null;
     isAdmin=false;
-    $("appScreen").classList.add("hidden");
-    $("authScreen").classList.remove("hidden");
-  }else if(session?.user){
-    setTimeout(()=>boot(session.user),0);
   }
 });
 
 (async()=>{
-  authMode(false);
-
   const {data,error}=await db.auth.getSession();
-
-  if(error){
-    message("authMessage",error.message,"error");
-    return;
-  }
-
-  if(data.session?.user){
-    await boot(data.session.user);
-  }else{
-    $("authScreen").classList.remove("hidden");
+  if(error){console.error(error);return;}
+  if(data.session){
+    currentUser=data.session.user;
+    await enterApp();
   }
 })();
-                 
 </script>
 </body>
 </html>
