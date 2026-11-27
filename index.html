@@ -3,1547 +3,463 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#170D1D">
-<title>Mahi Baby — Your Social World</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff1f7">
+<meta name="description" content="Mahi Baby — Share moments, discover people and connect.">
+<title>MAHI BABY — Your Social Space</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root{
- --bg:#170D1D;
- --surface:#211328;
- --surface2:#2C1935;
- --surface3:#38203F;
- --pink:#F02B91;
- --pink2:#FF70B5;
- --pink3:#FFB4D7;
- --text:#FFF5FA;
- --muted:#BBA7B9;
- --line:#49304B;
- --danger:#FF647D;
- --success:#79D9A2;
- --shadow:0 18px 55px #08030b66;
+:root {
+  --pink:#ed3987;
+  --pink-dark:#c91d69;
+  --pink-soft:#ffe2ef;
+  --pink-pale:#fff5f9;
+  --rose:#9c315f;
+  --ink:#30232a;
+  --muted:#8c7b84;
+  --white:#fff;
+  --line:#f2dce6;
+  --shadow:0 12px 35px rgba(176,50,105,.09);
+  --radius:22px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
- margin:0;background:var(--bg);color:var(--text);
- font-family:"DM Sans",sans-serif;min-height:100vh;
+  margin:0;background:var(--pink-pale);color:var(--ink);
+  font-family:'DM Sans',sans-serif;
 }
-button,input,textarea,select{font:inherit}
+button,input,textarea{font:inherit}
 button{cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}
-img{max-width:100%}
+a{color:inherit;text-decoration:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:3px solid #f49ac1;outline-offset:3px;
+}
 .hidden{display:none!important}
-.muted{color:var(--muted)}
-.small{font-size:12px}
-.tiny{font-size:11px}
+.app-shell{min-height:100vh}
 .topbar{
- position:sticky;top:0;z-index:30;
- height:68px;padding:0 5%;
- display:flex;align-items:center;justify-content:space-between;
- background:#170D1DEB;backdrop-filter:blur(20px);
- border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:18px;padding:14px max(18px,calc((100% - 1250px)/2));
+  background:rgba(255,255,255,.91);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
 }
-.brand{
- font-family:Outfit,sans-serif;font-size:25px;font-weight:900;
- letter-spacing:-1.5px;cursor:pointer;
+.brand{display:flex;align-items:center;gap:10px;min-width:max-content}
+.brand-mark{
+  width:42px;height:42px;border-radius:15px;
+  display:grid;place-items:center;color:white;font-size:21px;
+  background:linear-gradient(135deg,#fa6ca8,#d92276);
+  box-shadow:0 6px 16px #ed398744;
 }
-.brand span{color:var(--pink2)}
-.top-actions{display:flex;gap:9px;align-items:center}
+.brand-name{
+  font-family:'Playfair Display',serif;font-weight:800;
+  font-size:23px;letter-spacing:-.7px;
+}
+.brand-name span{color:var(--pink)}
+.search-wrap{
+  flex:1;max-width:430px;position:relative;
+}
+.search-wrap input{
+  width:100%;height:44px;border:1px solid var(--line);
+  border-radius:15px;background:#fff7fa;padding:0 16px 0 43px;
+  outline:none;color:var(--ink);
+}
+.search-wrap input:focus{border-color:#ed80ad;background:white}
+.search-icon{position:absolute;left:15px;top:12px;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:9px}
+.btn{
+  border:0;border-radius:13px;padding:11px 17px;
+  font-weight:700;transition:.2s;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{
+  color:white;background:linear-gradient(135deg,#f15b9d,#d72576);
+  box-shadow:0 7px 17px #ed398833;
+}
+.btn-light{background:var(--pink-soft);color:var(--pink-dark)}
+.btn-plain{background:white;border:1px solid var(--line);color:var(--ink)}
 .icon-btn{
- width:42px;height:42px;border-radius:14px;
- background:var(--surface);border:1px solid var(--line);
- color:var(--text);font-size:19px;
+  width:42px;height:42px;border:1px solid var(--line);
+  border-radius:14px;background:white;color:var(--rose);
+  font-size:18px;display:grid;place-items:center;
 }
-.icon-btn:hover{border-color:var(--pink)}
-.top-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--pink)}
 .layout{
- max-width:1320px;margin:auto;padding:25px 22px 110px;
- display:grid;grid-template-columns:220px minmax(0,680px) 260px;
- gap:25px;justify-content:center;
+  max-width:1250px;margin:24px auto;padding:0 18px;
+  display:grid;grid-template-columns:235px minmax(0,650px) 270px;
+  gap:22px;align-items:start;
 }
-.sidebar{
- position:sticky;top:90px;height:max-content;
- background:var(--surface);border:1px solid var(--line);
- border-radius:23px;padding:15px;
-}
-.side-brand{font-family:Outfit;font-size:19px;font-weight:850;padding:10px 12px 20px}
-.side-link{
- display:flex;align-items:center;gap:13px;width:100%;
- padding:13px;border:0;border-radius:13px;
- background:transparent;color:var(--muted);text-align:left;
- margin:3px 0;font-weight:600;
-}
-.side-link .ico{font-size:20px;width:23px;text-align:center}
-.side-link:hover,.side-link.active{
- background:#49203F;color:var(--pink2);
-}
-.side-link.active{font-weight:800}
-.side-create{
- width:100%;margin-top:16px;padding:14px;
- border:0;border-radius:15px;background:linear-gradient(120deg,var(--pink),#C52B8C);
- color:white;font-weight:800;box-shadow:0 8px 25px #F02B9133;
-}
-.main{min-width:0}
-.rightbar{position:sticky;top:90px;height:max-content}
-.welcome{
- padding:25px;border-radius:25px;margin-bottom:22px;
- background:radial-gradient(circle at 90% 10%,#B42A7938,transparent 40%),
- linear-gradient(135deg,#43203E,#26142E 65%);
- border:1px solid #70405E;position:relative;overflow:hidden;
-}
-.welcome h1{
- font-family:Outfit,sans-serif;font-size:29px;
- line-height:1.15;margin:0 0 10px;letter-spacing:-.8px;
-}
-.welcome h1 span{color:var(--pink2)}
-.welcome p{color:#D8C2D4;line-height:1.6;margin:0;font-size:14px}
-.welcome-tag{
- display:inline-block;margin-bottom:13px;
- background:#F02B9122;color:var(--pink3);
- padding:6px 11px;border-radius:30px;font-size:11px;font-weight:800;
-}
-.section-head{
- display:flex;align-items:center;justify-content:space-between;
- margin:22px 2px 14px;
-}
-.section-head h2{font-family:Outfit;margin:0;font-size:21px}
-.tabs{display:flex;gap:8px;overflow:auto;padding:2px 0 14px}
-.pill{
- border:1px solid var(--line);background:var(--surface);
- color:var(--muted);padding:9px 16px;border-radius:30px;
- white-space:nowrap;font-size:13px;
-}
-.pill.active{background:var(--pink);color:white;border-color:var(--pink);font-weight:800}
-.card{
- background:var(--surface);border:1px solid var(--line);
- border-radius:21px;overflow:hidden;margin-bottom:18px;
-}
-.post-head{display:flex;align-items:center;gap:11px;padding:14px}
-.avatar{
- width:43px;height:43px;border-radius:50%;object-fit:cover;
- background:var(--surface3);border:1px solid #75445F;
- display:grid;place-items:center;color:var(--pink2);
- font-family:Outfit;font-weight:800;flex-shrink:0;
-}
-.avatar.large{width:105px;height:105px;font-size:35px;border-width:3px}
-.user-name{font-size:14px;font-weight:800;cursor:pointer}
-.user-name:hover{color:var(--pink2)}
-.post-date{font-size:11px;color:var(--muted);margin-top:3px}
-.more-btn{margin-left:auto;background:transparent;border:0;color:var(--muted);font-size:22px}
-.post-image{
- width:100%;max-height:720px;object-fit:contain;
- display:block;background:#100913;
-}
-.post-caption{padding:13px 15px 4px;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.post-caption .username{font-weight:800;color:var(--pink2)}
-.post-actions{display:flex;align-items:center;gap:4px;padding:9px 11px 13px;flex-wrap:wrap}
-.action{
- border:0;background:transparent;color:#E4D2E0;
- padding:9px 10px;border-radius:12px;font-size:13px;
-}
-.action:hover{background:var(--surface2)}
-.action.liked{color:#FF6BAA}
-.action.saved{color:var(--pink2)}
-.action.delete{color:var(--danger);margin-left:auto}
-.action-count{font-weight:700}
-.empty{
- text-align:center;padding:38px 20px;
- background:var(--surface);border:1px dashed #694B67;
- border-radius:20px;color:var(--muted);line-height:1.6;
-}
-.empty strong{display:block;color:var(--text);font-size:17px;margin-bottom:7px}
 .panel{
- background:var(--surface);border:1px solid var(--line);
- border-radius:20px;padding:18px;margin-bottom:16px;
+  background:white;border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);
 }
-.panel h3{font-family:Outfit;margin:0 0 12px}
-.field{
- width:100%;background:#170D1D;color:white;
- border:1px solid var(--line);border-radius:13px;
- padding:13px 14px;outline:none;margin:7px 0 13px;
-}
-.field:focus{border-color:var(--pink);box-shadow:0 0 0 3px #F02B9118}
-textarea.field{min-height:100px;resize:vertical}
-.primary{
- border:0;border-radius:13px;padding:14px 18px;
- background:linear-gradient(120deg,var(--pink),#C52B8C);
- color:white;font-weight:800;
-}
-.primary:hover{filter:brightness(1.1)}
-.primary.full{width:100%}
-.secondary{
- border:1px solid var(--line);background:var(--surface2);
- color:white;border-radius:12px;padding:11px 14px;
-}
-.danger{
- border:1px solid #753344;background:#351725;
- color:#FF9CB0;border-radius:12px;padding:11px 14px;
-}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
-.grid-item{aspect-ratio:1;overflow:hidden;background:var(--surface2);cursor:pointer}
-.grid-item img{width:100%;height:100%;object-fit:cover;transition:.25s}
-.grid-item:hover img{transform:scale(1.05)}
-.profile-header{
- background:var(--surface);border:1px solid var(--line);
- border-radius:23px;padding:23px;margin-bottom:17px;
-}
-.profile-top{display:flex;gap:19px;align-items:center}
-.profile-name{font-family:Outfit;font-size:23px;font-weight:800}
-.profile-stats{display:flex;gap:23px;margin-top:16px}
-.profile-stats strong{display:block;font-size:17px}
-.profile-stats span{font-size:11px;color:var(--muted)}
-.search-result{
- display:flex;align-items:center;gap:12px;padding:12px;
- border-bottom:1px solid var(--line);cursor:pointer;
-}
-.search-result:last-child{border:0}
-.search-result:hover{background:var(--surface2)}
-.bottom-nav{
- display:none;position:fixed;z-index:40;bottom:0;left:0;right:0;
- background:#211328F5;backdrop-filter:blur(20px);
- border-top:1px solid var(--line);
- padding:9px 3px calc(9px + env(safe-area-inset-bottom));
+.sidebar{position:sticky;top:90px;padding:18px}
+.side-title{
+  color:var(--muted);font-size:11px;font-weight:800;
+  letter-spacing:1.4px;text-transform:uppercase;margin:7px 10px 13px;
 }
 .nav-item{
- background:transparent;border:0;color:#A88FA5;
- display:flex;flex-direction:column;align-items:center;
- gap:4px;font-size:10px;flex:1;
+  display:flex;align-items:center;gap:13px;
+  padding:12px 13px;border-radius:14px;margin:4px 0;
+  color:#76616b;font-weight:600;cursor:pointer;
 }
-.nav-item b{font-size:21px;font-weight:500}
-.nav-item.active{color:var(--pink2)}
-.modal{
- display:none;position:fixed;inset:0;z-index:70;
- background:#09030CCB;align-items:center;justify-content:center;padding:15px;
+.nav-item:hover,.nav-item.active{
+  background:var(--pink-soft);color:var(--pink-dark);
 }
-.modal.show{display:flex}
-.modal-box{
- width:100%;max-width:560px;max-height:88vh;overflow:auto;
- background:var(--surface);border:1px solid var(--line);
- border-radius:23px;padding:21px;box-shadow:var(--shadow);
+.nav-icon{font-size:19px;width:22px;text-align:center}
+.sidebar-note{
+  margin-top:22px;padding:15px;border-radius:17px;
+  background:linear-gradient(135deg,#fff0f7,#ffe0ed);
+  color:#9c315f;font-size:12px;line-height:1.6;
 }
-.modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.modal-top h3{font-family:Outfit;margin:0;font-size:21px}
-.close{
- border:0;background:var(--surface2);color:white;
- border-radius:10px;padding:9px 13px;
+.feed{min-width:0}
+.welcome{
+  padding:23px;margin-bottom:18px;
+  background:linear-gradient(120deg,#ffe0ed,#fff7fa 75%);
+  overflow:hidden;position:relative;
 }
-.comment{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.5}
-.comment strong{color:var(--pink2)}
-.comment-form{display:flex;gap:8px;margin-top:15px}
-.comment-form input{margin:0;min-width:0}
-.comment-form button{white-space:nowrap}
-.status{font-size:13px;color:var(--muted);margin:9px 0;line-height:1.5}
-.toast{
- position:fixed;z-index:100;bottom:95px;left:50%;
- transform:translateX(-50%);background:#44203D;color:white;
- padding:13px 19px;border:1px solid #80476D;border-radius:14px;
- max-width:90%;font-size:13px;box-shadow:var(--shadow);
+.welcome h1{
+  font-family:'Playfair Display',serif;font-size:29px;
+  line-height:1.2;margin:0 0 8px;
 }
-.suggestion{display:flex;align-items:center;gap:10px;padding:10px 0}
-.suggestion .name{flex:1;font-size:13px;font-weight:700}
-.right-card{
- background:var(--surface);border:1px solid var(--line);
- border-radius:20px;padding:17px;margin-bottom:15px;
+.welcome h1 span{color:var(--pink)}
+.welcome p{margin:0;color:#926b7e;font-size:13px}
+.welcome-decoration{
+  position:absolute;right:22px;top:8px;font-size:65px;
+  opacity:.2;transform:rotate(-12deg);
 }
-.right-card h3{font-family:Outfit;font-size:16px;margin:0 0 12px}
-.tag{
- display:inline-block;background:var(--surface2);color:var(--pink2);
- padding:7px 11px;border-radius:20px;font-size:11px;margin:3px;
+.feed-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin:20px 3px 13px;
 }
-.loader{
- width:23px;height:23px;border:3px solid var(--line);
- border-top-color:var(--pink);border-radius:50%;
- animation:spin .7s linear infinite;margin:20px auto;
+.feed-toolbar h2{font-size:17px;margin:0}
+.feed-toolbar select{
+  border:1px solid var(--line);border-radius:11px;
+  padding:9px;background:white;color:var(--rose);
+}
+.story-row{
+  display:flex;gap:14px;overflow-x:auto;padding:15px;
+  margin-bottom:18px;
+}
+.story{flex:0 0 66px;text-align:center;cursor:pointer}
+.story-ring{
+  width:58px;height:58px;margin:auto;border-radius:50%;
+  padding:3px;background:linear-gradient(135deg,#ff70ae,#c92773);
+}
+.story-ring img,.story-placeholder{
+  width:100%;height:100%;border-radius:50%;object-fit:cover;
+  border:3px solid white;background:#ffe2ef;
+}
+.story-placeholder{display:grid;place-items:center;font-size:22px}
+.story small{
+  display:block;margin-top:6px;font-size:11px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.post-card{margin-bottom:19px;overflow:hidden}
+.post-head{
+  display:flex;align-items:center;gap:11px;padding:15px 16px;
+}
+.avatar{
+  width:43px;height:43px;border-radius:50%;
+  object-fit:cover;background:#ffe0ed;display:grid;place-items:center;
+  color:var(--pink-dark);font-weight:800;flex-shrink:0;
+}
+.post-user{font-size:13px;font-weight:800}
+.post-time{font-size:11px;color:var(--muted);margin-top:3px}
+.post-menu{margin-left:auto}
+.post-image{
+  width:100%;display:block;max-height:650px;object-fit:contain;
+  background:#fff3f8;
+}
+.post-actions{
+  display:flex;align-items:center;gap:15px;padding:13px 16px 5px;
+}
+.action{
+  border:0;background:none;padding:4px 0;
+  color:#806a75;font-size:20px;
+}
+.action.liked{color:#e52c78}
+.action.saved{color:#d12c73}
+.action-count{font-size:12px;font-weight:700}
+.post-caption{padding:8px 16px 15px;font-size:13px;line-height:1.55}
+.post-caption strong{margin-right:5px}
+.post-comments{padding:0 16px 15px}
+.comment-preview{font-size:12px;color:#8c7b84;margin-bottom:8px}
+.comment-form{display:flex;gap:8px}
+.comment-form input{
+  min-width:0;flex:1;border:1px solid var(--line);
+  background:#fff8fb;border-radius:12px;padding:10px 12px;
+}
+.comment-form button{border:0;background:none;color:var(--pink-dark);font-weight:800}
+.right-column{display:flex;flex-direction:column;gap:18px}
+.right-card{padding:18px}
+.right-card h3{font-size:14px;margin:0 0 14px}
+.profile-mini{display:flex;align-items:center;gap:12px}
+.profile-mini .avatar{width:49px;height:49px}
+.profile-mini strong{font-size:13px}
+.profile-mini small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.empty-state{
+  padding:45px 20px;text-align:center;color:var(--muted);
+}
+.empty-state .empty-icon{font-size:43px;margin-bottom:12px}
+.empty-state h3{color:var(--ink);margin:0 0 7px}
+.empty-state p{font-size:13px;line-height:1.6}
+.loading-state{text-align:center;padding:40px;color:var(--muted)}
+.spinner{
+  width:27px;height:27px;border:3px solid var(--pink-soft);
+  border-top-color:var(--pink);border-radius:50%;
+  margin:0 auto 12px;animation:spin .8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:1000px){
- .layout{grid-template-columns:190px minmax(0,680px)}
- .rightbar{display:none}
+.modal-backdrop{
+  position:fixed;inset:0;background:#28101dcc;z-index:100;
+  display:none;align-items:center;justify-content:center;padding:18px;
 }
-@media(max-width:700px){
- .topbar{height:59px;padding:0 15px}
- .brand{font-size:22px}
- .layout{display:block;padding:15px 12px 100px}
- .sidebar{display:none}
- .main{width:100%}
- .bottom-nav{display:flex}
- .welcome{padding:21px;border-radius:20px}
- .welcome h1{font-size:25px}
- .post-image{max-height:600px}
- .modal{align-items:flex-end;padding:0}
- .modal-box{border-radius:23px 23px 0 0;max-height:88vh;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
- .profile-top{align-items:flex-start}
- .avatar.large{width:83px;height:83px}
- .profile-stats{gap:15px}
- .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.modal-backdrop.open{display:flex}
+.modal{
+  width:100%;max-width:430px;max-height:90vh;overflow:auto;
+  background:white;border-radius:25px;padding:25px;
+  box-shadow:0 25px 80px #0003;position:relative;
+}
+.modal h2{
+  font-family:'Playfair Display',serif;font-size:25px;margin:0 0 7px;
+}
+.modal-subtitle{font-size:13px;color:var(--muted);margin-bottom:21px}
+.modal-close{
+  position:absolute;right:17px;top:15px;
+  border:0;background:var(--pink-soft);border-radius:50%;
+  width:33px;height:33px;color:var(--pink-dark);font-size:19px;
+}
+.field{margin:13px 0}
+.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}
+.field input,.field textarea{
+  width:100%;border:1px solid var(--line);border-radius:13px;
+  padding:12px;background:#fff8fb;outline:none;
+}
+.field textarea{min-height:95px;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--pink)}
+.modal-submit{width:100%;margin-top:8px}
+.modal-switch{text-align:center;font-size:12px;color:var(--muted);margin-top:16px}
+.modal-switch button{border:0;background:none;color:var(--pink-dark);font-weight:800}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);
+  background:#39232e;color:white;padding:12px 18px;
+  border-radius:13px;font-size:13px;z-index:200;
+  opacity:0;pointer-events:none;transition:.25s;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.mobile-nav{display:none}
+@media(max-width:1050px){
+  .layout{grid-template-columns:205px minmax(0,1fr)}
+  .right-column{display:none}
+}
+@media(max-width:680px){
+  .topbar{padding:10px 13px;gap:9px}
+  .brand-name{font-size:19px}
+  .brand-mark{width:37px;height:37px}
+  .search-wrap{max-width:none}
+  .search-wrap input{height:39px;font-size:12px}
+  .top-actions .btn{padding:9px 11px;font-size:12px}
+  .layout{display:block;margin:14px auto;padding:0 11px}
+  .sidebar{display:none}
+  .welcome{padding:19px}
+  .welcome h1{font-size:25px}
+  .mobile-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:60;
+    display:flex;justify-content:space-around;
+    padding:9px 5px calc(9px + env(safe-area-inset-bottom));
+    background:#fff;box-shadow:0 -5px 20px #9d315f12;
+    border-top:1px solid var(--line);
+  }
+  .mobile-nav button{
+    border:0;background:none;color:#947b87;
+    font-size:21px;padding:5px 13px;
+  }
+  .mobile-nav button.active{color:var(--pink)}
+  body{padding-bottom:70px}
 }
 </style>
 </head>
 
 <body>
+<div class="app-shell">
+
 <header class="topbar">
- <div class="brand" onclick="go('home')">MAHI<span> BABY</span></div>
- <div class="top-actions">
-  <button class="icon-btn" onclick="go('search')" aria-label="Search">⌕</button>
-  <button class="icon-btn" id="accountButton" onclick="openAuth()" aria-label="Account">♙</button>
- </div>
+  <a class="brand" href="#" aria-label="Mahi Baby home">
+    <div class="brand-mark">♥</div>
+    <div class="brand-name">MAHI <span>BABY</span></div>
+  </a>
+
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input id="searchInput" type="search" placeholder="Search posts, people..." autocomplete="off">
+  </div>
+
+  <div class="top-actions">
+    <button class="btn btn-light" id="loginTopBtn">Log in</button>
+    <button class="btn btn-primary" id="signupTopBtn">Join</button>
+    <button class="icon-btn hidden" id="userMenuBtn" aria-label="Profile">☺</button>
+  </div>
 </header>
 
 <div class="layout">
- <aside class="sidebar">
-  <div class="side-brand">MAHI <span style="color:var(--pink2)">BABY</span></div>
-  <button class="side-link active" data-page="home" onclick="go('home')"><span class="ico">⌂</span> Home</button>
-  <button class="side-link" data-page="explore" onclick="go('explore')"><span class="ico">▦</span> Explore</button>
-  <button class="side-link" data-page="search" onclick="go('search')"><span class="ico">⌕</span> Search</button>
-  <button class="side-link" data-page="upload" onclick="go('upload')"><span class="ico">＋</span> Create post</button>
-  <button class="side-link" data-page="activity" onclick="go('activity')"><span class="ico">♡</span> Activity</button>
-  <button class="side-link" data-page="profile" onclick="go('profile')"><span class="ico">◉</span> My profile</button>
-  <button class="side-create" onclick="go('upload')">＋ Create a post</button>
- </aside>
+  <aside class="sidebar panel">
+    <div class="side-title">Discover</div>
+    <div class="nav-item active" data-view="home"><span class="nav-icon">⌂</span> Home Feed</div>
+    <div class="nav-item" data-view="explore"><span class="nav-icon">⌕</span> Explore</div>
+    <div class="nav-item" data-view="saved"><span class="nav-icon">♡</span> Saved Posts</div>
+    <div class="nav-item" data-view="profile"><span class="nav-icon">☺</span> My Profile</div>
+    <div class="side-title" style="margin-top:25px">Your space</div>
+    <div class="nav-item" data-action="upload"><span class="nav-icon">＋</span> Create Post</div>
+    <div class="nav-item" data-action="login"><span class="nav-icon">↗</span> Sign in</div>
+    <div class="sidebar-note">
+      <strong>A little space for big moments ♥</strong><br>
+      Share your moments, discover creativity and connect with the community.
+    </div>
+  </aside>
 
- <main class="main" id="app">
-  <div class="empty"><div class="loader"></div>Loading Mahi Baby...</div>
- </main>
+  <main class="feed">
+    <section class="welcome panel">
+      <div class="welcome-decoration">♥</div>
+      <h1>Your world.<br><span>Your moments.</span></h1>
+      <p>Discover something beautiful today.</p>
+    </section>
 
- <aside class="rightbar">
-  <div class="right-card">
-   <h3>Your community 💗</h3>
-   <p class="muted small">Discover beautiful moments, meet creators and share your world.</p>
-   <button class="primary full" onclick="openAuth()">Join the community</button>
-  </div>
-  <div class="right-card">
-   <h3>Explore interests</h3>
-   <span class="tag">Photography</span>
-   <span class="tag">Lifestyle</span>
-   <span class="tag">Travel</span>
-   <span class="tag">Art</span>
-   <span class="tag">Fashion</span>
-  </div>
-  <div class="right-card">
-   <h3>About Mahi Baby</h3>
-   <p class="muted small">A place to share photos and discover the world through other people's moments.</p>
-   <p class="tiny muted">Mahi Baby © 2026</p>
-  </div>
- </aside>
+    <section class="story-row panel" id="storyRow">
+      <div class="story">
+        <div class="story-ring"><div class="story-placeholder">＋</div></div>
+        <small>Your story</small>
+      </div>
+    </section>
+
+    <div class="feed-toolbar">
+      <h2 id="feedTitle">Community Feed</h2>
+      <select id="sortSelect" aria-label="Sort posts">
+        <option value="newest">Latest posts</option>
+        <option value="oldest">Oldest posts</option>
+      </select>
+    </div>
+
+    <section id="feedContainer">
+      <div class="panel loading-state">
+        <div class="spinner"></div>
+        Loading your community...
+      </div>
+    </section>
+  </main>
+
+  <aside class="right-column">
+    <section class="panel right-card">
+      <h3>Your account</h3>
+      <div class="profile-mini">
+        <div class="avatar">♥</div>
+        <div><strong>Welcome to Mahi Baby</strong><small>Join the community</small></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:15px" id="rightJoinBtn">Create account</button>
+    </section>
+    <section class="panel right-card">
+      <h3>Community guidelines</h3>
+      <p style="font-size:12px;line-height:1.7;color:var(--muted)">
+        Be respectful. Share content you have permission to post. Never upload private or intimate images of another person without their explicit consent.
+      </p>
+    </section>
+  </aside>
 </div>
 
-<nav class="bottom-nav">
- <button class="nav-item active" data-page="home" onclick="go('home')"><b>⌂</b>Home</button>
- <button class="nav-item" data-page="explore" onclick="go('explore')"><b>▦</b>Explore</button>
- <button class="nav-item" data-page="search" onclick="go('search')"><b>⌕</b>Search</button>
- <button class="nav-item" data-page="upload" onclick="go('upload')"><b>＋</b>Create</button>
- <button class="nav-item" data-page="profile" onclick="go('profile')"><b>◉</b>Profile</button>
+<nav class="mobile-nav">
+  <button class="active" data-view="home" aria-label="Home">⌂</button>
+  <button data-view="explore" aria-label="Explore">⌕</button>
+  <button data-action="upload" aria-label="Create post">＋</button>
+  <button data-view="saved" aria-label="Saved posts">♡</button>
+  <button data-view="profile" aria-label="Profile">☺</button>
 </nav>
 
-<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
- <div class="modal-box">
-  <div class="modal-top">
-   <h3 id="modalTitle">Mahi Baby</h3>
-   <button class="close" onclick="closeModal()">✕</button>
-  </div>
-  <div id="modalContent"></div>
- </div>
+<!-- Authentication modal -->
+<div class="modal-backdrop" id="authModal">
+  <section class="modal">
+    <button class="modal-close" data-close="authModal">×</button>
+    <h2 id="authTitle">Welcome back ♥</h2>
+    <p class="modal-subtitle" id="authSubtitle">Sign in to your Mahi Baby account.</p>
+    <form id="authForm">
+      <div class="field hidden" id="nameField">
+        <label for="authName">Display name</label>
+        <input id="authName" type="text" maxlength="40" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="authEmail">Email address</label>
+        <input id="authEmail" type="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input id="authPassword" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters">
+      </div>
+      <button class="btn btn-primary modal-submit" id="authSubmit" type="submit">Log in</button>
+    </form>
+    <div class="modal-switch">
+      <span id="authSwitchText">New here?</span>
+      <button id="authSwitchBtn" type="button">Create account</button>
+    </div>
+  </section>
 </div>
 
-<script>
-/* ==========================================
-   MAHI BABY 2.0 — SUPABASE CONFIGURATION
-========================================== */
-const SUPABASE_URL='https://jhvmqedhxkahjroyquty.supabase.co';
-const SUPABASE_ANON_KEY='sb_publishable_ItB77qS23ODZE5xlTCs5Xw_7AFljOyX';
-const BUCKET='Mahi baby';
-
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-
-let currentUser=null;
-let currentProfile=null;
-let isAdmin=false;
-let currentPage='home';
-let feedMode='latest';
-let cachedPosts=[];
-let profileCache={};
-let imageCache={};
-let searchTimer=null;
-let authModeValue='login';
-let selectedProfileId=null;
-let currentCommentPost=null;
-let currentSearchRequest=0;
-
-/* ==========================================
-   HELPERS
-========================================== */
-const $=id=>document.getElementById(id);
-
-function esc(value=''){
- return String(value).replace(/[&<>"']/g,c=>({
-  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
- }[c]));
-}
-
-function toast(message){
- document.querySelectorAll('.toast').forEach(x=>x.remove());
- const el=document.createElement('div');
- el.className='toast';
- el.textContent=message;
- document.body.appendChild(el);
- setTimeout(()=>el.remove(),3200);
-}
-
-function timeAgo(date){
- const seconds=Math.max(0,Math.floor((Date.now()-new Date(date).getTime())/1000));
- if(seconds<60)return 'Just now';
- if(seconds<3600)return Math.floor(seconds/60)+'m ago';
- if(seconds<86400)return Math.floor(seconds/3600)+'h ago';
- if(seconds<604800)return Math.floor(seconds/86400)+'d ago';
- return new Date(date).toLocaleDateString();
-}
-
-function showModal(title,html){
- $('modalTitle').textContent=title;
- $('modalContent').innerHTML=html;
- $('modal').classList.add('show');
-}
-
-function closeModal(){
- $('modal').classList.remove('show');
-}
-
-function loadingHTML(message='Loading...'){
- return `<div class="empty"><div class="loader"></div>${esc(message)}</div>`;
-}
-
-function requireLogin(){
- if(currentUser)return true;
- toast('Please log in to continue.');
- openAuth();
- return false;
-}
-
-function nameOf(profile){
- return profile?.display_name || profile?.username || 'Community member';
-}
-
-function initials(name='M'){
- return esc(String(name).trim().charAt(0).toUpperCase()||'M');
-}
-
-async function imageURL(path){
- if(!path)return '';
- if(/^https?:\/\//i.test(path))return path;
- if(imageCache[path])return imageCache[path];
- const {data,error}=await sb.storage.from(BUCKET).createSignedUrl(path,3600);
- if(error){
-  console.warn('Image URL:',error.message);
-  return '';
- }
- imageCache[path]=data?.signedUrl||'';
- return imageCache[path];
-}
-
-async function getProfile(userId){
- if(!userId)return null;
- if(profileCache[userId])return profileCache[userId];
-
- const {data,error}=await sb.from('profiles')
-  .select('user_id,display_name,avatar_path,username,bio,website,is_private')
-  .eq('user_id',userId).maybeSingle();
-
- if(error){
-  console.warn('Profile lookup:',error.message);
-  return null;
- }
- if(data)profileCache[userId]=data;
- return data||null;
-}
-
-async function loadProfiles(ids){
- const unique=[...new Set(ids.filter(Boolean))];
- const missing=unique.filter(id=>!profileCache[id]);
- if(!missing.length)return;
-
- const {data,error}=await sb.from('profiles')
-  .select('user_id,display_name,avatar_path,username,bio,website,is_private')
-  .in('user_id',missing);
-
- if(error){
-  console.warn('Profiles:',error.message);
-  return;
- }
- (data||[]).forEach(p=>profileCache[p.user_id]=p);
-}
-
-async function avatarMarkup(userId,size=''){
- const p=await getProfile(userId);
- const url=p?.avatar_path?await imageURL(p.avatar_path):'';
- const cls=size==='large'?'avatar large':'avatar';
- if(url)return `<img class="${cls}" src="${esc(url)}" alt="Profile picture">`;
- return `<div class="${cls}">${initials(nameOf(p))}</div>`;
-}
-
-function updateNav(page){
- document.querySelectorAll('[data-page]').forEach(el=>{
-  el.classList.toggle('active',el.dataset.page===page);
- });
-}
-
-function refreshAccountButton(){
- const btn=$('accountButton');
- if(currentUser && currentProfile?.avatar_path){
-  imageURL(currentProfile.avatar_path).then(url=>{
-   if(url)btn.innerHTML=`<img class="top-avatar" src="${esc(url)}" alt="Profile">`;
-  });
- }else{
-  btn.textContent=currentUser?'◉':'♙';
- }
-}
-
-/* ==========================================
-   AUTHENTICATION
-========================================== */
-async function refreshSession(){
- const {data}=await sb.auth.getSession();
- currentUser=data.session?.user||null;
- await refreshUserData();
-}
-
-async function refreshUserData(){
- currentProfile=null;
- isAdmin=false;
- if(!currentUser){
-  refreshAccountButton();
-  return;
- }
-
- currentProfile=await getProfile(currentUser.id);
-
- const {data:adminData}=await sb.from('admins')
-  .select('user_id').eq('user_id',currentUser.id).maybeSingle();
- isAdmin=!!adminData;
-
- refreshAccountButton();
-}
-
-function openAuth(){
- if(currentUser){
-  go('profile');
-  return;
- }
-
- authModeValue='login';
- renderAuthModal();
-}
-
-function renderAuthModal(){
- showModal('Welcome to Mahi Baby',`
-  <div class="tabs">
-   <button class="pill ${authModeValue==='login'?'active':''}" onclick="changeAuthMode('login')">Login</button>
-   <button class="pill ${authModeValue==='signup'?'active':''}" onclick="changeAuthMode('signup')">Create account</button>
-  </div>
-  <form id="authForm" onsubmit="submitAuth(event)">
-   <label class="small muted">Email address</label>
-   <input class="field" type="email" id="authEmail" required autocomplete="email" placeholder="you@example.com">
-   ${authModeValue==='signup'?`
-    <label class="small muted">Display name</label>
-    <input class="field" id="authName" required maxlength="40" placeholder="Your name">
-    <label class="small muted">Username</label>
-    <input class="field" id="authUsername" required maxlength="24" pattern="[A-Za-z0-9_]+" placeholder="your_username">
-   `:''}
-   <label class="small muted">Password</label>
-   <input class="field" type="password" id="authPassword" required minlength="6" autocomplete="${authModeValue==='login'?'current-password':'new-password'}" placeholder="At least 6 characters">
-   <button class="primary full" id="authSubmit">${authModeValue==='login'?'Login':'Create account'}</button>
-  </form>
-  ${authModeValue==='login'?'<button class="action" onclick="forgotPassword()">Forgot password?</button>':''}
-  <p id="authStatus" class="status">You can browse public photos without an account.</p>
- `);
-}
-
-function changeAuthMode(mode){
- authModeValue=mode;
- renderAuthModal();
-}
-
-async function submitAuth(e){
- e.preventDefault();
- const status=$('authStatus');
- const button=$('authSubmit');
- button.disabled=true;
- status.textContent='Please wait...';
-
- const email=$('authEmail').value.trim();
- const password=$('authPassword').value;
- let result;
-
- if(authModeValue==='signup'){
-  const display_name=$('authName').value.trim();
-  const username=$('authUsername').value.trim().toLowerCase();
-
-  if(!/^[a-z0-9_]{3,24}$/.test(username)){
-   status.textContent='Username must be 3–24 characters: letters, numbers or underscores.';
-   button.disabled=false;
-   return;
-  }
-
-  const existing=await sb.from('profiles').select('user_id')
-   .eq('username',username).maybeSingle();
-
-  if(existing.data){
-   status.textContent='That username is already taken.';
-   button.disabled=false;
-   return;
-  }
-
-  result=await sb.auth.signUp({
-   email,password,
-   options:{data:{display_name,username}}
-  });
-
-  if(result.error){
-   status.textContent=result.error.message;
-   button.disabled=false;
-   return;
-  }
-
-  if(!result.data.session){
-   status.textContent='Account created. Check your email to confirm your account before logging in.';
-   button.disabled=false;
-   return;
-  }
-
-  currentUser=result.data.user;
-
-  const profileResult=await sb.from('profiles').upsert({
-   user_id:currentUser.id,
-   display_name,
-   username,
-   is_private:false
-  },{onConflict:'user_id'});
-
-  if(profileResult.error){
-   console.error(profileResult.error);
-   status.textContent='Account created, but profile setup failed: '+profileResult.error.message;
-   button.disabled=false;
-   return;
-  }
- }else{
-  result=await sb.auth.signInWithPassword({email,password});
-  if(result.error){
-   status.textContent=result.error.message;
-   button.disabled=false;
-   return;
-  }
-  currentUser=result.data.user;
- }
-
- profileCache={};
- await refreshUserData();
- closeModal();
- toast('Welcome to Mahi Baby!');
- go('profile');
-}
-
-async function forgotPassword(){
- const email=$('authEmail')?.value.trim();
- if(!email){
-  toast('Enter your email address first.');
-  return;
- }
- const {error}=await sb.auth.resetPasswordForEmail(email,{
-  redirectTo:location.origin+location.pathname
- });
- toast(error?error.message:'Password reset email requested.');
-}
-
-async function logout(){
- if(!currentUser)return;
- const {error}=await sb.auth.signOut();
- if(error){toast(error.message);return;}
- currentUser=null;
- currentProfile=null;
- profileCache={};
- isAdmin=false;
- refreshAccountButton();
- closeModal();
- toast('You have logged out.');
- go('home');
-}
-
-sb.auth.onAuthStateChange(async(event,session)=>{
- currentUser=session?.user||null;
- profileCache={};
- await refreshUserData();
- if(event==='SIGNED_IN'){
-  closeModal();
-  if(currentPage==='profile')go('profile');
- }
- if(event==='SIGNED_OUT'){
-  if(currentPage==='profile')go('profile');
- }
-});
-
-/* ==========================================
-   NAVIGATION
-========================================== */
-function go(page){
- currentPage=page;
- updateNav(page);
-
- if(page==='home')loadHome();
- else if(page==='explore')loadExplore();
- else if(page==='search')loadSearch();
- else if(page==='upload')loadUpload();
- else if(page==='activity')loadActivity();
- else if(page==='profile')loadProfile();
- else if(page==='saved')loadSaved();
-}
-
-/* ==========================================
-   PUBLIC FEED
-========================================== */
-async function loadHome(){
- $('app').innerHTML=`
-  <section class="welcome">
-   <span class="welcome-tag">✦ YOUR SOCIAL WORLD</span>
-   <h1>Discover your <span>beautiful moments.</span></h1>
-   <p>Explore photos, find inspiration and connect with the Mahi Baby community. No account needed to browse.</p>
-  </section>
-  <div class="section-head"><h2>Community feed</h2><span class="small muted">Everyone is welcome</span></div>
-  <div class="tabs">
-   <button class="pill ${feedMode==='latest'?'active':''}" onclick="setFeed('latest')">Latest</button>
-   <button class="pill ${feedMode==='trending'?'active':''}" onclick="setFeed('trending')">Trending</button>
-  </div>
-  <div id="feed">${loadingHTML('Loading public photos...')}</div>
- `;
- await fetchPosts('feed');
-}
-
-function setFeed(mode){
- feedMode=mode;
- loadHome();
-}
-
-async function loadExplore(){
- $('app').innerHTML=`
-  <div class="section-head"><h2>Explore</h2><span class="muted small">Discover the community</span></div>
-  <div class="panel">
-   <h3>Find something inspiring ✨</h3>
-   <p class="muted small">Browse public photos shared by community members.</p>
-   <button class="secondary" onclick="go('search')">⌕ Search people and posts</button>
-  </div>
-  <div id="feed">${loadingHTML('Loading explore...')}</div>
- `;
- await fetchPosts('feed');
-}
-
-async function fetchPosts(target){
- const box=$('feed');
- if(!box)return;
-
- const {data:posts,error}=await sb.from('photo_posts')
-  .select('id,user_id,storage_path,caption,created_at,updated_at')
-  .order('created_at',{ascending:false}).limit(60);
-
- if(error){
-  box.innerHTML=`<div class="empty"><strong>Unable to load posts</strong>${esc(error.message)}</div>`;
-  return;
- }
-
- const all=posts||[];
- if(!all.length){
-  box.innerHTML='<div class="empty"><strong>No posts yet 💗</strong>Be the first to share a moment with the community.</div>';
-  return;
- }
-
- await loadProfiles(all.map(p=>p.user_id));
-
- // Display posts from public profiles only.
- const visible=all.filter(p=>{
-  const profile=profileCache[p.user_id];
-  return profile && profile.is_private===false;
- });
-
- if(!visible.length){
-  box.innerHTML='<div class="empty"><strong>Nothing to show yet</strong>Public community posts will appear here.</div>';
-  return;
- }
-
- const ids=visible.map(p=>p.id);
-
- const [likesRes,commentsRes,myLikesRes,mySavesRes,myFavsRes]=await Promise.all([
-  sb.from('photo_likes').select('post_id').in('post_id',ids),
-  sb.from('photo_comments').select('post_id').in('post_id',ids),
-  currentUser?sb.from('photo_likes').select('post_id').eq('user_id',currentUser.id).in('post_id',ids):Promise.resolve({data:[]}),
-  currentUser?sb.from('photo_saves').select('post_id').eq('user_id',currentUser.id).in('post_id',ids):Promise.resolve({data:[]}),
-  currentUser?sb.from('photo_favorites').select('post_id').eq('user_id',currentUser.id).in('post_id',ids):Promise.resolve({data:[]})
- ]);
-
- const likes={},comments={};
- (likesRes.data||[]).forEach(x=>likes[x.post_id]=(likes[x.post_id]||0)+1);
- (commentsRes.data||[]).forEach(x=>comments[x.post_id]=(comments[x.post_id]||0)+1);
-
- const myLikes=new Set((myLikesRes.data||[]).map(x=>x.post_id));
- const mySaves=new Set((mySavesRes.data||[]).map(x=>x.post_id));
- const myFavs=new Set((myFavsRes.data||[]).map(x=>x.post_id));
-
- let ordered=[...visible];
- if(feedMode==='trending'){
-  ordered.sort((a,b)=>(likes[b.id]||0)-(likes[a.id]||0));
- }
-
- cachedPosts=ordered;
- const html=[];
-
- for(const post of ordered){
-  const url=await imageURL(post.storage_path);
-  if(!url)continue;
-  html.push(await renderPost(post,url,{
-   likes:likes[post.id]||0,
-   comments:comments[post.id]||0,
-   liked:myLikes.has(post.id),
-   saved:mySaves.has(post.id),
-   favorite:myFavs.has(post.id)
-  }));
- }
-
- box.innerHTML=html.join('')||'<div class="empty"><strong>No viewable images</strong>Check your Storage permissions and photo paths.</div>';
-}
-
-async function renderPost(post,url,stats){
- const profile=profileCache[post.user_id]||await getProfile(post.user_id);
- const avatar=profile?.avatar_path?await imageURL(profile.avatar_path):'';
- const display=nameOf(profile);
- const username=profile?.username||'community_member';
- const owner=currentUser?.id===post.user_id;
-
- return `
- <article class="card" id="post-${esc(post.id)}">
-  <div class="post-head">
-   ${avatar
-    ?`<img class="avatar" src="${esc(avatar)}" alt="Profile picture">`
-    :`<div class="avatar">${initials(display)}</div>`}
-   <div style="flex:1;min-width:0">
-    <div class="user-name" onclick="openProfile('${esc(post.user_id)}')">${esc(display)}</div>
-    <div class="post-date">@${esc(username)} · ${esc(timeAgo(post.created_at))}</div>
-   </div>
-   ${(owner||isAdmin)?`<button class="more-btn" onclick="postMenu('${esc(post.id)}')">⋯</button>`:''}
-  </div>
-  <img class="post-image" src="${esc(url)}" loading="lazy" alt="Community photo">
-  ${post.caption?`<div class="post-caption">${esc(post.caption)}</div>`:''}
-  <div class="post-actions">
-   <button class="action ${stats.liked?'liked':''}" onclick="toggleLike('${esc(post.id)}')">
-    ${stats.liked?'♥':'♡'} <span class="action-count">${stats.likes}</span>
-   </button>
-   <button class="action" onclick="openComments('${esc(post.id)}')">▢ ${stats.comments} Comments</button>
-   <button class="action ${stats.saved?'saved':''}" onclick="toggleSave('${esc(post.id)}')">${stats.saved?'▣ Saved':'▢ Save'}</button>
-   <button class="action ${stats.favorite?'liked':''}" onclick="toggleFavorite('${esc(post.id)}')">${stats.favorite?'♥ Favorite':'♡ Favorite'}</button>
-  </div>
- </article>`;
-}
-
-function postMenu(postId){
- showModal('Post options',`
-  <button class="secondary" style="width:100%;margin:5px 0" onclick="editCaption('${esc(postId)}')">Edit caption</button>
-  <button class="danger" style="width:100%;margin:5px 0" onclick="deletePost('${esc(postId)}')">Delete post</button>
- `);
-}
-
-/* ==========================================
-   LIKES / SAVES / FAVORITES
-========================================== */
-async function toggleLike(postId){
- if(!requireLogin())return;
-
- const {data:existing,error:findError}=await sb.from('photo_likes')
-  .select('id').eq('post_id',postId).eq('user_id',currentUser.id).maybeSingle();
-
- if(findError){toast(findError.message);return;}
-
- if(existing){
-  const {error}=await sb.from('photo_likes').delete().eq('id',existing.id);
-  if(error){toast(error.message);return;}
- }else{
-  const {error}=await sb.from('photo_likes').insert({
-   post_id:postId,user_id:currentUser.id
-  });
-  if(error){toast(error.message);return;}
- }
- if(currentPage==='home'||currentPage==='explore')go(currentPage);
- else if(currentPage==='profile')loadProfile();
-}
-
-async function toggleSave(postId){
- if(!requireLogin())return;
-
- const {data:existing,error:findError}=await sb.from('photo_saves')
-  .select('id').eq('post_id',postId).eq('user_id',currentUser.id).maybeSingle();
-
- if(findError){toast(findError.message);return;}
-
- const result=existing
-  ?await sb.from('photo_saves').delete().eq('id',existing.id)
-  :await sb.from('photo_saves').insert({post_id:postId,user_id:currentUser.id});
-
- if(result.error){toast(result.error.message);return;}
- toast(existing?'Removed from saved posts':'Post saved!');
- if(currentPage==='home'||currentPage==='explore')go(currentPage);
-}
-
-async function toggleFavorite(postId){
- if(!requireLogin())return;
-
- const {data:existing,error:findError}=await sb.from('photo_favorites')
-  .select('id').eq('post_id',postId).eq('user_id',currentUser.id).maybeSingle();
-
- if(findError){toast(findError.message);return;}
-
- const result=existing
-  ?await sb.from('photo_favorites').delete().eq('id',existing.id)
-  :await sb.from('photo_favorites').insert({post_id:postId,user_id:currentUser.id});
-
- if(result.error){toast(result.error.message);return;}
- toast(existing?'Removed from favorites':'Added to favorites!');
- if(currentPage==='home'||currentPage==='explore')go(currentPage);
-}
-
-/* ==========================================
-   COMMENTS
-========================================== */
-async function openComments(postId){
- currentCommentPost=postId;
- showModal('Comments',loadingHTML('Loading comments...'));
-
- const {data,error}=await sb.from('photo_comments')
-  .select('id,user_id,content,created_at')
-  .eq('post_id',postId).order('created_at',{ascending:true}).limit(100);
-
- if(error){
-  $('modalContent').innerHTML=`<div class="empty">${esc(error.message)}</div>`;
-  return;
- }
-
- const rows=data||[];
- await loadProfiles(rows.map(c=>c.user_id));
-
- let html=rows.map(c=>{
-  const p=profileCache[c.user_id];
-  const canDelete=currentUser&&(currentUser.id===c.user_id||isAdmin);
-  return `<div class="comment">
-   <strong>${esc(nameOf(p))}</strong>
-   <span class="muted tiny"> · ${esc(timeAgo(c.created_at))}</span>
-   <div>${esc(c.content)}</div>
-   ${canDelete?`<button class="action delete" onclick="deleteComment('${esc(c.id)}')">Delete</button>`:''}
-  </div>`;
- }).join('');
-
- $('modalContent').innerHTML=`
-  <div id="commentList">${html||'<div class="empty">No comments yet. Start the conversation!</div>'}</div>
-  <form class="comment-form" onsubmit="addComment(event,'${esc(postId)}')">
-   <input class="field" id="commentInput" maxlength="1000" required placeholder="Write a comment...">
-   <button class="primary">Send</button>
-  </form>
- `;
-}
-
-async function addComment(e,postId){
- e.preventDefault();
- if(!requireLogin())return;
- const input=$('commentInput');
- const content=input.value.trim();
- if(!content)return;
-
- const {error}=await sb.from('photo_comments').insert({
-  post_id:postId,user_id:currentUser.id,content
- });
- if(error){toast(error.message);return;}
- await openComments(postId);
- if(currentPage==='home'||currentPage==='explore')go(currentPage);
-}
-
-async function deleteComment(id){
- if(!requireLogin())return;
- if(!confirm('Delete this comment?'))return;
- const {error}=await sb.from('photo_comments').delete().eq('id',id);
- if(error){toast(error.message);return;}
- toast('Comment deleted.');
- if(currentCommentPost)openComments(currentCommentPost);
-}
-
-async function editCaption(postId){
- const post=cachedPosts.find(p=>p.id===postId);
- if(!post||post.user_id!==currentUser?.id){
-  toast('You cannot edit this caption.');
-  return;
- }
- showModal('Edit caption',`
-  <form onsubmit="saveCaption(event,'${esc(postId)}')">
-   <textarea id="editCaptionText" class="field" maxlength="2000">${esc(post.caption||'')}</textarea>
-   <button class="primary full">Save changes</button>
-  </form>
- `);
-}
-
-async function saveCaption(e,postId){
- e.preventDefault();
- const caption=$('editCaptionText').value.trim();
- const {error}=await sb.from('photo_posts').update({caption})
-  .eq('id',postId).eq('user_id',currentUser.id);
- if(error){toast(error.message);return;}
- closeModal();
- toast('Caption updated.');
- go(currentPage);
-}
-
-async function deletePost(postId){
- if(!requireLogin())return;
- const post=cachedPosts.find(p=>p.id===postId);
- if(!post){toast('Post information not found.');return;}
- if(post.user_id!==currentUser.id&&!isAdmin){
-  toast('You cannot delete this post.');
-  return;
- }
- if(!confirm('Permanently delete this post?'))return;
-
- const {error:dbError}=await sb.from('photo_posts').delete().eq('id',postId);
- if(dbError){toast(dbError.message);return;}
-
- const {error:storageError}=await sb.storage.from(BUCKET).remove([post.storage_path]);
- if(storageError)console.warn('Storage deletion:',storageError.message);
-
- toast('Post deleted.');
- closeModal();
- go(currentPage);
-}
-
-/* ==========================================
-   UPLOAD PHOTO
-========================================== */
-function loadUpload(){
- if(!currentUser){
-  $('app').innerHTML=`
-   <div class="section-head"><h2>Create a post</h2></div>
-   <div class="panel">
-    <h3>Share your moments 💗</h3>
-    <p class="muted">You can browse public posts without an account. Sign in to upload your own photos.</p>
-    <button class="primary full" onclick="openAuth()">Login / Create account</button>
-   </div>`;
-  return;
- }
-
- $('app').innerHTML=`
-  <div class="section-head"><h2>Create a post</h2></div>
-  <div class="panel">
-   <h3>Share something beautiful</h3>
-   <label class="small muted">Choose an image</label>
-   <input class="field" id="photoFile" type="file" accept="image/jpeg,image/png,image/webp">
-   <div id="photoPreview"></div>
-   <label class="small muted">Caption</label>
-   <textarea class="field" id="photoCaption" maxlength="2000" placeholder="Write something about this moment..."></textarea>
-   <div class="status">JPG, PNG or WebP. Maximum size: 8 MB.</div>
-   <button class="primary full" id="uploadButton" onclick="uploadPost()">Share post</button>
-   <div id="uploadStatus" class="status"></div>
-  </div>
- `;
-
- $('photoFile').addEventListener('change',previewPhoto);
-}
-
-function previewPhoto(){
- const file=$('photoFile').files[0];
- const box=$('photoPreview');
- if(!file){box.innerHTML='';return;}
- if(!file.type.startsWith('image/')){
-  box.textContent='Please select an image file.';
-  return;
- }
- const url=URL.createObjectURL(file);
- box.innerHTML=`<img src="${url}" style="width:100%;max-height:340px;object-fit:contain;border-radius:15px;margin:10px 0">`;
-}
-
-async function uploadPost(){
- if(!requireLogin())return;
-
- const file=$('photoFile').files[0];
- const caption=$('photoCaption').value.trim();
- const status=$('uploadStatus');
- const button=$('uploadButton');
-
- if(!file){toast('Please choose a photo.');return;}
- if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
-  toast('Only JPG, PNG and WebP images are supported.');
-  return;
- }
- if(file.size>8*1024*1024){
-  toast('Image must be smaller than 8 MB.');
-  return;
- }
-
- button.disabled=true;
- status.textContent='Uploading photo...';
-
- const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
- const path=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-
- const {error:uploadError}=await sb.storage.from(BUCKET).upload(path,file,{
-  contentType:file.type,upsert:false
- });
-
- if(uploadError){
-  status.textContent=uploadError.message;
-  button.disabled=false;
-  return;
- }
-
- status.textContent='Saving post...';
-
- const {error:insertError}=await sb.from('photo_posts').insert({
-  user_id:currentUser.id,storage_path:path,caption
- });
-
- if(insertError){
-  await sb.storage.from(BUCKET).remove([path]);
-  status.textContent=insertError.message;
-  button.disabled=false;
-  return;
- }
-
- toast('Your post has been shared! 💗');
- go('profile');
-}
-
-/* ==========================================
-   USER PROFILE
-========================================== */
-async function loadProfile(){
- if(!currentUser){
-  $('app').innerHTML=`
-   <div class="panel">
-    <h2>Your profile</h2>
-    <p class="muted">Login to see your profile, posts, saved photos and settings.</p>
-    <button class="primary full" onclick="openAuth()">Login / Create account</button>
-   </div>`;
-  return;
- }
- await showProfile(currentUser.id,true);
-}
-
-async function openProfile(userId){
- if(!userId)return;
- await showProfile(userId,userId===currentUser?.id);
-}
-
-async function showProfile(userId,isMe){
- $('app').innerHTML=loadingHTML('Loading profile...');
-
- const profile=await getProfile(userId);
- if(!profile){
-  $('app').innerHTML='<div class="empty"><strong>Profile unavailable</strong>This profile may not exist or may be private.</div>';
-  return;
- }
-
- const {data:posts,error}=await sb.from('photo_posts')
-  .select('id,user_id,storage_path,caption,created_at')
-  .eq('user_id',userId).order('created_at',{ascending:false}).limit(100);
-
- if(error){
-  $('app').innerHTML=`<div class="empty">${esc(error.message)}</div>`;
-  return;
- }
-
- const ownPosts=posts||[];
- const avatar=profile.avatar_path?await imageURL(profile.avatar_path):'';
-
- const [likeCountResult,followersResult,followingResult]=await Promise.all([
-  ownPosts.length
-   ?sb.from('photo_likes').select('post_id').in('post_id',ownPosts.map(p=>p.id))
-   :Promise.resolve({data:[]}),
-  Promise.resolve({data:[]}),
-  Promise.resolve({data:[]})
- ]);
-
- const totalLikes=(likeCountResult.data||[]).length;
- const username=profile.username||'user';
-
- $('app').innerHTML=`
-  <div class="profile-header">
-   <div class="profile-top">
-    ${avatar
-     ?`<img class="avatar large" src="${esc(avatar)}" alt="Profile picture">`
-     :`<div class="avatar large">${initials(nameOf(profile))}</div>`}
-    <div style="min-width:0;flex:1">
-     <div class="profile-name">${esc(nameOf(profile))}</div>
-     <div class="muted small">@${esc(username)}</div>
-     ${profile.is_private?'<span class="tag">Private profile</span>':'<span class="tag">Public profile</span>'}
-    </div>
-   </div>
-   <div class="profile-stats">
-    <div><strong>${ownPosts.length}</strong><span>Posts</span></div>
-    <div><strong>${totalLikes}</strong><span>Likes</span></div>
-   </div>
-   ${profile.bio?`<p style="line-height:1.6;margin:16px 0 4px">${esc(profile.bio)}</p>`:''}
-   ${profile.website?`<p class="small"><a href="${esc(safeURL(profile.website))}" target="_blank" rel="noopener" style="color:var(--pink2)">${esc(profile.website)}</a></p>`:''}
-   ${isMe?`
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:17px">
-     <button class="secondary" onclick="editProfile()">Edit profile</button>
-     <button class="secondary" onclick="go('saved')">Saved posts</button>
-     <button class="secondary" onclick="editProfile()">Settings</button>
-     <button class="danger" onclick="logout()">Log out</button>
-    </div>
-   `:''}
-  </div>
-  <div class="section-head"><h2>${isMe?'Your photos':'Photos'}</h2><span class="small muted">${ownPosts.length} posts</span></div>
-  <div class="grid" id="profileGrid">${loadingHTML('Loading photos...')}</div>
- `;
-
- const grid=$('profileGrid');
- if(!ownPosts.length){
-  grid.innerHTML='<div class="empty" style="grid-column:1/-1"><strong>No photos yet</strong>Share your first moment with the community.</div>';
-  return;
- }
-
- let html='';
- for(const post of ownPosts){
-  const url=await imageURL(post.storage_path);
-  if(url){
-   html+=`<div class="grid-item" onclick="openSinglePost('${esc(post.id)}')"><img src="${esc(url)}" loading="lazy" alt="Post"></div>`;
-  }
- }
- grid.innerHTML=html||'<div class="empty" style="grid-column:1/-1">No viewable photos.</div>';
-}
-
-function safeURL(value){
- const v=String(value||'').trim();
- if(/^https?:\/\//i.test(v))return v;
- return 'https://'+v;
-}
-
-async function openSinglePost(postId){
- const post=cachedPosts.find(p=>p.id===postId);
- if(!post){
-  const {data}=await sb.from('photo_posts').select('*').eq('id',postId).maybeSingle();
-  if(!data){toast('Post not found.');return;}
-  cachedPosts.push(data);
- }
- const p=cachedPosts.find(x=>x.id===postId);
- const url=await imageURL(p.storage_path);
- if(!url){toast('Unable to load photo.');return;}
- const html=await renderPost(p,url,{likes:0,comments:0,liked:false,saved:false,favorite:false});
- showModal('Photo',html);
-}
-
-function editProfile(){
- if(!requireLogin())return;
- const p=currentProfile||{};
- showModal('Edit your profile',`
-  <form onsubmit="saveProfile(event)">
-   <label class="small muted">Profile picture</label>
-   <input class="field" id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp">
-   <label class="small muted">Display name</label>
-   <input class="field" id="profileName" maxlength="40" value="${esc(p.display_name||'')}" required>
-   <label class="small muted">Username</label>
-   <input class="field" id="profileUsername" maxlength="24" pattern="[A-Za-z0-9_]+" value="${esc(p.username||'')}" required>
-   <label class="small muted">Bio</label>
-   <textarea class="field" id="profileBio" maxlength="300" placeholder="Tell the community about yourself">${esc(p.bio||'')}</textarea>
-   <label class="small muted">Website</label>
-   <input class="field" id="profileWebsite" maxlength="200" value="${esc(p.website||'')}" placeholder="https://example.com">
-   <label class="small muted">Profile visibility</label>
-   <select class="field" id="profilePrivacy">
-    <option value="false" ${p.is_private===false?'selected':''}>Public</option>
-    <option value="true" ${p.is_private===true?'selected':''}>Private</option>
-   </select>
-   <button class="primary full">Save profile</button>
-   <p class="status" id="profileStatus"></p>
-  </form>
- `);
-}
-
-async function saveProfile(e){
- e.preventDefault();
- const status=$('profileStatus');
- status.textContent='Saving profile...';
-
- const username=$('profileUsername').value.trim().toLowerCase();
- if(!/^[a-z0-9_]{3,24}$/.test(username)){
-  status.textContent='Username must be 3–24 characters.';
-  return;
- }
-
- const {data:existing}=await sb.from('profiles')
-  .select('user_id').eq('username',username).neq('user_id',currentUser.id).maybeSingle();
-
- if(existing){
-  status.textContent='That username is already taken.';
-  return;
- }
-
- let avatarPath=currentProfile?.avatar_path||null;
- const file=$('avatarFile').files[0];
-
- if(file){
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
-   status.textContent='Choose a JPG, PNG or WebP image.';
-   return;
-  }
-  if(file.size>5*1024*1024){
-   status.textContent='Profile picture must be under 5 MB.';
-   return;
-  }
-
-  const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
-  const path=`${currentUser.id}/avatars/${crypto.randomUUID()}.${ext}`;
-
-  const {error:uploadError}=await sb.storage.from(BUCKET).upload(path,file,{
-   contentType:file.type,upsert:false
-  });
-
-  if(uploadError){
-   status.textContent=uploadError.message;
-   return;
-  }
-  avatarPath=path;
- }
-
- const profileData={
-  user_id:currentUser.id,
-  display_name:$('profileName').value.trim(),
-  username,
-  bio:$('profileBio').value.trim(),
-  website:$('profileWebsite').value.trim(),
-  is_private:$('profilePrivacy').value==='true',
-  avatar_path:avatarPath,
-  updated_at:new Date().toISOString()
- };
-
- const {error}=await sb.from('profiles').upsert(profileData,{onConflict:'user_id'});
- if(error){
-  status.textContent=error.message;
-  return;
- }
-
- profileCache={};
- imageCache={};
- await refreshUserData();
- closeModal();
- toast('Profile updated! 💗');
- go('profile');
-}
-
-/* ==========================================
-   SEARCH POSTS AND USERS
-========================================== */
-function loadSearch(){
- $('app').innerHTML=`
-  <div class="section-head"><h2>Search</h2></div>
-  <input class="field" id="searchInput" placeholder="Search usernames, people or captions..." oninput="searchAll(this.value)">
-  <div class="tabs">
-   <button class="pill active" id="searchPostsTab" onclick="searchTab('posts')">Posts</button>
-   <button class="pill" id="searchUsersTab" onclick="searchTab('users')">People</button>
-  </div>
-  <div id="searchResults"><div class="empty">Search the Mahi Baby community.</div></div>
- `;
- window.searchMode='posts';
-}
-
-function searchTab(mode){
- window.searchMode=mode;
- $('searchPostsTab').classList.toggle('active',mode==='posts');
- $('searchUsersTab').classList.toggle('active',mode==='users');
- searchAll($('searchInput').value);
-}
-
-function searchAll(value){
- clearTimeout(searchTimer);
- const request=++currentSearchRequest;
-
- searchTimer=setTimeout(async()=>{
-  const q=value.trim();
-  const box=$('searchResults');
-  if(!box)return;
-
-  if(q.length<2){
-   box.innerHTML='<div class="empty">Enter at least 2 characters to search.</div>';
-   return;
-  }
-
-  box.innerHTML=loadingHTML('Searching...');
-  if(window.searchMode==='users'){
-   const {data,error}=await sb.from('profiles')
-    .select('user_id,display_name,username,avatar_path,bio,is_private')
-    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
-    .eq('is_private',false).limit(30);
-
-   if(request!==currentSearchRequest)return;
-   if(error){
-    box.innerHTML=`<div class="empty">${esc(error.message)}</div>`;
-    return;
-   }
-   if(!data?.length){
-    box.innerHTML='<div class="empty">No public profiles found.</div>';
-    return;
-   }
-
-   let html='';
-   for(const p of data){
-    const avatar=p.avatar_path?await imageURL(p.avatar_path):'';
-    html+=`
-     <div class="search-result" onclick="openProfile('${esc(p.user_id)}')">
-      ${avatar?`<img class="avatar" src="${esc(avatar)}">`:`<div class="avatar">${initials(nameOf(p))}</div>`}
-      <div style="min-width:0">
-       <b>${esc(nameOf(p))}</b>
-       <div class="muted tiny">@${esc(p.username||'user')}</div>
+<!-- Create post modal -->
+<div class="modal-backdrop" id="uploadModal">
+  <section class="modal">
+    <button class="modal-close" data-close="uploadModal">×</button>
+    <h2>Create a post</h2>
+    <p class="modal-subtitle">Share a moment with the community.</p>
+    <form id="uploadForm">
+      <div class="field">
+        <label for="postImage">Choose a photo</label>
+        <input id="postImage" type="file" accept="image/jpeg,image/png,image/webp" required>
       </div>
-     </div>`;
-   }
-   if(request===currentSearchRequest)box.innerHTML=html;
-   return;
-  }
+      <div class="field">
+        <label for="postCaption">Caption</label>
+        <textarea id="postCaption" maxlength="2000" placeholder="Write something..."></textarea>
+      </div>
+      <button class="btn btn-primary modal-submit" type="submit">Publish post</button>
+    </form>
+  </section>
+</div>
 
-  const safeQ=q.replace(/[%_]/g,'');
-  const {data,error}=await sb.from('photo_posts')
-   .select('id,user_id,storage_path,caption,created_at')
-   .ilike('caption','%'+safeQ+'%')
-   .order('created_at',{ascending:false}).limit(40);
+<!-- Profile modal -->
+<div class="modal-backdrop" id="profileModal">
+  <section class="modal">
+    <button class="modal-close" data-close="profileModal">×</button>
+    <h2>Your profile</h2>
+    <p class="modal-subtitle">Manage your public profile.</p>
+    <form id="profileForm">
+      <div class="field">
+        <label for="profileName">Display name</label>
+        <input id="profileName" maxlength="40" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="profileUsername">Username</label>
+        <input id="profileUsername" maxlength="25" placeholder="username">
+      </div>
+      <div class="field">
+        <label for="profileBio">Bio</label>
+        <textarea id="profileBio" maxlength="160" placeholder="Tell people about yourself"></textarea>
+      </div>
+      <div class="field">
+        <label for="profileAvatar">Profile picture</label>
+        <input id="profileAvatar" type="file" accept="image/jpeg,image/png,image/webp">
+      </div>
+      <button class="btn btn-primary modal-submit" type="submit">Save profile</button>
+    </form>
+    <button class="btn btn-light" id="logoutBtn" style="width:100%;margin-top:12px">Log out</button>
+  </section>
+</div>
 
-  if(request!==currentSearchRequest)return;
-  if(error){
-   box.innerHTML=`<div class="empty">${esc(error.message)}</div>`;
-   return;
-  }
-  if(!data?.length){
-   box.innerHTML='<div class="empty">No matching posts found.</div>';
-   return;
-  }
+<div class="toast" id="toast"></div>
 
-  await loadProfiles(data.map(p=>p.user_id));
-  let html='';
-  for(const p of data){
-   const profile=profileCache[p.user_id];
-   if(!profile||profile.is_private)continue;
-   const url=await imageURL(p.storage_path);
-   if(!url)continue;
-   html+=`
-    <div class="search-result" onclick="openSinglePost('${esc(p.id)}')">
-     <img src="${esc(url)}" style="width:75px;height:75px;object-fit:cover;border-radius:12px">
-     <div style="min-width:0">
-      <b>${esc(p.caption||'Photo')}</b>
-      <div class="muted tiny">${esc(nameOf(profile))} · ${esc(timeAgo(p.created_at))}</div>
-     </div>
-    </div>`;
-  }
-  if(request===currentSearchRequest)box.innerHTML=html||'<div class="empty">No public results found.</div>';
- },350);
-}
-
-/* ==========================================
-   SAVED POSTS
-========================================== */
-async function loadSaved(){
- if(!requireLogin())return;
- $('app').innerHTML=`
-  <div class="section-head"><h2>Saved posts</h2></div>
-  <div id="savedFeed">${loadingHTML()}</div>
- `;
-
- const {data:saves,error}=await sb.from('photo_saves')
-  .select('post_id,created_at').eq('user_id',currentUser.id)
-  .order('created_at',{ascending:false}).limit(100);
-
- if(error){
-  $('savedFeed').innerHTML=`<div class="empty">${esc(error.message)}</div>`;
-  return;
- }
- if(!saves?.length){
-  $('savedFeed').innerHTML='<div class="empty"><strong>No saved posts</strong>Posts you save will appear here.</div>';
-  return;
- }
-
- const ids=saves.map(s=>s.post_id);
- const {data:posts,error:postError}=await sb.from('photo_posts')
-  .select('id,user_id,storage_path,caption,created_at').in('id',ids);
-
- if(postError){
-  $('savedFeed').innerHTML=`<div class="empty">${esc(postError.message)}</div>`;
-  return;
- }
-
- await loadProfiles((posts||[]).map(p=>p.user_id));
- let html='';
- for(const p of posts||[]){
-  if(profileCache[p.user_id]?.is_private)continue;
-  const url=await imageURL(p.storage_path);
-  if(url)html+=`<div class="card"><img class="post-image" src="${esc(url)}" alt="Saved photo">
-   <div class="post-caption">${esc(p.caption||'')}</div>
-   <div class="post-actions"><button class="action" onclick="toggleSave('${esc(p.id)}')">Remove saved post</button></div>
-  </div>`;
- }
- $('savedFeed').innerHTML=html||'<div class="empty">No viewable saved posts.</div>';
-}
-
-/* ==========================================
-   ACTIVITY
-========================================== */
-async function loadActivity(){
- if(!currentUser){
-  $('app').innerHTML=`
-   <div class="panel"><h2>Activity</h2>
-   <p class="muted">Login to view your activity.</p>
-   <button class="primary full" onclick="openAuth()">Login</button></div>`;
-  return;
- }
-
- $('app').innerHTML=`
-  <div class="section-head"><h2>Your activity</h2></div>
-  <div class="panel">
-   <h3>Welcome back 💗</h3>
-   <p class="muted small">Your recent contributions and saved posts are available below.</p>
-   <button class="secondary" onclick="go('saved')">View saved posts</button>
-   <button class="secondary" onclick="go('profile')">View your profile</button>
-  </div>
-  <div id="activityPosts">${loadingHTML('Loading your posts...')}</div>
- `;
-
- const {data,error}=await sb.from('photo_posts')
-  .select('id,user_id,storage_path,caption,created_at')
-  .eq('user_id',currentUser.id)
-  .order('created_at',{ascending:false}).limit(20);
-
- if(error){
-  $('activityPosts').innerHTML=`<div class="empty">${esc(error.message)}</div>`;
-  return;
- }
-
- if(!data?.length){
-  $('activityPosts').innerHTML='<div class="empty">You have not shared any posts yet.</div>';
-  return;
- }
-
- let html='';
- for(const p of data){
-  const url=await imageURL(p.storage_path);
-  if(url){
-   html+=`<div class="card">
-    <img class="post-image" src="${esc(url)}">
-    <div class="post-caption">${esc(p.caption||'')}</div>
-    <div class="post-actions"><span class="muted small">${esc(timeAgo(p.created_at))}</span>
-    <button class="action delete" onclick="deletePost('${esc(p.id)}')">Delete</button></div>
-   </div>`;
-  }
- }
- $('activityPosts').innerHTML=html||'<div class="empty">No viewable posts.</div>';
-}
-
-/* ==========================================
-   START APPLICATION
-========================================== */
-async function startApp(){
- await refreshSession();
- refreshAccountButton();
- go('home');
-}
-
-startApp();
+<script>
+/* JavaScript continues in the next part. */
 </script>
+</div>
 </body>
-</html>
+     </html>
+     
