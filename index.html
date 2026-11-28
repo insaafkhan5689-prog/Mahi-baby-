@@ -1205,7 +1205,505 @@ $("globalSearch").addEventListener("keydown",event=>{
   showPage("explore");searchEverything(event.target.value);
  }
 });
-init();
+
+/* =========================================================
+   MAHI BABY — PROFILE, DP, PHOTO VIEWER & STICKER PACKS
+   Add this block immediately before the final init() call.
+========================================================= */
+
+/* ---------- UPGRADE STYLES ---------- */
+const upgradeStyle = document.createElement("style");
+upgradeStyle.textContent = `
+.personrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.personrow .personinfo{flex:1;min-width:0}
+.personrow strong{font-size:12px;display:block}
+.personrow small{font-size:10px;color:var(--muted)}
+.avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.message img.media-click{cursor:zoom-in;max-width:260px}
+.lightbox{position:fixed;inset:0;background:rgba(15,10,15,.96);z-index:500;display:none;align-items:center;justify-content:center;padding:15px}
+.lightbox.open{display:flex}
+.lightbox img,.lightbox video{max-width:100%;max-height:90vh;object-fit:contain;touch-action:pinch-zoom}
+.lightbox button{position:absolute;top:18px;right:18px;width:42px;height:42px;border:0;border-radius:50%;background:#fff;color:#222;font-size:24px}
+.upgrade-modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:var(--surface);border-radius:22px;padding:18px}
+.upgrade-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pack-strip{display:flex;gap:9px;overflow:auto;padding:8px 0}
+.pack-tab{flex:none;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:white;color:var(--plum);font-size:11px;font-weight:800}
+.pack-tab.active{background:var(--plum);color:white}
+.pack-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.pack-sticker{border:1px solid var(--line);background:white;border-radius:12px;aspect-ratio:1;overflow:hidden;padding:5px}
+.pack-sticker img{width:100%;height:100%;object-fit:contain}
+.pack-sticker:active{transform:scale(.95)}
+.pack-cover{width:38px;height:38px;border-radius:10px;object-fit:cover;background:var(--surface2)}
+.profile-edit-avatar{display:flex;align-items:center;gap:15px;margin-bottom:16px}
+.profile-edit-avatar .avatar{width:76px;height:76px}
+.media-sticker{width:125px!important;height:125px!important;object-fit:contain!important;cursor:pointer}
+@media(max-width:500px){.pack-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+`;
+document.head.appendChild(upgradeStyle);
+
+/* ---------- LIGHTBOX ---------- */
+if (!$("mediaLightbox")) {
+ const box=document.createElement("div");
+ box.id="mediaLightbox";
+ box.className="lightbox";
+ box.innerHTML='<button onclick="closeLightbox()">×</button><div id="lightboxContent"></div>';
+ box.addEventListener("click",e=>{
+  if(e.target===box)closeLightbox();
+ });
+ document.body.appendChild(box);
+}
+function openLightbox(url,type="image"){
+ if(!url)return;
+ $("lightboxContent").innerHTML=type==="video"
+  ?`<video src="${escapeHTML(url)}" controls autoplay playsinline></video>`
+  :`<img src="${escapeHTML(url)}" alt="Full size media">`;
+ $("mediaLightbox").classList.add("open");
+}
+function closeLightbox(){
+ $("mediaLightbox").classList.remove("open");
+ $("lightboxContent").innerHTML="";
+}
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape")closeLightbox();
+});
+
+/* ---------- RELIABLE PROFILE / AVATAR LOADING ---------- */
+async function getProfile(userId){
+ if(!userId)return null;
+ if(profileCache[userId]){
+  const cached=profileCache[userId];
+  if(cached.avatar_path && !cached.avatar_url){
+   const url=await signMedia(cached.avatar_path);
+   cached.avatar_url=url;
+  }
+  return cached;
+ }
+ const {data,error}=await db.from("profiles")
+  .select("*").eq("user_id",userId).maybeSingle();
+ if(error){
+  console.error("Profile loading error:",error);
+  return null;
+ }
+ if(!data)return null;
+ data.avatar_url=data.avatar_path?await signMedia(data.avatar_path):"";
+ profileCache[userId]=data;
+ return data;
+}
+
+async function getProfiles(ids){
+ const unique=[...new Set((ids||[]).filter(Boolean))];
+ await Promise.all(unique.map(id=>getProfile(id)));
+ return unique.map(id=>profileCache[id]).filter(Boolean);
+}
+
+function avatarHTML(profile,size=42){
+ const name=safeName(profile);
+ const url=profile?.avatar_url;
+ if(url){
+  return `<span class="avatar" style="width:${size}px;height:${size}px">
+   <img src="${escapeHTML(url)}" alt="${escapeHTML(name)}"
+    onerror="this.style.display='none';this.parentElement.textContent='${escapeHTML(name[0]?.toUpperCase()||"M")}'">
+  </span>`;
+ }
+ return `<span class="avatar" style="width:${size}px;height:${size}px">${escapeHTML(name[0]?.toUpperCase()||"M")}</span>`;
+}
+
+/* ---------- TOP PROFILE PHOTO ---------- */
+async function refreshMyAvatar(){
+ if(!currentUser)return;
+ const p=await getProfile(currentUser.id);
+ currentProfile=p;
+ $("topAvatar").innerHTML=avatarHTML(p,40);
+}
+
+/* ---------- PROFILE EDITOR ---------- */
+function createProfileEditor(){
+ if($("profileEditorModal"))return;
+ const modal=document.createElement("div");
+ modal.className="modalback";
+ modal.id="profileEditorModal";
+ modal.innerHTML=`
+ <div class="upgrade-modal">
+  <div class="modalhead">
+   <h3>Edit your profile</h3>
+   <button class="closebtn" onclick="closeModal('profileEditorModal')">×</button>
+  </div>
+  <div class="profile-edit-avatar">
+   <div id="editAvatarPreview"></div>
+   <div>
+    <strong>Profile photo</strong>
+    <div class="small muted">Choose a new image from your gallery.</div>
+    <input id="editAvatarFile" type="file" accept="image/*" class="input" style="margin-top:8px">
+   </div>
+  </div>
+  <div class="field"><label>Display name</label>
+   <input id="editDisplayName" class="input" maxlength="60">
+  </div>
+  <div class="field"><label>Username</label>
+   <input id="editUsername" class="input" maxlength="30">
+  </div>
+  <div class="field"><label>Bio</label>
+   <textarea id="editBio" class="textarea" maxlength="300"></textarea>
+  </div>
+  <button class="btn" id="saveProfileBtn" style="width:100%" onclick="saveProfileChanges()">Save changes</button>
+ </div>`;
+ document.body.appendChild(modal);
+}
+async function editProfile(){
+ if(!requireLogin())return;
+ createProfileEditor();
+ const p=await getProfile(currentUser.id);
+ $("editDisplayName").value=p?.display_name||"";
+ $("editUsername").value=p?.username||"";
+ $("editBio").value=p?.bio||"";
+ $("editAvatarFile").value="";
+ $("editAvatarPreview").innerHTML=avatarHTML(p,76);
+ openModal("profileEditorModal");
+}
+async function saveProfileChanges(){
+ if(!requireLogin())return;
+ const name=$("editDisplayName").value.trim();
+ const username=$("editUsername").value.trim().replace(/^@/,"").toLowerCase();
+ const bio=$("editBio").value.trim();
+ const file=$("editAvatarFile").files[0];
+ if(!name){toast("Display name is required.");return}
+ if(!/^[a-z0-9_.]{3,30}$/.test(username)){
+  toast("Username must be 3–30 characters: letters, numbers, _ or .");
+  return;
+ }
+ const button=$("saveProfileBtn");
+ button.disabled=true;
+ button.textContent="Saving…";
+ try{
+  let avatarPath=currentProfile?.avatar_path||null;
+  if(file){
+   if(!file.type.startsWith("image/"))throw new Error("Choose an image file.");
+   if(file.size>8*1024*1024)throw new Error("Profile photo must be under 8 MB.");
+   const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-z0-9]/gi,"").toLowerCase();
+   const path=`${currentUser.id}/avatars/${Date.now()}_${crypto.randomUUID()}.${ext}`;
+   const {error:uploadError}=await db.storage.from(STORAGE_BUCKET).upload(path,file,{
+    cacheControl:"3600",upsert:false,contentType:file.type
+   });
+   if(uploadError)throw uploadError;
+   avatarPath=path;
+  }
+  const {error}=await db.from("profiles").upsert({
+   user_id:currentUser.id,
+   display_name:name,
+   username,
+   bio,
+   avatar_path:avatarPath,
+   updated_at:new Date().toISOString()
+  },{onConflict:"user_id"});
+  if(error)throw error;
+  delete profileCache[currentUser.id];
+  currentProfile=await getProfile(currentUser.id);
+  closeModal("profileEditorModal");
+  await refreshMyAvatar();
+  await loadMyProfile();
+  await loadFeed();
+  toast("Profile updated successfully.");
+ }catch(e){
+  toast("Profile update failed: "+e.message);
+ }finally{
+  button.disabled=false;
+  button.textContent="Save changes";
+ }
+}
+
+/* Live photo preview */
+document.addEventListener("change",e=>{
+ if(e.target.id==="editAvatarFile"){
+  const file=e.target.files?.[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+   $("editAvatarPreview").innerHTML=
+    `<span class="avatar" style="width:76px;height:76px"><img src="${reader.result}"></span>`;
+  };
+  reader.readAsDataURL(file);
+ }
+});
+
+/* ---------- PROFILE DISPLAY ---------- */
+async function loadMyProfile(){
+ if(!currentUser)return;
+ const p=await getProfile(currentUser.id);
+ if(!p)return;
+ currentProfile=p;
+ const {data:posts,error}=await db.from("photo_posts").select("*")
+  .eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
+ if(error){
+  $("profileContent").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ const tiles=[];
+ for(const post of posts||[]){
+  const url=await signMedia(post.storage_path);
+  tiles.push(`<div class="posttile" onclick="openLightbox('${escapeHTML(url)}','${post.media_type==="video"?"video":"image"}')">
+   ${post.media_type==="video"
+    ?`<video src="${escapeHTML(url)}" muted></video>`
+    :`<img src="${escapeHTML(url)}" loading="lazy">`}
+  </div>`);
+ }
+ $("profileContent").innerHTML=`
+  <div class="panel profilehero">
+   <div class="profiletop">
+    ${avatarHTML(p,80)}
+    <div>
+     <h2>${escapeHTML(safeName(p))}</h2>
+     <div class="small muted">@${escapeHTML(p.username||"member")}</div>
+     <div class="small muted" style="margin-top:6px">${escapeHTML(currentUser.email||"")}</div>
+    </div>
+   </div>
+   <div class="profilebio">${escapeHTML(p.bio||"Add a short bio.")}</div>
+   <div class="profilecounts"><div><strong>${posts?.length||0}</strong><span>Posts</span></div></div>
+  </div>
+  <div class="postgrid">${tiles.join("")}</div>`;
+}
+
+/* ---------- PROFILE PHOTOS IN SEARCH ---------- */
+async function searchPeople(query){
+ const q=(query||"").trim();
+ if(!q){
+  $("peopleResults").innerHTML='<div class="empty">Search for people by name or username.</div>';
+  return;
+ }
+ const {data,error}=await db.from("profiles").select("*")
+  .or(`display_name.ilike.%${q}%,username.ilike.%${q}%`).limit(30);
+ if(error){
+  $("peopleResults").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ await getProfiles((data||[]).map(p=>p.user_id));
+ $("peopleResults").innerHTML=(data||[])
+  .filter(p=>p.user_id!==currentUser?.id)
+  .map(p=>`
+   <div class="panel personcard">
+    ${avatarHTML(profileCache[p.user_id]||p,62)}
+    <strong>${escapeHTML(safeName(p))}</strong>
+    <p>@${escapeHTML(p.username||"member")}</p>
+    <button class="btn secondary smallbtn" onclick="startDirectChat('${p.user_id}')">Message</button>
+    <button class="btn outline smallbtn" onclick="openProfile('${p.user_id}')">Profile</button>
+   </div>`).join("")||'<div class="empty">No people found.</div>';
+}
+
+/* ---------- CHAT PEOPLE SEARCH WITH DPs ---------- */
+async function searchChatPeople(query){
+ const q=query.trim();
+ if(!q){$("newChatResults").innerHTML="";return}
+ const {data,error}=await db.from("profiles").select("*")
+  .or(`display_name.ilike.%${q}%,username.ilike.%${q}%`).limit(20);
+ if(error){
+  $("newChatResults").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ await getProfiles((data||[]).map(p=>p.user_id));
+ $("newChatResults").innerHTML=(data||[])
+  .filter(p=>p.user_id!==currentUser.id)
+  .map(p=>`
+   <div class="personrow">
+    ${avatarHTML(profileCache[p.user_id]||p,40)}
+    <div class="personinfo"><strong>${escapeHTML(safeName(p))}</strong>
+     <small>@${escapeHTML(p.username||"member")}</small></div>
+    <button class="btn smallbtn" onclick="startDirectChat('${p.user_id}')">Message</button>
+   </div>`).join("")||'<div class="empty">No users found.</div>';
+}
+
+/* ---------- GROUP SEARCH WITH DPs ---------- */
+async function searchGroupPeople(query){
+ const q=query.trim();
+ if(!q){$("groupResults").innerHTML="";return}
+ const {data,error}=await db.from("profiles").select("*")
+  .or(`display_name.ilike.%${q}%,username.ilike.%${q}%`).limit(30);
+ if(error){
+  $("groupResults").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ await getProfiles((data||[]).map(p=>p.user_id));
+ $("groupResults").innerHTML=(data||[])
+  .filter(p=>p.user_id!==currentUser.id)
+  .map(p=>{
+   const selected=selectedGroupMembers.has(p.user_id);
+   return `<div class="personrow">
+    ${avatarHTML(profileCache[p.user_id]||p,38)}
+    <div class="personinfo"><strong>${escapeHTML(safeName(p))}</strong>
+     <small>@${escapeHTML(p.username||"member")}</small></div>
+    <button class="btn ${selected?"secondary":"outline"} smallbtn"
+     onclick="toggleGroupMember('${p.user_id}')">${selected?"Selected":"Add"}</button>
+   </div>`;
+  }).join("")||'<div class="empty">No users found.</div>';
+}
+
+/* ---------- CHAT LIST WITH PROFILE PHOTOS ---------- */
+async function loadConversations(){
+ if(!currentUser)return;
+ $("conversationList").innerHTML='<div class="loading">Loading chats…</div>';
+ const {data:members,error}=await db.from("conversation_members")
+  .select("conversation_id,member_role,joined_at").eq("user_id",currentUser.id);
+ if(error){
+  $("conversationList").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ const ids=(members||[]).map(m=>m.conversation_id);
+ if(!ids.length){
+  $("conversationList").innerHTML='<div class="empty">No chats yet. Start a conversation.</div>';
+  return;
+ }
+ const {data:conversations,error:e}=await db.from("conversations")
+  .select("*").in("id",ids).order("updated_at",{ascending:false});
+ if(e){
+  $("conversationList").innerHTML=`<div class="empty">${escapeHTML(e.message)}</div>`;
+  return;
+ }
+ conversationsCache=conversations||[];
+ const html=[];
+ for(const c of conversationsCache){
+  let title=await conversationTitle(c);
+  let avatar='<span class="avatar">✉</span>';
+  if(c.kind!=="group"){
+   const {data:membersData}=await db.from("conversation_members")
+    .select("user_id").eq("conversation_id",c.id);
+   const other=(membersData||[]).map(m=>m.user_id).find(id=>id!==currentUser.id);
+   const p=other?await getProfile(other):null;
+   avatar=avatarHTML(p,42);
+  }else{
+   avatar='<span class="avatar">👥</span>';
+  }
+  html.push(`<button class="chatitem ${currentConversation===c.id?"active":""}" onclick="openConversation('${c.id}')">
+   ${avatar}
+   <span class="personinfo"><strong>${escapeHTML(title)}</strong>
+    <small>${c.kind==="group"?"Group conversation":"Personal conversation"}</small>
+   </span>
+  </button>`);
+ }
+ $("conversationList").innerHTML=html.join("")||'<div class="empty">No chats found.</div>';
+}
+
+/* ---------- MESSAGE RENDERING + IMAGE VIEWER ---------- */
+async function renderMessage(msg){
+ const mine=msg.sender_id===currentUser?.id;
+ let content="";
+ if(msg.message_type==="sticker" && msg.media_path){
+  const url=await signMedia(msg.media_path);
+  content=url?`<img class="media-sticker" src="${escapeHTML(url)}" alt="Sticker" onclick="openLightbox('${escapeHTML(url)}')">`:
+   '<div class="small muted">Sticker unavailable</div>';
+ }else if(msg.message_type==="sticker"){
+  content=`<div class="sticker">${escapeHTML(msg.content||"✨")}</div>`;
+ }else if(msg.media_path){
+  const url=await signMedia(msg.media_path);
+  if(msg.message_type==="video"){
+   content=`<video src="${escapeHTML(url)}" controls playsinline onclick="openLightbox('${escapeHTML(url)}','video')"></video>`;
+  }else{
+   content=`<img class="media-click" src="${escapeHTML(url)}" loading="lazy" alt="Shared media" onclick="openLightbox('${escapeHTML(url)}')">`;
+   if(msg.message_type==="gif")content+='<div class="giflabel">GIF</div>';
+  }
+  if(msg.content&&msg.content!=="Photo"&&msg.content!=="Video"&&msg.content!=="GIF")
+   content+=`<div>${escapeHTML(msg.content)}</div>`;
+ }else{
+  content=escapeHTML(msg.content||"");
+ }
+ const sender=mine?"You":safeName(await getProfile(msg.sender_id));
+ return `<div class="message ${mine?"mine":""}">
+  ${!mine?`<div class="tiny muted" style="margin-bottom:3px">${escapeHTML(sender)}</div>`:""}
+  ${content}
+  <span class="msgtime">${escapeHTML(shortTime(msg.created_at))}</span>
+ </div>`;
+}
+
+/* ---------- STICKER PACK SYSTEM ---------- */
+let stickerPacks=[];
+let activeStickerPack=null;
+let stickerPackModalReady=false;
+
+function createStickerPackUI(){
+ if(stickerPackModalReady)return;
+ stickerPackModalReady=true;
+ const modal=document.createElement("div");
+ modal.id="stickerPackModal";
+ modal.className="modalback";
+ modal.innerHTML=`
+  <div class="upgrade-modal">
+   <div class="modalhead">
+    <h3>Sticker packs</h3>
+    <button class="closebtn" onclick="closeModal('stickerPackModal')">×</button>
+   </div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="createStickerPack()">＋ Create pack</button>
+    <button class="btn secondary" onclick="loadStickerPacks()">Refresh packs</button>
+   </div>
+   <div class="pack-strip" id="stickerPackTabs"></div>
+   <div id="stickerPackContent"><div class="empty">Loading sticker packs…</div></div>
+  </div>`;
+ document.body.appendChild(modal);
+}
+function addStickerPackButton(){
+ const row=document.querySelector(".composerrow");
+ if(!row||$("stickerPackButton"))return;
+ const button=document.createElement("button");
+ button.id="stickerPackButton";
+ button.className="toolbtn";
+ button.title="Sticker packs";
+ button.textContent="▧";
+ button.onclick=openStickerPacks;
+ const send=row.querySelector("button.btn");
+ row.insertBefore(button,send);
+}
+async function openStickerPacks(){
+ if(!requireLogin()||!currentConversation)return;
+ createStickerPackUI();
+ openModal("stickerPackModal");
+ await loadStickerPacks();
+}
+async function loadStickerPacks(){
+ if(!currentUser)return;
+ createStickerPackUI();
+ $("stickerPackContent").innerHTML='<div class="loading">Loading packs…</div>';
+ const {data:installs,error}=await db.from("sticker_pack_installs")
+  .select("pack_id").eq("user_id",currentUser.id);
+ if(error){
+  $("stickerPackContent").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ const installed=(installs||[]).map(x=>x.pack_id);
+ const {data:packs,error:e}=await db.from("sticker_packs")
+  .select("*").order("created_at",{ascending:false}).limit(100);
+ if(e){
+  $("stickerPackContent").innerHTML=`<div class="empty">${escapeHTML(e.message)}</div>`;
+  return;
+ }
+ stickerPacks=(packs||[]).map(p=>({...p,installed:installed.includes(p.id)}));
+ renderStickerPackTabs();
+ if(activeStickerPack && stickerPacks.some(p=>p.id===activeStickerPack)){
+  await showStickerPack(activeStickerPack);
+ }else{
+  const first=stickerPacks.find(p=>p.installed)||stickerPacks[0];
+  if(first)await showStickerPack(first.id);
+  else $("stickerPackContent").innerHTML='<div class="empty">No sticker packs yet. Create your first pack.</div>';
+ }
+}
+function renderStickerPackTabs(){
+ $("stickerPackTabs").innerHTML=stickerPacks.map(p=>`
+  <button class="pack-tab ${p.id===activeStickerPack?"active":""}"
+   onclick="showStickerPack('${p.id}')">${escapeHTML(p.title)}${p.installed?"":" +"}</button>
+ `).join("");
+}
+async function showStickerPack(packId){
+ activeStickerPack=packId;
+ const pack=stickerPacks.find(p=>p.id===packId);
+ if(!pack)return;
+ renderStickerPackTabs();
+ $("stickerPackContent").innerHTML='<div class="loading">Loading stickers…</div>';
+ const {data:stickers,error}=await db.from("stickers")
+  .select("*").eq("pack_id",packId).order("sort_order",{ascending:true});
+ if(error){
+  $("stickerPackContent").innerHTML=`<div class="empty">${escapeHTML(error.message)}</div>`;
+  return;
+ }
+ let html=`
+  <div class="upgrade-row">
+   <div style="flex:1"><strong>${escapeHTML(pack.title)}</strong>
+    <div class="small muted">${stickers?.length||0} sti
 </script>
 </body>
 </html>
