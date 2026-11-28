@@ -1,243 +1,364 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f6f1eb">
-<title>Mahi Baby — Social Studio</title>
+<meta name="theme-color" content="#f8f5f1">
+<title>Mahi Baby | Social Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root{--bg:#f6f1eb;--paper:#fffdf9;--ink:#292329;--muted:#81777e;--line:#e9e0dc;--plum:#583b50;--rose:#b77d88;--rose2:#ead6d7;--shadow:0 12px 35px #3b26300d}
+:root{
+ --bg:#f8f5f1;
+ --paper:#fffdf9;
+ --ink:#292329;
+ --muted:#81777e;
+ --line:#e9e0dc;
+ --plum:#583b50;
+ --rose:#b77d88;
+ --rose2:#ead6d7;
+ --shadow:0 12px 35px #3b26300d;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px 'DM Sans',sans-serif;padding-bottom:88px}
+body{
+ margin:0;background:var(--bg);color:var(--ink);
+ font:15px 'DM Sans',sans-serif;line-height:1.6;
+ padding-bottom:90px;
+}
 button,input,textarea{font:inherit}
 button{cursor:pointer}
 button:disabled{opacity:.5;cursor:not-allowed}
-.top{height:65px;position:sticky;top:0;z-index:20;background:#f6f1ebed;backdrop-filter:blur(15px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100vw - 1000px)/2))}
-.brand{font:700 25px 'Playfair Display';letter-spacing:-.5px}
+.top{
+ height:68px;position:sticky;top:0;z-index:20;
+ background:#f8f5f1ed;backdrop-filter:blur(15px);
+ border-bottom:1px solid var(--line);
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 max(17px,calc((100vw - 1060px)/2));
+}
+.brand{font:700 28px 'Playfair Display';letter-spacing:-1px}
 .brand span{color:var(--rose)}
 .topright{display:flex;gap:9px;align-items:center}
-.wrap{max-width:1000px;margin:auto;padding:22px 15px}
-.hero{padding:26px;border-radius:22px;background:linear-gradient(120deg,#553b50,#775568);color:#fff;margin-bottom:22px;box-shadow:var(--shadow)}
+.wrap{max-width:1100px;margin:auto;padding:24px 18px}
+.hero{
+ min-height:260px;padding:35px 32px;border-radius:25px;color:white;
+ background:
+ radial-gradient(circle at 85% 15%,#9b718a 0%,transparent 35%),
+ linear-gradient(125deg,#493443,#77576a);
+ display:flex;flex-direction:column;justify-content:center;
+ box-shadow:0 15px 40px #49344320;
+}
 .hero small{letter-spacing:2px;text-transform:uppercase;color:#ead6d7}
-.hero h1{font:700 clamp(30px,5vw,45px) 'Playfair Display';margin:9px 0}
-.hero p{color:#f1e8ec;max-width:540px;line-height:1.6}
-.heading{display:flex;justify-content:space-between;align-items:end;margin:24px 0 13px}
-.heading h2{font:700 25px 'Playfair Display';margin:0}
+.hero h1{
+ font:700 clamp(35px,6vw,54px) 'Playfair Display';
+ line-height:1.12;max-width:650px;margin:13px 0;letter-spacing:-1px;
+}
+.hero p{font-size:15px;line-height:1.8;max-width:540px;color:#f1e8ec}
+.hero .btn{align-self:flex-start;margin-top:10px}
+.heading{
+ display:flex;justify-content:space-between;align-items:end;
+ margin:30px 0 16px;
+}
+.heading h2{font:700 28px 'Playfair Display';margin:0;letter-spacing:-.5px}
 .muted{color:var(--muted)}
 .tiny{font-size:11px}
-.btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:10px 14px;border-radius:12px}
+.btn{
+ border:1px solid var(--line);background:var(--paper);color:var(--ink);
+ padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;
+}
 .btn.primary{background:var(--plum);border-color:var(--plum);color:#fff}
 .btn.rose{background:var(--rose2);border-color:var(--rose2);color:#553b50}
 .btn.danger{color:#a04454}
-.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#eadfe0;border:1px solid #e4d5d5;flex:none}
+.avatar{
+ width:40px;height:40px;border-radius:50%;object-fit:cover;
+ background:#eadfe0;border:1px solid #e4d5d5;flex:none;
+}
 .avatar.big{width:78px;height:78px}
-.nav{position:fixed;z-index:30;bottom:0;left:0;right:0;background:#fffdf9f2;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:7px 4px calc(7px + env(safe-area-inset-bottom));gap:2px}
-.nav button{flex:1;max-width:120px;border:0;background:none;color:#877b83;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;padding:5px}
+.nav{
+ position:fixed;z-index:30;bottom:0;left:0;right:0;
+ background:#fffdf9f2;backdrop-filter:blur(16px);
+ border-top:1px solid var(--line);
+ display:flex;justify-content:center;padding:7px 4px calc(7px + env(safe-area-inset-bottom));
+ gap:2px;
+}
+.nav button{
+ flex:1;max-width:120px;border:0;background:none;color:#877b83;
+ display:flex;flex-direction:column;align-items:center;gap:3px;
+ font-size:10px;padding:5px;
+}
 .nav button b{font-size:20px;font-weight:500}
 .nav button.active{color:var(--plum)}
 .page{display:none}
 .page.active{display:block}
-.stories{display:flex;gap:13px;overflow:auto;padding:5px 0 14px}
-.story{width:66px;flex:none;text-align:center;border:0;background:none;padding:0;color:var(--ink);font-size:11px}
-.story-ring{width:61px;height:61px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#b77d88,#583b50);margin:0 auto 5px}
-.story-ring img{width:100%;height:100%;object-fit:cover;border-radius:50%;border:2px solid var(--paper);background:#eadfe0}
-.story.add .story-ring{background:#ead6d7;display:grid;place-items:center;color:var(--plum);font-size:28px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.post,.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
-.post img.media{width:100%;display:block;max-height:560px;object-fit:cover;background:#eee4e0}
-.postbody{padding:12px}
-.userline{display:flex;align-items:center;gap:9px}
-.userline button.name{border:0;background:none;padding:0;text-align:left;font-weight:700;color:var(--ink)}
-.userline .time{margin-left:auto;font-size:10px;color:var(--muted)}
-.caption{font-size:13px;line-height:1.5;margin:10px 0;overflow-wrap:anywhere}
-.actions{display:flex;gap:7px;border-top:1px solid var(--line);padding-top:9px;flex-wrap:wrap}
-.actions button{border:0;background:none;color:#756a72;padding:5px 4px;font-size:12px}
+.stories{display:flex;gap:17px;overflow:auto;padding:7px 0 18px}
+.story{
+ width:76px;flex:none;text-align:center;border:0;background:none;
+ padding:0;color:var(--ink);font-size:12px;font-weight:600;
+}
+.story-ring{
+ width:68px;height:68px;border-radius:50%;padding:3px;
+ background:linear-gradient(135deg,#b77d88,#583b50);
+ margin:0 auto 5px;
+}
+.story-ring img{
+ width:100%;height:100%;object-fit:cover;border-radius:50%;
+ border:2px solid var(--paper);background:#eadfe0;
+}
+.story.add .story-ring{
+ background:#ead6d7;display:grid;place-items:center;
+ color:var(--plum);font-size:28px;
+}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.post,.panel{
+ background:var(--paper);border:1px solid var(--line);
+ border-radius:19px;overflow:hidden;box-shadow:var(--shadow);
+}
+.post{transition:transform .2s,box-shadow .2s}
+.post:hover{transform:translateY(-3px);box-shadow:0 15px 35px #49344316}
+.post img.media,.post video.media{
+ width:100%;aspect-ratio:4/4.5;object-fit:cover;
+ display:block;background:#eee6e1;
+}
+.postbody{padding:15px}
+.userline{display:flex;align-items:center;gap:10px}
+.userline button.name{
+ border:0;background:none;padding:0;text-align:left;
+ font-weight:700;color:var(--ink);font-size:14px;
+}
+.userline .time{margin-left:auto;font-size:11px;color:var(--muted)}
+.caption{
+ font-size:15px;line-height:1.8;font-weight:400;color:#3d333a;
+ margin:13px 0 15px;overflow-wrap:anywhere;white-space:pre-wrap;
+}
+.actions{display:flex;gap:10px;border-top:1px solid var(--line);padding-top:11px;flex-wrap:wrap}
+.actions button{
+ border:0;background:none;color:#756a72;padding:7px 5px;
+ font-size:13px;font-weight:600;
+}
 .actions button.active{color:var(--rose);font-weight:700}
-.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #d9ccca;border-radius:16px;grid-column:1/-1}
-.panel{padding:17px;margin-bottom:14px}
-.field{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);outline:none}
+.empty{
+ padding:35px 20px;text-align:center;color:var(--muted);
+ border:1px dashed #d9ccca;border-radius:16px;grid-column:1/-1;
+}
+.panel{padding:20px;margin-bottom:14px}
+.field{
+ width:100%;padding:13px 14px;border:1px solid var(--line);
+ border-radius:11px;background:#fff;color:var(--ink);outline:none;
+ font-size:15px;
+}
 .field:focus{border-color:var(--rose)}
 textarea.field{min-height:85px;resize:vertical}
 .form{display:grid;gap:11px}
 .search{display:flex;gap:8px;margin:12px 0}
-.search input{flex:1}
+.search input{flex:1;min-width:0}
 .row{display:flex;align-items:center;gap:12px}
 .profilehead{display:flex;gap:15px;align-items:center}
 .stats{display:flex;gap:25px;margin-top:13px}
 .stats b{display:block;font-size:18px}
-.modal{display:none;position:fixed;inset:0;z-index:60;background:#21192399;align-items:center;justify-content:center;padding:13px}
+.modal{
+ display:none;position:fixed;inset:0;z-index:60;background:#21192399;
+ align-items:center;justify-content:center;padding:13px;
+}
 .modal.show{display:flex}
-.modalbox{background:var(--paper);border-radius:20px;padding:17px;width:min(560px,100%);max-height:88vh;overflow:auto;box-shadow:0 25px 80px #241b2490}
+.modalbox{
+ background:var(--paper);border-radius:20px;padding:17px;
+ width:min(560px,100%);max-height:88vh;overflow:auto;
+ box-shadow:0 25px 80px #241b2490;
+}
 .modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .modalhead h3{font:700 23px 'Playfair Display';margin:0}
 .x{border:0;background:#f0e8e6;border-radius:10px;width:36px;height:36px;font-size:20px}
 .list{display:grid;gap:9px;max-height:50vh;overflow:auto;margin:12px 0}
 .comment{padding:10px;background:#f7f1ed;border-radius:12px}
 .comment p{margin:5px 0 0;white-space:pre-wrap}
-.toast{position:fixed;z-index:90;bottom:98px;left:50%;transform:translate(-50%,12px);opacity:0;transition:.2s;background:#292329;color:white;padding:11px 16px;border-radius:12px;max-width:90%;text-align:center}
+.toast{
+ position:fixed;z-index:90;bottom:98px;left:50%;
+ transform:translate(-50%,12px);opacity:0;transition:.2s;
+ background:#292329;color:white;padding:11px 16px;border-radius:12px;
+ max-width:90%;text-align:center;
+}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .hidden{display:none!important}
 .chatrow{padding:11px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .chatrow button{border:0;background:none;text-align:left;flex:1;color:var(--ink)}
-.bubble{max-width:82%;padding:10px 12px;border-radius:14px;background:#f0e8e6;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble{
+ max-width:82%;padding:10px 12px;border-radius:14px;
+ background:#f0e8e6;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere;
+}
 .bubble.mine{margin-left:auto;background:#583b50;color:white}
-.storyview{height:min(70vh,620px);background:#211923;border-radius:15px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.storyview{
+ height:min(70vh,620px);background:#211923;border-radius:15px;
+ display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
 .storyview img,.storyview video{max-width:100%;max-height:100%;object-fit:contain}
-.tag{font-size:10px;color:var(--rose);text-transform:uppercase;letter-spacing:1px}
-@media(min-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:380px){.wrap{padding:15px 10px}.grid{gap:8px}.postbody{padding:9px}.actions button{font-size:11px}}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+ .wrap{padding:16px 12px}
+ .hero{min-height:215px;padding:25px 21px;border-radius:21px}
+ .hero h1{font-size:37px}
+ .hero p{font-size:14px}
+ .heading{margin:24px 0 13px}
+ .heading h2{font-size:25px}
+ .grid{grid-template-columns:1fr;gap:17px}
+ .post img.media,.post video.media{aspect-ratio:4/4.2;max-height:520px}
+ .postbody{padding:14px}
+ .caption{font-size:15px;line-height:1.8}
+ .actions button{font-size:12px}
+}
+@media(max-width:360px){
+ .hero h1{font-size:32px}
+ .caption{font-size:14px}
+}
 </style>
 </head>
 
 <body>
 <header class="top">
-  <div class="brand">mahi<span>baby</span></div>
-  <div class="topright">
-    <button class="btn" onclick="go('search')">⌕ Search</button>
-    <button id="authTop" class="btn primary" onclick="authOpen()">Log in</button>
-    <button id="myAvatarBtn" class="hidden" style="border:0;background:none;padding:0" onclick="openMyProfile()">
-      <img id="myAvatar" class="avatar" alt="My profile">
-    </button>
-  </div>
+ <div class="brand">mahi<span>baby</span></div>
+ <div class="topright">
+  <button class="btn" onclick="go('search')">⌕ Search</button>
+  <button id="authTop" class="btn primary" onclick="authOpen()">Log in</button>
+  <button id="myAvatarBtn" class="hidden" style="border:0;background:none;padding:0" onclick="openMyProfile()">
+   <img id="myAvatar" class="avatar" alt="My profile">
+  </button>
+ </div>
 </header>
 
 <main class="wrap">
 <section id="page-home" class="page active">
-  <div class="hero">
-    <small>MAHI BABY · SOCIAL STUDIO</small>
-    <h1>Moments worth sharing.</h1>
-    <p>Discover people, share your world and keep the moments that matter. Public posts are visible to everyone.</p>
-    <button class="btn rose" onclick="go('explore')">Explore community ↗</button>
-  </div>
-  <div class="heading"><h2>Stories</h2><span class="muted tiny">24 hours</span></div>
-  <div id="stories" class="stories"></div>
-  <div class="heading"><h2>Community feed</h2><span id="postCount" class="muted tiny"></span></div>
-  <div class="row" style="margin-bottom:12px">
-    <button class="btn rose" onclick="setFeed('latest',this)">Latest</button>
-    <button class="btn" onclick="setFeed('trending',this)">Trending</button>
-  </div>
-  <div id="feed" class="grid"><div class="empty">Loading public posts…</div></div>
+ <div class="hero">
+  <small>MAHI BABY · SOCIAL STUDIO</small>
+  <h1>Moments worth sharing.</h1>
+  <p>Discover people, share your world and keep the moments that matter. Public posts are visible to everyone.</p>
+  <button class="btn rose" onclick="go('explore')">Explore community ↗</button>
+ </div>
+
+ <div class="heading"><h2>Stories</h2><span class="muted tiny">24 hours</span></div>
+ <div id="stories" class="stories"></div>
+
+ <div class="heading"><h2>Community feed</h2><span id="postCount" class="muted tiny"></span></div>
+ <div class="row" style="margin-bottom:12px">
+  <button class="btn rose" onclick="setFeed('latest',this)">Latest</button>
+  <button class="btn" onclick="setFeed('trending',this)">Trending</button>
+ </div>
+ <div id="feed" class="grid"><div class="empty">Loading public posts…</div></div>
 </section>
 
 <section id="page-explore" class="page">
-  <div class="heading"><h2>Explore</h2></div>
-  <div class="search">
-    <input id="exploreQ" class="field" placeholder="Search captions or people">
-    <button class="btn primary" onclick="searchExplore()">Search</button>
-  </div>
-  <div id="exploreResults" class="grid"></div>
+ <div class="heading"><h2>Explore</h2></div>
+ <div class="search">
+  <input id="exploreQ" class="field" placeholder="Search captions or people">
+  <button class="btn primary" onclick="searchExplore()">Search</button>
+ </div>
+ <div id="exploreResults" class="grid"></div>
 </section>
 
 <section id="page-search" class="page">
-  <div class="heading"><h2>Find people</h2></div>
-  <div class="search">
-    <input id="peopleQ" class="field" placeholder="Search username or display name">
-    <button class="btn primary" onclick="searchPeople()">Find</button>
-  </div>
-  <div id="peopleResults" class="panel"></div>
+ <div class="heading"><h2>Find people</h2></div>
+ <div class="search">
+  <input id="peopleQ" class="field" placeholder="Search username or display name">
+  <button class="btn primary" onclick="searchPeople()">Find</button>
+ </div>
+ <div id="peopleResults" class="panel"></div>
 </section>
 
 <section id="page-upload" class="page">
-  <div class="heading"><h2>Share a post</h2></div>
-  <div id="uploadGuest" class="panel">Log in to upload photos and videos. <button class="btn primary" onclick="authOpen()">Log in</button></div>
-  <form id="postForm" class="panel form hidden">
-    <label>Photo or video
-      <input id="postFile" class="field" type="file" accept="image/*,video/mp4,video/webm" required>
-    </label>
-    <textarea id="postCaption" class="field" maxlength="1200" placeholder="Write a caption..."></textarea>
-    <button class="btn primary">Publish</button>
-  </form>
+ <div class="heading"><h2>Share a post</h2></div>
+ <div id="uploadGuest" class="panel">Log in to upload photos and videos. <button class="btn primary" onclick="authOpen()">Log in</button></div>
+ <form id="postForm" class="panel form hidden">
+  <label>Photo or video
+   <input id="postFile" class="field" type="file" accept="image/*,video/mp4,video/webm" required>
+  </label>
+  <textarea id="postCaption" class="field" maxlength="1200" placeholder="Write a caption..."></textarea>
+  <button class="btn primary">Publish</button>
+ </form>
 </section>
 
 <section id="page-inbox" class="page">
-  <div class="heading"><h2>Messages</h2><button class="btn primary" onclick="newChatOpen()">＋ New</button></div>
-  <div class="row" style="margin-bottom:12px"><button class="btn" onclick="newGroupOpen()">＋ Create group</button></div>
-  <div id="inbox" class="panel">Log in to use messages.</div>
+ <div class="heading"><h2>Messages</h2><button class="btn primary" onclick="newChatOpen()">＋ New</button></div>
+ <div class="row" style="margin-bottom:12px"><button class="btn" onclick="newGroupOpen()">＋ Create group</button></div>
+ <div id="inbox" class="panel">Log in to use messages.</div>
 </section>
 
 <section id="page-profile" class="page">
-  <div class="heading"><h2 id="profileTitle">Profile</h2></div>
-  <div id="profileCard" class="panel"></div>
-  <div class="heading"><h2>Posts</h2></div>
-  <div id="profilePosts" class="grid"></div>
+ <div class="heading"><h2 id="profileTitle">Profile</h2></div>
+ <div id="profileCard" class="panel"></div>
+ <div class="heading"><h2>Posts</h2></div>
+ <div id="profilePosts" class="grid"></div>
 </section>
 </main>
 
 <nav class="nav">
-  <button data-nav="home" class="active" onclick="go('home')"><b>⌂</b>Home</button>
-  <button data-nav="explore" onclick="go('explore')"><b>◈</b>Explore</button>
-  <button data-nav="upload" onclick="go('upload')"><b>＋</b>Post</button>
-  <button data-nav="inbox" onclick="go('inbox')"><b>✉</b>Inbox</button>
-  <button data-nav="profile" onclick="openMyProfile()"><b>◉</b>Profile</button>
+ <button data-nav="home" class="active" onclick="go('home')"><b>⌂</b>Home</button>
+ <button data-nav="explore" onclick="go('explore')"><b>◈</b>Explore</button>
+ <button data-nav="upload" onclick="go('upload')"><b>＋</b>Post</button>
+ <button data-nav="inbox" onclick="go('inbox')"><b>✉</b>Inbox</button>
+ <button data-nav="profile" onclick="openMyProfile()"><b>◉</b>Profile</button>
 </nav>
 
 <div id="authModal" class="modal">
-  <div class="modalbox">
-    <div class="modalhead"><h3 id="authTitle">Welcome back</h3><button class="x" onclick="modalClose('authModal')">×</button></div>
-    <form id="authForm" class="form">
-      <input id="authName" class="field hidden" placeholder="Display name">
-      <input id="authEmail" class="field" type="email" placeholder="Email" required>
-      <input id="authPassword" class="field" type="password" placeholder="Password" required minlength="6">
-      <div class="row">
-        <button type="button" class="btn" onclick="authMode('login')">Log in</button>
-        <button type="button" class="btn" onclick="authMode('signup')">Sign up</button>
-      </div>
-      <button class="btn primary">Continue</button>
-      <button type="button" class="btn" onclick="resetPassword()">Forgot password?</button>
-    </form>
-  </div>
+ <div class="modalbox">
+  <div class="modalhead"><h3 id="authTitle">Welcome back</h3><button class="x" onclick="modalClose('authModal')">×</button></div>
+  <form id="authForm" class="form">
+   <input id="authName" class="field hidden" placeholder="Display name">
+   <input id="authEmail" class="field" type="email" placeholder="Email" required>
+   <input id="authPassword" class="field" type="password" placeholder="Password" required minlength="6">
+   <div class="row">
+    <button type="button" class="btn" onclick="authMode('login')">Log in</button>
+    <button type="button" class="btn" onclick="authMode('signup')">Sign up</button>
+   </div>
+   <button class="btn primary">Continue</button>
+   <button type="button" class="btn" onclick="resetPassword()">Forgot password?</button>
+  </form>
+ </div>
 </div>
 
 <div id="commentsModal" class="modal">
-  <div class="modalbox">
-    <div class="modalhead"><h3>Comments</h3><button class="x" onclick="modalClose('commentsModal')">×</button></div>
-    <div id="commentsList" class="list"></div>
-    <form id="commentForm" class="form">
-      <textarea id="commentInput" class="field" placeholder="Write a comment..." maxlength="1000" required></textarea>
-      <button class="btn primary">Comment</button>
-    </form>
-  </div>
+ <div class="modalbox">
+  <div class="modalhead"><h3>Comments</h3><button class="x" onclick="modalClose('commentsModal')">×</button></div>
+  <div id="commentsList" class="list"></div>
+  <form id="commentForm" class="form">
+   <textarea id="commentInput" class="field" placeholder="Write a comment..." maxlength="1000" required></textarea>
+   <button class="btn primary">Comment</button>
+  </form>
+ </div>
 </div>
 
 <div id="chatModal" class="modal">
-  <div class="modalbox">
-    <div class="modalhead"><h3 id="chatTitle">Chat</h3><button class="x" onclick="modalClose('chatModal')">×</button></div>
-    <div id="chatMessages" class="list" style="height:45vh"></div>
-    <form id="messageForm" class="row">
-      <input id="messageInput" class="field" placeholder="Message..." maxlength="4000" required>
-      <button class="btn primary">Send</button>
-    </form>
-  </div>
+ <div class="modalbox">
+  <div class="modalhead"><h3 id="chatTitle">Chat</h3><button class="x" onclick="modalClose('chatModal')">×</button></div>
+  <div id="chatMessages" class="list" style="height:45vh"></div>
+  <form id="messageForm" class="row">
+   <input id="messageInput" class="field" placeholder="Message..." maxlength="4000" required>
+   <button class="btn primary">Send</button>
+  </form>
+ </div>
 </div>
 
 <div id="peopleModal" class="modal">
-  <div class="modalbox">
-    <div class="modalhead"><h3 id="peopleModalTitle">New chat</h3><button class="x" onclick="modalClose('peopleModal')">×</button></div>
-    <input id="memberSearch" class="field" placeholder="Search members">
-    <div id="memberResults" class="list"></div>
-    <input id="groupTitle" class="field hidden" placeholder="Group name" maxlength="60" style="margin-top:10px">
-    <button id="createGroupBtn" class="btn primary hidden" onclick="createGroupNow()">Create group</button>
-  </div>
+ <div class="modalbox">
+  <div class="modalhead"><h3 id="peopleModalTitle">New chat</h3><button class="x" onclick="modalClose('peopleModal')">×</button></div>
+  <input id="memberSearch" class="field" placeholder="Search members">
+  <div id="memberResults" class="list"></div>
+  <input id="groupTitle" class="field hidden" placeholder="Group name" maxlength="60" style="margin-top:10px">
+  <button id="createGroupBtn" class="btn primary hidden" onclick="createGroupNow()">Create group</button>
+ </div>
 </div>
 
 <div id="storyModal" class="modal">
-  <div class="modalbox">
-    <div class="modalhead"><h3 id="storyTitle">Story</h3><button class="x" onclick="modalClose('storyModal')">×</button></div>
-    <div id="storyContent" class="storyview"></div>
-    <p id="storyCaption" class="muted"></p>
-    <div class="row">
-      <button class="btn" onclick="storyPrev()">Previous</button>
-      <button class="btn" onclick="storyNext()">Next</button>
-    </div>
+ <div class="modalbox">
+  <div class="modalhead"><h3 id="storyTitle">Story</h3><button class="x" onclick="modalClose('storyModal')">×</button></div>
+  <div id="storyContent" class="storyview"></div>
+  <p id="storyCaption" class="muted"></p>
+  <div class="row">
+   <button class="btn" onclick="storyPrev()">Previous</button>
+   <button class="btn" onclick="storyNext()">Next</button>
   </div>
+ </div>
 </div>
 
 <div id="toast" class="toast"></div>
-
 <script>
 (()=>{
 'use strict';
@@ -250,1009 +371,693 @@ const ADMIN='6b19250a-ab16-4e98-bae6-2f6473d8a4cb';
 const db=supabase.createClient(URL,KEY);
 const $=id=>document.getElementById(id);
 
-let user=null;
-let profiles=new Map();
-let posts=[];
-let urls=new Map();
-let commentsPost=null;
-let viewUser=null;
-let activeChat=null;
-let chatRows=[];
-let storyRows=[];
-let storyIndex=0;
-let selectedMembers=new Set();
-let groupMode=false;
-let authAction='login';
+let user=null,profiles=new Map(),posts=[],urls=new Map();
+let commentsPost=null,viewUser=null,activeChat=null;
+let storyRows=[],storyIndex=0,selectedMembers=new Set();
+let groupMode=false,authAction='login',feedMode='latest';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({
-  '&':'&amp;',
-  '<':'&lt;',
-  '>':'&gt;',
-  '"':'&quot;',
-  "'":'&#39;'
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 }[c]));
 
 const name=p=>p?.display_name||p?.username||'Community member';
 const initials=s=>(s||'M').slice(0,1).toUpperCase();
 
 function toast(s){
-  $('toast').textContent=s;
-  $('toast').classList.add('show');
-  clearTimeout(toast.t);
-  toast.t=setTimeout(()=>$('toast').classList.remove('show'),2600);
+ $('toast').textContent=s;
+ $('toast').classList.add('show');
+ clearTimeout(toast.t);
+ toast.t=setTimeout(()=>$('toast').classList.remove('show'),2600);
 }
 
-function modalClose(id){
-  $(id).classList.remove('show');
-}
+function modalClose(id){$(id).classList.remove('show')}
 window.modalClose=modalClose;
 
 function go(page){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  $('page-'+page)?.classList.add('active');
-
-  document.querySelectorAll('[data-nav]').forEach(x=>
-    x.classList.toggle('active',x.dataset.nav===page)
-  );
-
-  if(page==='inbox')loadInbox();
-  if(page==='home')loadStories();
-
-  window.scrollTo(0,0);
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ $('page-'+page)?.classList.add('active');
+ document.querySelectorAll('[data-nav]').forEach(x=>
+  x.classList.toggle('active',x.dataset.nav===page)
+ );
+ if(page==='inbox')loadInbox();
+ if(page==='home')loadStories();
+ window.scrollTo(0,0);
 }
 window.go=go;
 
 function authOpen(){
-  authMode('login');
-  $('authModal').classList.add('show');
+ authMode('login');
+ $('authModal').classList.add('show');
 }
 window.authOpen=authOpen;
 
 function authMode(m){
-  authAction=m;
-  $('authTitle').textContent=m==='signup'?'Create account':'Welcome back';
-  $('authName').classList.toggle('hidden',m!=='signup');
-  $('authPassword').classList.remove('hidden');
+ authAction=m;
+ $('authTitle').textContent=m==='signup'?'Create account':'Welcome back';
+ $('authName').classList.toggle('hidden',m!=='signup');
 }
 window.authMode=authMode;
 
 $('authForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-
-  let email=$('authEmail').value.trim();
-  let password=$('authPassword').value;
-
-  try{
-    let r;
-
-    if(authAction==='signup'){
-      r=await db.auth.signUp({
-        email,
-        password,
-        options:{
-          data:{
-            display_name:$('authName').value.trim()||email.split('@')[0]
-          }
-        }
-      });
-    }else{
-      r=await db.auth.signInWithPassword({email,password});
-    }
-
-    if(r.error)throw r.error;
-
-    if(r.data.session){
-      user=r.data.user;
-      modalClose('authModal');
-      toast('Signed in');
-      await initUser();
-    }else{
-      toast('Check your email to confirm your account');
-    }
-  }catch(x){
-    toast(x.message);
+ e.preventDefault();
+ const email=$('authEmail').value.trim();
+ const password=$('authPassword').value;
+ try{
+  let r;
+  if(authAction==='signup'){
+   r=await db.auth.signUp({
+    email,password,
+    options:{data:{display_name:$('authName').value.trim()||email.split('@')[0]}}
+   });
+  }else{
+   r=await db.auth.signInWithPassword({email,password});
   }
+  if(r.error)throw r.error;
+  if(r.data.session){
+   user=r.data.user;
+   modalClose('authModal');
+   toast('Signed in');
+   await initUser();
+  }else{
+   toast('Check your email to confirm your account');
+  }
+ }catch(x){toast(x.message)}
 });
 
 async function resetPassword(){
-  let email=$('authEmail').value.trim();
-  if(!email)return toast('Enter your email first');
-
-  let{error}=await db.auth.resetPasswordForEmail(email,{
-    redirectTo:location.href
-  });
-
-  toast(error?error.message:'Password reset email sent');
+ const email=$('authEmail').value.trim();
+ if(!email)return toast('Enter your email first');
+ const{error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href});
+ toast(error?error.message:'Password reset email sent');
 }
 window.resetPassword=resetPassword;
 
 async function signOut(){
-  let{error}=await db.auth.signOut();
-  if(error)return toast(error.message);
-
-  user=null;
-  profiles.clear();
-  updateAuth();
-  go('home');
-  await loadFeed();
-  toast('Logged out');
+ const{error}=await db.auth.signOut();
+ if(error)return toast(error.message);
+ user=null;
+ profiles.clear();
+ updateAuth();
+ go('home');
+ await loadFeed();
+ toast('Logged out');
 }
-
-function updateAuth(){
-  let logged=!!user;
-
-  $('authTop').classList.toggle('hidden',logged);
-  $('myAvatarBtn').classList.toggle('hidden',!logged);
-  $('uploadGuest').classList.toggle('hidden',logged);
-  $('postForm').classList.toggle('hidden',!logged);
-
-  if(logged){
-    profileFor(user.id).then(p=>
-      avatarUrl(p).then(u=>$('myAvatar').src=u||fallback(name(p)))
-    );
-  }
-}
+window.signOut=signOut;
 
 function fallback(n){
-  return 'data:image/svg+xml,'+encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80">
-    <rect width="100%" height="100%" fill="#ead6d7"/>
-    <text x="50%" y="58%" text-anchor="middle" font-size="34" fill="#583b50">${initials(n)}</text>
-    </svg>`
-  );
+ return 'data:image/svg+xml,'+encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+  <rect width="100%" height="100%" fill="#ead6d7"/>
+  <text x="50%" y="58%" text-anchor="middle" font-size="34" fill="#583b50">${initials(n)}</text>
+  </svg>`
+ );
 }
 
 async function profileFor(id){
-  if(profiles.has(id))return profiles.get(id);
-
-  let{data,error}=await db.from('profiles')
-    .select('user_id,display_name,username,avatar_path,bio,website')
-    .eq('user_id',id)
-    .maybeSingle();
-
-  let p=data||{
-    user_id:id,
-    display_name:id===ADMIN?'Mahi Baby':'Community member'
-  };
-
-  profiles.set(id,p);
-  return p;
+ if(profiles.has(id))return profiles.get(id);
+ const{data}=await db.from('profiles')
+  .select('user_id,display_name,username,avatar_path,bio,website')
+  .eq('user_id',id).maybeSingle();
+ const p=data||{user_id:id,display_name:id===ADMIN?'Mahi Baby':'Community member'};
+ profiles.set(id,p);
+ return p;
 }
 
 async function avatarUrl(p){
-  if(!p?.avatar_path)return fallback(name(p));
-
-  let cached=urls.get('avatar:'+p.avatar_path);
-  if(cached)return cached;
-
-  let{data,error}=await db.storage.from(BUCKET)
-    .createSignedUrl(p.avatar_path,3600);
-
-  if(error){
-    console.warn(error.message);
-    return fallback(name(p));
-  }
-
-  urls.set('avatar:'+p.avatar_path,data.signedUrl);
-  return data.signedUrl;
+ if(!p?.avatar_path)return fallback(name(p));
+ const key='avatar:'+p.avatar_path;
+ if(urls.has(key))return urls.get(key);
+ const{data,error}=await db.storage.from(BUCKET).createSignedUrl(p.avatar_path,3600);
+ if(error)return fallback(name(p));
+ urls.set(key,data.signedUrl);
+ return data.signedUrl;
 }
 
 async function signed(path){
-  if(!path)return '';
+ if(!path)return '';
+ if(urls.has(path))return urls.get(path);
+ const{data,error}=await db.storage.from(BUCKET).createSignedUrl(path,3600);
+ if(error){console.warn(error.message);return ''}
+ urls.set(path,data.signedUrl);
+ return data.signedUrl;
+}
 
-  if(urls.has(path))return urls.get(path);
-
-  let{data,error}=await db.storage.from(BUCKET)
-    .createSignedUrl(path,3600);
-
-  if(error){
-    console.warn(error.message);
-    return '';
-  }
-
-  urls.set(path,data.signedUrl);
-  return data.signedUrl;
+function updateAuth(){
+ const logged=!!user;
+ $('authTop').classList.toggle('hidden',logged);
+ $('myAvatarBtn').classList.toggle('hidden',!logged);
+ $('uploadGuest').classList.toggle('hidden',logged);
+ $('postForm').classList.toggle('hidden',!logged);
+ if(logged){
+  profileFor(user.id).then(p=>avatarUrl(p).then(u=>$('myAvatar').src=u));
+ }
 }
 
 async function loadFeed(){
-  let{data,error}=await db.from('photo_posts')
-    .select('id,user_id,storage_path,caption,created_at,media_type')
-    .order('created_at',{ascending:false})
-    .limit(100);
+ const{data,error}=await db.from('photo_posts')
+  .select('id,user_id,storage_path,caption,created_at,media_type')
+  .order('created_at',{ascending:false}).limit(100);
 
-  if(error){
-    $('feed').innerHTML=
-      `<div class="empty">Posts could not load: ${esc(error.message)}</div>`;
-    return;
-  }
+ if(error){
+  $('feed').innerHTML=`<div class="empty">Posts could not load: ${esc(error.message)}</div>`;
+  return;
+ }
 
-  posts=await Promise.all((data||[]).map(async p=>{
-    let profile=await profileFor(p.user_id);
+ posts=await Promise.all((data||[]).map(async p=>{
+  const profile=await profileFor(p.user_id);
+  return {...p,profile,avatar:await avatarUrl(profile),media:await signed(p.storage_path)};
+ }));
 
-    return{
-      ...p,
-      profile,
-      avatar:await avatarUrl(profile),
-      media:await signed(p.storage_path)
-    };
-  }));
-
-  $('postCount').textContent=posts.length+' posts';
-  renderPosts($('feed'),posts);
+ $('postCount').textContent=posts.length+' posts';
+ renderPosts($('feed'),posts);
 }
+
+function setFeed(mode,button){
+ feedMode=mode;
+ document.querySelectorAll('#page-home .row .btn').forEach(b=>b.classList.remove('rose'));
+ button.classList.add('rose');
+
+ if(mode==='trending'){
+  toast('Trending currently uses latest posts until popularity ranking is implemented');
+ }
+ renderPosts($('feed'),posts);
+}
+window.setFeed=setFeed;
 
 function ago(d){
-  let n=(Date.now()-new Date(d).getTime())/1000;
-
-  return n<60?'now':
-    n<3600?Math.floor(n/60)+'m':
-    n<86400?Math.floor(n/3600)+'h':
-    Math.floor(n/86400)+'d';
+ const n=(Date.now()-new Date(d).getTime())/1000;
+ return n<60?'now':n<3600?Math.floor(n/60)+'m':
+  n<86400?Math.floor(n/3600)+'h':Math.floor(n/86400)+'d';
 }
 
-async function renderPosts(target,rows){
-  if(!rows.length){
-    target.innerHTML='<div class="empty">No posts yet.</div>';
-    return;
-  }
-
-  target.innerHTML=rows.map(p=>`
-    <article class="post">
-      ${p.media_type==='video'
-        ?`<video class="media" src="${esc(p.media)}" controls playsinline preload="metadata"></video>`
-        :`<img class="media" src="${esc(p.media)}" alt="Post" loading="lazy">`
-      }
-
-      <div class="postbody">
-        <div class="userline">
-          <img class="avatar" src="${esc(p.avatar)}">
-          <button class="name" onclick="openProfile('${esc(p.user_id)}')">
-            ${esc(name(p.profile))}
-          </button>
-          <span class="time">${ago(p.created_at)}</span>
-        </div>
-
-        ${p.caption?`<div class="caption">${esc(p.caption)}</div>`:''}
-
-        <div class="actions">
-          <button onclick="likePost('${p.id}',this)">♡ Like</button>
-          <button onclick="openComments('${p.id}')">▢ Comment</button>
-          <button onclick="savePost('${p.id}',this)">☆ Save</button>
-          <button onclick="startChat('${p.user_id}')">✉ Message</button>
-
-          ${user&&(user.id===p.user_id||user.id===ADMIN)
-            ?`<button class="danger" onclick="deletePost('${p.id}')">Delete</button>`
-            :''}
-        </div>
-      </div>
-    </article>
-  `).join('');
+function renderPosts(target,rows){
+ if(!rows.length){
+  target.innerHTML='<div class="empty">No posts yet.</div>';
+  return;
+ }
+ target.innerHTML=rows.map(p=>`
+  <article class="post">
+   ${p.media_type==='video'
+    ?`<video class="media" src="${esc(p.media)}" controls playsinline preload="metadata"></video>`
+    :`<img class="media" src="${esc(p.media)}" alt="Post" loading="lazy">`
+   }
+   <div class="postbody">
+    <div class="userline">
+     <img class="avatar" src="${esc(p.avatar)}" alt="">
+     <button class="name" onclick="openProfile('${esc(p.user_id)}')">${esc(name(p.profile))}</button>
+     <span class="time">${ago(p.created_at)}</span>
+    </div>
+    ${p.caption?`<div class="caption">${esc(p.caption)}</div>`:''}
+    <div class="actions">
+     <button onclick="likePost('${p.id}',this)">♡ Like</button>
+     <button onclick="openComments('${p.id}')">▢ Comment</button>
+     <button onclick="savePost('${p.id}',this)">☆ Save</button>
+     <button onclick="startChat('${p.user_id}')">✉ Message</button>
+     ${user&&(user.id===p.user_id||user.id===ADMIN)
+      ?`<button class="danger" onclick="deletePost('${p.id}')">Delete</button>`:''}
+    </div>
+   </div>
+  </article>
+ `).join('');
 }
 
 window.likePost=async(id,b)=>{
-  if(!user)return authOpen();
-
-  let{data,error}=await db.from('photo_likes')
-    .select('id')
-    .eq('post_id',id)
-    .eq('user_id',user.id)
-    .maybeSingle();
-
-  if(error)return toast(error.message);
-
-  if(data){
-    let r=await db.from('photo_likes').delete().eq('id',data.id);
-    if(r.error)return toast(r.error.message);
-    b.classList.remove('active');
-  }else{
-    let r=await db.from('photo_likes')
-      .insert({post_id:id,user_id:user.id});
-
-    if(r.error)return toast(r.error.message);
-    b.classList.add('active');
-  }
+ if(!user)return authOpen();
+ const{data,error}=await db.from('photo_likes').select('id')
+  .eq('post_id',id).eq('user_id',user.id).maybeSingle();
+ if(error)return toast(error.message);
+ if(data){
+  const r=await db.from('photo_likes').delete().eq('id',data.id);
+  if(r.error)return toast(r.error.message);
+  b.classList.remove('active');
+ }else{
+  const r=await db.from('photo_likes').insert({post_id:id,user_id:user.id});
+  if(r.error)return toast(r.error.message);
+  b.classList.add('active');
+ }
 };
 
 window.savePost=async(id,b)=>{
-  if(!user)return authOpen();
-
-  let{data,error}=await db.from('photo_saves')
-    .select('id')
-    .eq('post_id',id)
-    .eq('user_id',user.id)
-    .maybeSingle();
-
-  if(error)return toast(error.message);
-
-  if(data){
-    let r=await db.from('photo_saves').delete().eq('id',data.id);
-    if(r.error)return toast(r.error.message);
-    b.textContent='☆ Save';
-  }else{
-    let r=await db.from('photo_saves')
-      .insert({post_id:id,user_id:user.id});
-
-    if(r.error)return toast(r.error.message);
-    b.textContent='★ Saved';
-  }
+ if(!user)return authOpen();
+ const{data,error}=await db.from('photo_saves').select('id')
+  .eq('post_id',id).eq('user_id',user.id).maybeSingle();
+ if(error)return toast(error.message);
+ if(data){
+  const r=await db.from('photo_saves').delete().eq('id',data.id);
+  if(r.error)return toast(r.error.message);
+  b.textContent='☆ Save';
+ }else{
+  const r=await db.from('photo_saves').insert({post_id:id,user_id:user.id});
+  if(r.error)return toast(r.error.message);
+  b.textContent='★ Saved';
+ }
 };
 
 window.openComments=async id=>{
-  commentsPost=id;
-  $('commentsModal').classList.add('show');
-
-  let{data,error}=await db.from('photo_comments')
-    .select('id,user_id,content,created_at')
-    .eq('post_id',id)
-    .order('created_at');
-
-  if(error){
-    $('commentsList').textContent=error.message;
-    return;
-  }
-
-  let html=[];
-
-  for(let c of data||[]){
-    let p=await profileFor(c.user_id);
-    let av=await avatarUrl(p);
-
-    html.push(`
-      <div class="comment">
-        <div class="row">
-          <img class="avatar" src="${esc(av)}">
-          <button class="name" onclick="modalClose('commentsModal');openProfile('${esc(c.user_id)}')">
-            ${esc(name(p))}
-          </button>
-          <span class="muted tiny">${ago(c.created_at)}</span>
-        </div>
-        <p>${esc(c.content)}</p>
-      </div>
-    `);
-  }
-
-  $('commentsList').innerHTML=
-    html.join('')||'<div class="empty">No comments yet.</div>';
+ commentsPost=id;
+ $('commentsModal').classList.add('show');
+ const{data,error}=await db.from('photo_comments')
+  .select('id,user_id,content,created_at')
+  .eq('post_id',id).order('created_at');
+ if(error){$('commentsList').textContent=error.message;return}
+ let html=[];
+ for(const c of data||[]){
+  const p=await profileFor(c.user_id);
+  const av=await avatarUrl(p);
+  html.push(`
+   <div class="comment">
+    <div class="row">
+     <img class="avatar" src="${esc(av)}">
+     <button class="name" onclick="modalClose('commentsModal');openProfile('${esc(c.user_id)}')">${esc(name(p))}</button>
+     <span class="muted tiny">${ago(c.created_at)}</span>
+    </div>
+    <p>${esc(c.content)}</p>
+   </div>
+  `);
+ }
+ $('commentsList').innerHTML=html.join()||'<div class="empty">No comments yet.</div>';
 };
 
 $('commentForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-
-  if(!user)return authOpen();
-
-  let content=$('commentInput').value.trim();
-  if(!content||!commentsPost)return;
-
-  let{error}=await db.from('photo_comments').insert({
-    post_id:commentsPost,
-    user_id:user.id,
-    content
-  });
-
-  if(error)return toast(error.message);
-
-  $('commentInput').value='';
-  openComments(commentsPost);
-  toast('Comment posted');
+ e.preventDefault();
+ if(!user)return authOpen();
+ const content=$('commentInput').value.trim();
+ if(!content||!commentsPost)return;
+ const{error}=await db.from('photo_comments').insert({
+  post_id:commentsPost,user_id:user.id,content
+ });
+ if(error)return toast(error.message);
+ $('commentInput').value='';
+ openComments(commentsPost);
+ toast('Comment posted');
 });
 
 window.openProfile=async id=>{
-  viewUser=id;
-  go('profile');
-
-  let p=await profileFor(id);
-  let av=await avatarUrl(p);
-  let mine=posts.filter(x=>x.user_id===id);
-
-  $('profileTitle').textContent=name(p);
-
-  $('profileCard').innerHTML=`
-    <div class="profilehead">
-      <img class="avatar big" src="${esc(av)}">
-      <div>
-        <h2 style="margin:0">${esc(name(p))}</h2>
-        <div class="muted">@${esc(p.username||'member')}</div>
-        <div class="stats">
-          <div><b>${mine.length}</b><span class="muted tiny">Posts</span></div>
-        </div>
-      </div>
-    </div>
-    <p>${esc(p.bio||'')}</p>
-    <div class="row">
-      <button class="btn primary" onclick="startChat('${esc(id)}')">Message</button>
-      ${user&&user.id===id
-        ?'<button class="btn" onclick="editProfile()">Edit profile</button>'
-        :''}
-    </div>
-  `;
-
-  await renderPosts($('profilePosts'),mine);
+ viewUser=id;
+ go('profile');
+ const p=await profileFor(id);
+ const av=await avatarUrl(p);
+ const mine=posts.filter(x=>x.user_id===id);
+ $('profileTitle').textContent=name(p);
+ $('profileCard').innerHTML=`
+  <div class="profilehead">
+   <img class="avatar big" src="${esc(av)}">
+   <div>
+    <h2 style="margin:0">${esc(name(p))}</h2>
+    <div class="muted">@${esc(p.username||'member')}</div>
+    <div class="stats"><div><b>${mine.length}</b><span class="muted tiny">Posts</span></div></div>
+   </div>
+  </div>
+  <p>${esc(p.bio||'')}</p>
+  <div class="row">
+   <button class="btn primary" onclick="startChat('${esc(id)}')">Message</button>
+   ${user&&user.id===id?'<button class="btn" onclick="editProfile()">Edit profile</button>':''}
+   ${user&&user.id===id?'<button class="btn danger" onclick="signOut()">Log out</button>':''}
+  </div>
+ `;
+ renderPosts($('profilePosts'),mine);
 };
-
 window.openMyProfile=()=>user?openProfile(user.id):authOpen();
 
 window.editProfile=async()=>{
-  if(!user)return;
-
-  let p=await profileFor(user.id);
-  let display=prompt('Display name',p.display_name||'');
-  if(display===null)return;
-
-  let bio=prompt('Bio',p.bio||'');
-  if(bio===null)return;
-
-  let avatar_path=p.avatar_path||null;
-
-  let pick=confirm('Change profile picture? Press OK to choose a photo, Cancel to keep current picture.');
-
-  if(pick){
-    let f=await new Promise(resolve=>{
-      let i=document.createElement('input');
-      i.type='file';
-      i.accept='image/jpeg,image/png,image/webp';
-      i.onchange=()=>resolve(i.files[0]||null);
-      i.click();
-    });
-
-    if(f){
-      if(f.size>4*1024*1024)return toast('DP must be under 4 MB');
-
-      let ext=(f.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'');
-      let path=`${user.id}/avatar_${Date.now()}_${crypto.randomUUID()}.${ext}`;
-
-      let up=await db.storage.from(BUCKET).upload(path,f,{
-        upsert:false,
-        contentType:f.type
-      });
-
-      if(up.error)return toast(up.error.message);
-      avatar_path=path;
-    }
+ if(!user)return;
+ const p=await profileFor(user.id);
+ const display=prompt('Display name',p.display_name||'');
+ if(display===null)return;
+ const bio=prompt('Bio',p.bio||'');
+ if(bio===null)return;
+ let avatar_path=p.avatar_path||null;
+ if(confirm('Change profile picture? Press OK to choose a photo.')){
+  const f=await new Promise(resolve=>{
+   const i=document.createElement('input');
+   i.type='file';i.accept='image/jpeg,image/png,image/webp';
+   i.onchange=()=>resolve(i.files[0]||null);i.click();
+  });
+  if(f){
+   if(f.size>4*1024*1024)return toast('DP must be under 4 MB');
+   const ext=(f.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'');
+   const path=`${user.id}/avatar_${Date.now()}_${crypto.randomUUID()}.${ext}`;
+   const up=await db.storage.from(BUCKET).upload(path,f,{upsert:false,contentType:f.type});
+   if(up.error)return toast(up.error.message);
+   avatar_path=path;
   }
-
-  let{error}=await db.from('profiles').upsert({
-    user_id:user.id,
-    display_name:display,
-    username:p.username||user.email.split('@')[0].replace(/[^a-z0-9_]/gi,''),
-    bio,
-    avatar_path,
-    updated_at:new Date().toISOString()
-  },{onConflict:'user_id'});
-
-  if(error)return toast(error.message);
-
-  profiles.delete(user.id);
-  urls.clear();
-  openProfile(user.id);
-  updateAuth();
-  toast('Profile saved');
+ }
+ const{error}=await db.from('profiles').upsert({
+  user_id:user.id,display_name:display,
+  username:p.username||user.email.split('@')[0].replace(/[^a-z0-9_]/gi,''),
+  bio,avatar_path,updated_at:new Date().toISOString()
+ },{onConflict:'user_id'});
+ if(error)return toast(error.message);
+ profiles.delete(user.id);urls.clear();
+ openProfile(user.id);updateAuth();toast('Profile saved');
 };
 
 $('postForm').addEventListener('submit',async e=>{
-  e.preventDefault();
+ e.preventDefault();
+ if(!user)return authOpen();
+ const f=$('postFile').files[0];
+ if(!f)return;
+ const ok=f.type.startsWith('image/')||['video/mp4','video/webm'].includes(f.type);
+ if(!ok)return toast('Choose an image or MP4/WEBM video');
+ if(f.size>40*1024*1024)return toast('Maximum file size is 40 MB');
 
-  if(!user)return authOpen();
+ const ext=(f.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'');
+ const path=`${user.id}/${Date.now()}_${crypto.randomUUID()}.${ext}`;
+ const{error}=await db.storage.from(BUCKET).upload(path,f,{upsert:false,contentType:f.type});
+ if(error)return toast(error.message);
 
-  let f=$('postFile').files[0];
-  if(!f)return;
-
-  let ok=f.type.startsWith('image/')||
-    ['video/mp4','video/webm'].includes(f.type);
-
-  if(!ok)return toast('Choose an image or MP4/WEBM video');
-  if(f.size>40*1024*1024)return toast('Maximum file size is 40 MB');
-
-  let ext=(f.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'');
-  let path=`${user.id}/${Date.now()}_${crypto.randomUUID()}.${ext}`;
-
-  let{error}=await db.storage.from(BUCKET).upload(path,f,{
-    upsert:false,
-    contentType:f.type
-  });
-
-  if(error)return toast(error.message);
-
-  let ins=await db.from('photo_posts').insert({
-    user_id:user.id,
-    storage_path:path,
-    caption:$('postCaption').value.trim(),
-    media_type:f.type.startsWith('video/')?'video':'image'
-  });
-
-  if(ins.error){
-    await db.storage.from(BUCKET).remove([path]);
-    return toast(ins.error.message);
-  }
-
-  $('postForm').reset();
-  toast('Post published');
-  await loadFeed();
-  go('home');
+ const ins=await db.from('photo_posts').insert({
+  user_id:user.id,storage_path:path,
+  caption:$('postCaption').value.trim(),
+  media_type:f.type.startsWith('video/')?'video':'image'
+ });
+ if(ins.error){
+  await db.storage.from(BUCKET).remove([path]);
+  return toast(ins.error.message);
+ }
+ $('postForm').reset();
+ toast('Post published');
+ await loadFeed();
+ go('home');
 });
 
 window.deletePost=async id=>{
-  if(!user)return;
-
-  let p=posts.find(x=>x.id===id);
-
-  if(!p||!(user.id===p.user_id||user.id===ADMIN))
-    return toast('Not allowed');
-
-  if(!confirm('Delete this post?'))return;
-
-  let{error}=await db.from('photo_posts').delete().eq('id',id);
-  if(error)return toast(error.message);
-
-  await db.storage.from(BUCKET).remove([p.storage_path]);
-  toast('Post deleted');
-  loadFeed();
+ if(!user)return;
+ const p=posts.find(x=>x.id===id);
+ if(!p||!(user.id===p.user_id||user.id===ADMIN))return toast('Not allowed');
+ if(!confirm('Delete this post?'))return;
+ const{error}=await db.from('photo_posts').delete().eq('id',id);
+ if(error)return toast(error.message);
+ await db.storage.from(BUCKET).remove([p.storage_path]);
+ toast('Post deleted');
+ loadFeed();
 };
 
 window.searchExplore=()=>{
-  let q=$('exploreQ').value.toLowerCase();
-
-  renderPosts(
-    $('exploreResults'),
-    posts.filter(p=>
-      (p.caption||'').toLowerCase().includes(q)||
-      name(p.profile).toLowerCase().includes(q)
-    )
-  );
+ const q=$('exploreQ').value.toLowerCase();
+ renderPosts($('exploreResults'),posts.filter(p=>
+  (p.caption||'').toLowerCase().includes(q)||
+  name(p.profile).toLowerCase().includes(q)
+ ));
 };
 
 window.searchPeople=async()=>{
-  let q=$('peopleQ').value.trim();
-  if(!q)return;
-
-  let{data,error}=await db.from('profiles')
-    .select('user_id,display_name,username,avatar_path,bio')
-    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
-    .limit(30);
-
-  if(error){
-    $('peopleResults').textContent=error.message;
-    return;
-  }
-
-  let html=[];
-
-  for(let p of data||[]){
-    profiles.set(p.user_id,p);
-    let av=await avatarUrl(p);
-
-    html.push(`
-      <div class="chatrow">
-        <img class="avatar" src="${esc(av)}">
-        <button onclick="openProfile('${esc(p.user_id)}')">
-          <b>${esc(name(p))}</b><br>
-          <span class="muted tiny">@${esc(p.username||'member')}</span>
-        </button>
-        <button class="btn" onclick="startChat('${esc(p.user_id)}')">Message</button>
-      </div>
-    `);
-  }
-
-  $('peopleResults').innerHTML=html.join('')||'No members found';
+ const q=$('peopleQ').value.trim();
+ if(!q)return;
+ const{data,error}=await db.from('profiles')
+  .select('user_id,display_name,username,avatar_path,bio')
+  .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).limit(30);
+ if(error){$('peopleResults').textContent=error.message;return}
+ let html=[];
+ for(const p of data||[]){
+  profiles.set(p.user_id,p);
+  const av=await avatarUrl(p);
+  html.push(`
+   <div class="chatrow">
+    <img class="avatar" src="${esc(av)}">
+    <button onclick="openProfile('${esc(p.user_id)}')">
+     <b>${esc(name(p))}</b><br><span class="muted tiny">@${esc(p.username||'member')}</span>
+    </button>
+    <button class="btn" onclick="startChat('${esc(p.user_id)}')">Message</button>
+   </div>
+  `);
+ }
+ $('peopleResults').innerHTML=html.join()||'No members found';
 };
 
 async function startChat(other){
-  if(!user)return authOpen();
-  if(other===user.id)return toast('This is your profile');
-
-  let{data,error}=await db.rpc('create_direct_chat',{
-    p_other_user:other
-  });
-
-  if(error)return toast('Chat error: '+error.message);
-
-  await openChat(data,other);
+ if(!user)return authOpen();
+ if(other===user.id)return toast('This is your profile');
+ const{data,error}=await db.rpc('create_direct_chat',{p_other_user:other});
+ if(error)return toast('Chat error: '+error.message);
+ await openChat(data,other);
 }
 window.startChat=startChat;
 
 async function openChat(id,other){
-  activeChat=id;
-  $('chatModal').classList.add('show');
-
-  let p=await profileFor(other);
-  let n=name(p);
-
-  $('chatTitle').textContent=n;
-  await loadMessages();
+ activeChat=id;
+ const p=await profileFor(other);
+ $('chatTitle').textContent=name(p);
+ $('chatModal').classList.add('show');
+ await loadMessages();
 }
 
 async function loadMessages(){
-  if(!activeChat)return;
-
-  let{data,error}=await db.from('messages')
-    .select('id,conversation_id,sender_id,content,message_type,created_at')
-    .eq('conversation_id',activeChat)
-    .order('created_at',{ascending:true})
-    .limit(100);
-
-  if(error){
-    $('chatMessages').textContent=error.message;
-    return;
-  }
-
-  $('chatMessages').innerHTML=(data||[]).map(m=>`
-    <div class="bubble ${m.sender_id===user.id?'mine':''}">
-      ${esc(m.content)}
-    </div>
-  `).join('')||'<div class="empty">Say hello.</div>';
-
-  $('chatMessages').scrollTop=$('chatMessages').scrollHeight;
+ if(!activeChat)return;
+ const{data,error}=await db.from('messages')
+  .select('id,conversation_id,sender_id,content,message_type,created_at')
+  .eq('conversation_id',activeChat).order('created_at').limit(100);
+ if(error){$('chatMessages').textContent=error.message;return}
+ $('chatMessages').innerHTML=(data||[]).map(m=>`
+  <div class="bubble ${m.sender_id===user.id?'mine':''}">${esc(m.content)}</div>
+ `).join('')||'<div class="empty">Say hello.</div>';
+ $('chatMessages').scrollTop=$('chatMessages').scrollHeight;
 }
 
 $('messageForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-
-  if(!user||!activeChat)return;
-
-  let content=$('messageInput').value.trim();
-  if(!content)return;
-
-  let{error}=await db.from('messages').insert({
-    conversation_id:activeChat,
-    sender_id:user.id,
-    content,
-    message_type:'text'
-  });
-
-  if(error)return toast(error.message);
-
-  $('messageInput').value='';
-  await loadMessages();
+ e.preventDefault();
+ if(!user||!activeChat)return;
+ const content=$('messageInput').value.trim();
+ if(!content)return;
+ const{error}=await db.from('messages').insert({
+  conversation_id:activeChat,sender_id:user.id,content,message_type:'text'
+ });
+ if(error)return toast(error.message);
+ $('messageInput').value='';
+ await loadMessages();
 });
 
 async function loadInbox(){
-  if(!user){
-    $('inbox').innerHTML='Log in to use messages.';
-    return;
+ if(!user){$('inbox').innerHTML='Log in to use messages.';return}
+ const{data,error}=await db.from('conversation_members')
+  .select('conversation_id,member_role,conversations(id,kind,title,updated_at)')
+  .eq('user_id',user.id);
+ if(error){$('inbox').textContent=error.message;return}
+ let html=[];
+ for(const m of data||[]){
+  const c=m.conversations;
+  if(!c)continue;
+  let title=c.title||'Direct message';
+  if(c.kind==='direct'){
+   const{data:mem}=await db.from('conversation_members')
+    .select('user_id').eq('conversation_id',c.id)
+    .neq('user_id',user.id).limit(1);
+   if(mem?.[0]){
+    const p=await profileFor(mem[0].user_id);
+    title=name(p);
+   }
   }
-
-  let{data,error}=await db.from('conversation_members')
-    .select('conversation_id,member_role,conversations(id,kind,title,updated_at)')
-    .eq('user_id',user.id);
-
-  if(error){
-    $('inbox').textContent=error.message;
-    return;
-  }
-
-  let html=[];
-
-  for(let m of data||[]){
-    let c=m.conversations;
-    if(!c)continue;
-
-    let title=c.title||'Direct message';
-
-    if(c.kind==='direct'){
-      let{data:mem}=await db.from('conversation_members')
-        .select('user_id')
-        .eq('conversation_id',c.id)
-        .neq('user_id',user.id)
-        .limit(1);
-
-      if(mem?.[0]){
-        let p=await profileFor(mem[0].user_id);
-        title=name(p);
-      }
-    }
-
-    html.push(`
-      <div class="chatrow">
-        <button onclick="openExistingChat('${c.id}','${esc(title)}')">
-          <b>${esc(title)}</b><br>
-          <span class="muted tiny">${c.kind==='group'?'Group chat':'Direct message'}</span>
-        </button>
-      </div>
-    `);
-  }
-
-  $('inbox').innerHTML=html.join()||
-    '<div class="empty">No conversations yet. Start a new chat.</div>';
+  html.push(`
+   <div class="chatrow">
+    <button onclick="openExistingChat('${c.id}','${esc(title)}')">
+     <b>${esc(title)}</b><br>
+     <span class="muted tiny">${c.kind==='group'?'Group chat':'Direct message'}</span>
+    </button>
+   </div>
+  `);
+ }
+ $('inbox').innerHTML=html.join('')||'<div class="empty">No conversations yet. Start a new chat.</div>';
 }
 
 window.openExistingChat=async(id,title)=>{
-  activeChat=id;
-  $('chatTitle').textContent=title;
-  $('chatModal').classList.add('show');
-  loadMessages();
+ activeChat=id;
+ $('chatTitle').textContent=title;
+ $('chatModal').classList.add('show');
+ await loadMessages();
 };
 
 function newChatOpen(){
-  if(!user)return authOpen();
-
-  groupMode=false;
-  selectedMembers.clear();
-
-  $('peopleModalTitle').textContent='New direct chat';
-  $('createGroupBtn').classList.add('hidden');
-  $('groupTitle').classList.add('hidden');
-  $('memberResults').innerHTML='Search members below.';
-  $('memberSearch').value='';
-  $('peopleModal').classList.add('show');
+ if(!user)return authOpen();
+ groupMode=false;selectedMembers.clear();
+ $('peopleModalTitle').textContent='New direct chat';
+ $('createGroupBtn').classList.add('hidden');
+ $('groupTitle').classList.add('hidden');
+ $('memberResults').innerHTML='Search members below.';
+ $('memberSearch').value='';
+ $('peopleModal').classList.add('show');
 }
 window.newChatOpen=newChatOpen;
 
 function newGroupOpen(){
-  if(!user)return authOpen();
-
-  groupMode=true;
-  selectedMembers.clear();
-
-  $('peopleModalTitle').textContent='Create group';
-  $('createGroupBtn').classList.remove('hidden');
-  $('groupTitle').classList.remove('hidden');
-  $('groupTitle').value='';
-  $('memberResults').innerHTML='Search and select group members.';
-  $('memberSearch').value='';
-  $('peopleModal').classList.add('show');
+ if(!user)return authOpen();
+ groupMode=true;selectedMembers.clear();
+ $('peopleModalTitle').textContent='Create group';
+ $('createGroupBtn').classList.remove('hidden');
+ $('groupTitle').classList.remove('hidden');
+ $('groupTitle').value='';
+ $('memberResults').innerHTML='Search and select group members.';
+ $('memberSearch').value='';
+ $('peopleModal').classList.add('show');
 }
 window.newGroupOpen=newGroupOpen;
 
 $('memberSearch').addEventListener('input',async()=>{
-  let q=$('memberSearch').value.trim();
-
-  if(q.length<2){
-    $('memberResults').innerHTML='Type at least 2 characters.';
-    return;
-  }
-
-  let{data,error}=await db.from('profiles')
-    .select('user_id,display_name,username,avatar_path')
-    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
-    .neq('user_id',user.id)
-    .limit(20);
-
-  if(error){
-    $('memberResults').textContent=error.message;
-    return;
-  }
-
-  let html=[];
-
-  for(let p of data||[]){
-    profiles.set(p.user_id,p);
-    let av=await avatarUrl(p);
-
-    html.push(`
-      <div class="chatrow">
-        <img class="avatar" src="${esc(av)}">
-        <button onclick="selectMember('${esc(p.user_id)}')">
-          ${esc(name(p))}
-          <span class="muted tiny">@${esc(p.username||'member')}</span>
-        </button>
-        ${groupMode
-          ?`<input type="checkbox"
-              ${selectedMembers.has(p.user_id)?'checked':''}
-              onchange="selectMember('${esc(p.user_id)}')">`
-          :`<button class="btn" onclick="beginDirect('${esc(p.user_id)}')">Message</button>`
-        }
-      </div>
-    `);
-  }
-
-  $('memberResults').innerHTML=html.join()||'No users found';
+ const q=$('memberSearch').value.trim();
+ if(q.length<2){$('memberResults').innerHTML='Type at least 2 characters.';return}
+ const{data,error}=await db.from('profiles')
+  .select('user_id,display_name,username,avatar_path')
+  .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
+  .neq('user_id',user.id).limit(20);
+ if(error){$('memberResults').textContent=error.message;return}
+ let html=[];
+ for(const p of data||[]){
+  profiles.set(p.user_id,p);
+  const av=await avatarUrl(p);
+  html.push(`
+   <div class="chatrow">
+    <img class="avatar" src="${esc(av)}">
+    <button onclick="selectMember('${esc(p.user_id)}')">
+     ${esc(name(p))} <span class="muted tiny">@${esc(p.username||'member')}</span>
+    </button>
+    ${groupMode
+     ?`<input type="checkbox" ${selectedMembers.has(p.user_id)?'checked':''} onchange="selectMember('${esc(p.user_id)}')">`
+     :`<button class="btn" onclick="beginDirect('${esc(p.user_id)}')">Message</button>`}
+   </div>
+  `);
+ }
+ $('memberResults').innerHTML=html.join()||'No users found';
 });
 
 window.selectMember=id=>{
-  if(selectedMembers.has(id))selectedMembers.delete(id);
-  else selectedMembers.add(id);
-
-  $('memberSearch').dispatchEvent(new Event('input'));
+ if(selectedMembers.has(id))selectedMembers.delete(id);
+ else selectedMembers.add(id);
+ $('memberSearch').dispatchEvent(new Event('input'));
 };
 
 window.beginDirect=async id=>{
-  modalClose('peopleModal');
-
-  let{data,error}=await db.rpc('create_direct_chat',{
-    p_other_user:id
-  });
-
-  if(error)return toast(error.message);
-
-  openChat(data,id);
+ modalClose('peopleModal');
+ const{data,error}=await db.rpc('create_direct_chat',{p_other_user:id});
+ if(error)return toast(error.message);
+ openChat(data,id);
 };
 
 window.createGroupNow=async()=>{
-  if(!user)return authOpen();
-
-  let title=$('groupTitle').value.trim();
-
-  if(!title)return toast('Enter a group name');
-  if(!selectedMembers.size)return toast('Select at least one member');
-
-  let{data,error}=await db.rpc('create_group_chat',{
-    p_title:title,
-    p_member_ids:[...selectedMembers]
-  });
-
-  if(error)return toast('Group creation failed: '+error.message);
-
-  modalClose('peopleModal');
-  toast('Group created');
-  await loadInbox();
-
-  activeChat=data;
-  $('chatTitle').textContent=title;
-  $('chatModal').classList.add('show');
-  loadMessages();
+ if(!user)return authOpen();
+ const title=$('groupTitle').value.trim();
+ if(!title)return toast('Enter a group name');
+ if(!selectedMembers.size)return toast('Select at least one member');
+ const{data,error}=await db.rpc('create_group_chat',{
+  p_title:title,p_member_ids:[...selectedMembers]
+ });
+ if(error)return toast('Group creation failed: '+error.message);
+ modalClose('peopleModal');
+ toast('Group created');
+ await loadInbox();
+ activeChat=data;
+ $('chatTitle').textContent=title;
+ $('chatModal').classList.add('show');
+ loadMessages();
 };
 
 async function loadStories(){
-  if(!user){
-    $('stories').innerHTML=`
-      <button class="story add" onclick="authOpen()">
-        <span class="story-ring">＋</span>Log in
-      </button>`;
-    return;
-  }
-
-  let{data,error}=await db.from('stories')
-    .select('id,user_id,storage_path,caption,media_type,created_at,expires_at')
-    .gt('expires_at',new Date().toISOString())
-    .order('created_at',{ascending:false})
-    .limit(80);
-
-  if(error){
-    $('stories').innerHTML=
-      `<div class="muted tiny">Stories unavailable: ${esc(error.message)}</div>`;
-    return;
-  }
-
-  storyRows=[];
-
-  for(let s of data||[]){
-    let p=await profileFor(s.user_id);
-
-    storyRows.push({
-      ...s,
-      profile:p,
-      avatar:await avatarUrl(p),
-      media:await signed(s.storage_path)
-    });
-  }
-
-  let owners=new Map();
-
-  storyRows.forEach(s=>{
-    if(!owners.has(s.user_id))owners.set(s.user_id,s);
-  });
-
-  $('stories').innerHTML=`
-    <button class="story add" onclick="addStory()">
-      <span class="story-ring">＋</span>Your story
-    </button>
-  `+[...owners.values()].map(s=>`
-    <button class="story" onclick="viewStory('${s.id}')">
-      <span class="story-ring"><img src="${esc(s.avatar)}"></span>
-      ${esc(name(s.profile))}
-    </button>
-  `).join('');
+ if(!user){
+  $('stories').innerHTML=`<button class="story add" onclick="authOpen()"><span class="story-ring">＋</span>Log in</button>`;
+  return;
+ }
+ const{data,error}=await db.from('stories')
+  .select('id,user_id,storage_path,caption,media_type,created_at,expires_at')
+  .gt('expires_at',new Date().toISOString())
+  .order('created_at',{ascending:false}).limit(80);
+ if(error){
+  $('stories').innerHTML=`<div class="muted tiny">Stories unavailable: ${esc(error.message)}</div>`;
+  return;
+ }
+ storyRows=[];
+ for(const s of data||[]){
+  const p=await profileFor(s.user_id);
+  storyRows.push({...s,profile:p,avatar:await avatarUrl(p),media:await signed(s.storage_path)});
+ }
+ const owners=new Map();
+ storyRows.forEach(s=>{if(!owners.has(s.user_id))owners.set(s.user_id,s)});
+ $('stories').innerHTML=`
+  <button class="story add" onclick="addStory()"><span class="story-ring">＋</span>Your story</button>
+ `+[...owners.values()].map(s=>`
+  <button class="story" onclick="viewStory('${s.id}')">
+   <span class="story-ring"><img src="${esc(s.avatar)}"></span>${esc(name(s.profile))}
+  </button>
+ `).join('');
 }
 
 window.addStory=async()=>{
-  if(!user)return authOpen();
-
-  let input=document.createElement('input');
-  input.type='file';
-  input.accept='image/*,video/mp4,video/webm';
-
-  input.onchange=async()=>{
-    let f=input.files[0];
-    if(!f)return;
-
-    if(f.size>40*1024*1024)
-      return toast('Maximum story size is 40 MB');
-
-    let ext=(f.name.split('.').pop()||'jpg')
-      .replace(/[^a-z0-9]/gi,'');
-
-    let path=`${user.id}/story_${Date.now()}_${crypto.randomUUID()}.${ext}`;
-
-    let{error}=await db.storage.from(BUCKET).upload(path,f,{
-      upsert:false,
-      contentType:f.type
-    });
-
-    if(error)return toast(error.message);
-
-    let ins=await db.from('stories').insert({
-      user_id:user.id,
-      storage_path:path,
-      media_type:f.type.startsWith('video/')?'video':'image',
-      caption:''
-    });
-
-    if(ins.error){
-      await db.storage.from(BUCKET).remove([path]);
-      return toast(ins.error.message);
-    }
-
-    toast('Story added for 24 hours');
-    loadStories();
-  };
-
-  input.click();
+ if(!user)return authOpen();
+ const input=document.createElement('input');
+ input.type='file';input.accept='image/*,video/mp4,video/webm';
+ input.onchange=async()=>{
+  const f=input.files[0];
+  if(!f)return;
+  if(f.size>40*1024*1024)return toast('Maximum story size is 40 MB');
+  const ext=(f.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'');
+  const path=`${user.id}/story_${Date.now()}_${crypto.randomUUID()}.${ext}`;
+  const{error}=await db.storage.from(BUCKET).upload(path,f,{upsert:false,contentType:f.type});
+  if(error)return toast(error.message);
+  const ins=await db.from('stories').insert({
+   user_id:user.id,storage_path:path,
+   media_type:f.type.startsWith('video/')?'video':'image',caption:''
+  });
+  if(ins.error){
+   await db.storage.from(BUCKET).remove([path]);
+   return toast(ins.error.message);
+  }
+  toast('Story added for 24 hours');
+  loadStories();
+ };
+ input.click();
 };
 
 window.viewStory=id=>{
-  storyIndex=storyRows.findIndex(x=>x.id===id);
-  renderStory();
+ storyIndex=storyRows.findIndex(x=>x.id===id);
+ renderStory();
 };
 
 function renderStory(){
-  let s=storyRows[storyIndex];
-  if(!s)return;
-
-  $('storyTitle').textContent=name(s.profile);
-  $('storyCaption').textContent=s.caption||'';
-
-  $('storyContent').innerHTML=s.media_type==='video'
-    ?`<video src="${esc(s.media)}" controls autoplay playsinline></video>`
-    :`<img src="${esc(s.media)}" alt="Story">`;
-
-  $('storyModal').classList.add('show');
+ const s=storyRows[storyIndex];
+ if(!s)return;
+ $('storyTitle').textContent=name(s.profile);
+ $('storyCaption').textContent=s.caption||'';
+ $('storyContent').innerHTML=s.media_type==='video'
+  ?`<video src="${esc(s.media)}" controls autoplay playsinline></video>`
+  :`<img src="${esc(s.media)}" alt="Story">`;
+ $('storyModal').classList.add('show');
 }
 
 window.storyNext=()=>{
-  if(storyIndex<storyRows.length-1){
-    storyIndex++;
-    renderStory();
-  }
+ if(storyIndex<storyRows.length-1){storyIndex++;renderStory()}
 };
-
 window.storyPrev=()=>{
-  if(storyIndex>0){
-    storyIndex--;
-    renderStory();
-  }
+ if(storyIndex>0){storyIndex--;renderStory()}
 };
 
 async function initUser(){
-  updateAuth();
-
-  if(user){
-    let p=await profileFor(user.id);
-
-    if(!p.username){
-      let username=(p.display_name||user.email.split('@')[0])
-        .toLowerCase()
-        .replace(/[^a-z0-9_]/g,'')
-        .slice(0,20)||('user'+user.id.slice(0,6));
-
-      let{error}=await db.from('profiles').upsert({
-        user_id:user.id,
-        display_name:p.display_name||user.user_metadata?.display_name||user.email.split('@')[0],
-        username,
-        updated_at:new Date().toISOString()
-      },{onConflict:'user_id'});
-
-      if(!error)profiles.delete(user.id);
-    }
+ updateAuth();
+ if(user){
+  const p=await profileFor(user.id);
+  if(!p.username){
+   const username=(p.display_name||user.email.split('@')[0])
+    .toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,20)
+    ||('user'+user.id.slice(0,6));
+   const{error}=await db.from('profiles').upsert({
+    user_id:user.id,
+    display_name:p.display_name||user.user_metadata?.display_name||user.email.split('@')[0],
+    username,updated_at:new Date().toISOString()
+   },{onConflict:'user_id'});
+   if(!error)profiles.delete(user.id);
   }
-
-  await loadFeed();
-  await loadStories();
+ }
+ await loadFeed();
+ await loadStories();
 }
 
 async function init(){
-  let{data}=await db.auth.getSession();
-
-  user=data.session?.user||null;
-
-  await initUser();
-
-  db.auth.onAuthStateChange((_e,s)=>{
-    user=s?.user||null;
-    initUser();
-  });
+ const{data}=await db.auth.getSession();
+ user=data.session?.user||null;
+ await initUser();
+ db.auth.onAuthStateChange((_e,s)=>{
+  user=s?.user||null;
+  initUser();
+ });
 }
 
 init();
-
 })();
 </script>
 </body>
